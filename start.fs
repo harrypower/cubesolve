@@ -1,0 +1,202 @@
+
+struct
+    cell% field x
+    cell% field y
+    cell% field z
+end-struct loc%
+
+struct
+    loc% field a
+    loc% field b
+    loc% field c
+    loc% field d
+    loc% field e
+end-struct blc%
+
+create pattern-list
+pattern-list blc% %size 24 * dup allot erase  \ this makes an array of 24 of the blc% starting at pattern-list address
+\ note when using this array bounds are not checked at all!
+
+: pl-index! ( nvalue pattern-list-addr nindex -- )
+    blc% %size * + ! ;
+
+: pl-index@ ( pattern-list-addr nindex -- nvalue )
+    blc% %size * + @ ;
+
+: xyz! { nx ny nz npattern-list-addr nindex -- } \ store xyz into pattern-list at index nindex
+    nx npattern-list-addr x nindex pl-index!
+    ny npattern-list-addr y nindex pl-index!
+    nz npattern-list-addr z nindex pl-index! ;
+
+: xyz@ { npattern-list-addr nindex -- x y z } \ retreave xyz from pattern-list at index nindex
+    npattern-list-addr x nindex pl-index@
+    npattern-list-addr y nindex pl-index@
+    npattern-list-addr z nindex pl-index@ ;
+    
+\ pattern-list a 0 xyz@ . . .  (  this will display the xyz values in pattern a 0 )
+\ pattern-list a x blc% %size 1 * + @ .  ( this will display the x value for pattern a 1 )
+\ 3 pattern-list a x 5 pl-index!  ( this will store value 3 into pattern-list a x index 5 )
+\ pattern-list a x 5 pl-index@  ( this will retreave the value at pattern-list a x index 5 )
+
+0 0 0 pattern-list a 0 xyz!
+0 1 0 pattern-list b 0 xyz!
+0 2 0 pattern-list c 0 xyz!
+1 2 0 pattern-list d 0 xyz!
+1 3 0 pattern-list e 0 xyz!
+
+0 0 0 pattern-list a 1 xyz!
+0 1 0 pattern-list b 1 xyz!
+0 2 0 pattern-list c 1 xyz!
+0 2 1 pattern-list d 1 xyz!
+0 3 1 pattern-list e 1 xyz!
+
+0 0 0 pattern-list a 2 xyz!
+0 1 0 pattern-list b 2 xyz!
+0 2 0 pattern-list c 2 xyz!
+-1 2 0 pattern-list d 2 xyz!
+-1 3 0 pattern-list e 2 xyz!
+
+0 0 0 pattern-list a 3 xyz!
+0 1 0 pattern-list b 3 xyz!
+0 2 0 pattern-list c 3 xyz!
+0 2 -1 pattern-list d 3 xyz!
+0 3 -1 pattern-list e 3 xyz!
+
+struct
+    cell% field piece#
+    cell% field piece-rot#
+end-struct board%
+
+create thepuzzle
+thepuzzle board% %size  5 * 5 * 5 * dup allot erase \ this makes the working board to solve puzzle
+\ remember thepuzzle is only a 5 x 5 x 5 dimentioned board% structure
+
+: xyz-puzzle-index@ ( nthepuzzle-addr nx ny nz -- nvalue )
+    \ retreieve thepuzzle structure with nx ny nz coordinates
+    25 * swap
+    5 * + + 
+    board% %size * + @ ;
+
+: xyz-puzzle-index! ( nvalue nthepuzzle-addr nx ny nz -- ) 
+    \ store thepuzzle nvalue at nthepuzzle-addr nx ny nz location
+    25 * swap
+    5 * + +
+    board% %size * + ! ;
+
+: test-d-b ( -- )
+    cr s" X Y Z0 1 2 3 4" type cr s" **************" type
+    5 0 ?DO
+	5 0 ?DO
+	    cr i . j . s" :" type
+	    thepuzzle piece# i j 0 xyz-puzzle-index@ .
+	    thepuzzle piece# i j 1 xyz-puzzle-index@ .
+	    thepuzzle piece# i j 2 xyz-puzzle-index@ .
+	    thepuzzle piece# i j 3 xyz-puzzle-index@ .
+	    thepuzzle piece# i j 4 xyz-puzzle-index@ .
+	LOOP
+	cr s" **************" type
+    LOOP ;
+
+: display-board ( -- ) \ displays current board solution
+    cr s" X Y Z0 1 2 3 4" type cr s" **************" type 
+    5 0 ?DO
+	5 0 ?DO
+	    cr i . j . s" :" type
+	    thepuzzle board% %size i j 5 * 0 25 * + + * + piece# @ .
+	    thepuzzle board% %size i j 5 * 1 25 * + + * + piece# @ .
+	    thepuzzle board% %size i j 5 * 2 25 * + + * + piece# @ .
+	    thepuzzle board% %size i j 5 * 3 25 * + + * + piece# @ .
+	    thepuzzle board% %size i j 5 * 4 25 * + + * + piece# @ .
+	LOOP
+	cr s" **************" type 
+    LOOP ;
+
+: piece-valid? ( nvalue -- nflag ) \ nflag is false if piece is able to be places on board
+    dup 4 > swap 0 < or ;
+
+: place-piece? { npiecerot nxboard nyboard nzboard -- nflag }  \ nflag is false if piece can be placed  
+    pattern-list a x npiecerot pl-index@ nxboard +  piece-valid?
+    pattern-list a y npiecerot pl-index@ nyboard +  piece-valid?
+    pattern-list a z npiecerot pl-index@ nzboard +  piece-valid?
+    or or
+    pattern-list b x npiecerot pl-index@ nxboard +  piece-valid?
+    pattern-list b y npiecerot pl-index@ nyboard +  piece-valid?
+    pattern-list b z npiecerot pl-index@ nzboard +  piece-valid?
+    or or
+    pattern-list c x npiecerot pl-index@ nxboard +  piece-valid?
+    pattern-list c y npiecerot pl-index@ nyboard +  piece-valid?
+    pattern-list c z npiecerot pl-index@ nzboard +  piece-valid?
+    or or
+    pattern-list d x npiecerot pl-index@ nxboard +  piece-valid?
+    pattern-list d y npiecerot pl-index@ nyboard +  piece-valid?
+    pattern-list d z npiecerot pl-index@ nzboard +  piece-valid?
+    or or
+    pattern-list e x npiecerot pl-index@ nxboard +  piece-valid?
+    pattern-list e y npiecerot pl-index@ nyboard +  piece-valid?
+    pattern-list e z npiecerot pl-index@ nzboard +  piece-valid?
+    or or
+    or or or or ;
+
+: piece>board { npiece npiecerot nxboard nyboard nzboard }
+     npiecerot nxboard nyboard nzboard place-piece?    
+     false = if
+	npiece thepuzzle piece# board% %size
+	nxboard pattern-list a x npiecerot pl-index@ + 
+	nyboard pattern-list a y npiecerot pl-index@ + 5 *
+	nzboard pattern-list a z npiecerot pl-index@ + 25 * + + * + !
+	npiece thepuzzle piece# board% %size
+	nxboard pattern-list b x npiecerot pl-index@ + 
+	nyboard pattern-list b y npiecerot pl-index@ + 5 *
+	nzboard pattern-list b z npiecerot pl-index@ + 25 * + + * + !
+	npiece thepuzzle piece# board% %size
+	nxboard pattern-list c x npiecerot pl-index@ +
+	nyboard pattern-list c y npiecerot pl-index@ + 5 *
+	nzboard pattern-list c z npiecerot pl-index@ + 25 * + + * + !
+	npiece thepuzzle piece# board% %size
+	nxboard pattern-list d x npiecerot pl-index@ + 
+	nyboard pattern-list d y npiecerot pl-index@ + 5 *
+	nzboard pattern-list d z npiecerot pl-index@ + 25 * + + * + !
+	npiece thepuzzle piece# board% %size
+	nxboard pattern-list e x npiecerot pl-index@ + 
+	nyboard pattern-list e y npiecerot pl-index@ + 5 *
+	nzboard pattern-list e z npiecerot pl-index@ + 25 * + + * + !
+     then
+;
+
+: test-p>b { npiece npiecerot nxboard nyboard nzboard }
+    npiecerot nxboard nyboard nzboard place-piece?
+    false = if
+	npiece thepuzzle piece# 
+	nxboard pattern-list a x npiecerot pl-index@ +
+	nyboard pattern-list a y npiecerot pl-index@ +
+	nzboard pattern-list a z npiecerot pl-index@ +
+	xyz-puzzle-index!
+	npiece thepuzzle piece# 
+	nxboard pattern-list b x npiecerot pl-index@ +
+	nyboard pattern-list b y npiecerot pl-index@ + 
+	nzboard pattern-list b z npiecerot pl-index@ +
+	xyz-puzzle-index!
+	npiece thepuzzle piece# 
+	nxboard pattern-list c x npiecerot pl-index@ +
+	nyboard pattern-list c y npiecerot pl-index@ + 
+	nzboard pattern-list c z npiecerot pl-index@ +
+	xyz-puzzle-index!
+	npiece thepuzzle piece# 
+	nxboard pattern-list d x npiecerot pl-index@ +
+	nyboard pattern-list d y npiecerot pl-index@ + 
+	nzboard pattern-list d z npiecerot pl-index@ +
+	xyz-puzzle-index!
+	npiece thepuzzle piece# 
+	nxboard pattern-list e x npiecerot pl-index@ +
+	nyboard pattern-list e y npiecerot pl-index@ + 
+	nzboard pattern-list e z npiecerot pl-index@ +
+	xyz-puzzle-index!
+    then
+;
+
+: clear-board ( -- ) \ clear the puzzle board 
+    thepuzzle board% %size 5 * 5 * 5 * erase ;
+
+
+
+
