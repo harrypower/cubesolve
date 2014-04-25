@@ -37,6 +37,7 @@ pattern-list blc% %size 24 * dup allot erase  \ this makes an array of 24 of the
 \ pattern-list a x blc% %size 1 * + @ .  ( this will display the x value for pattern a 1 )
 \ 3 pattern-list a x 5 pl-index!  ( this will store value 3 into pattern-list a x index 5 )
 \ pattern-list a x 5 pl-index@  ( this will retreave the value at pattern-list a x index 5 )
+\
 
 0 0 0 pattern-list a 0 xyz!
 0 1 0 pattern-list b 0 xyz!
