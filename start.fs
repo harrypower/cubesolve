@@ -84,7 +84,7 @@ thepuzzle board% %size  5 * 5 * 5 * dup allot erase \ this makes the working boa
     5 * + +
     board% %size * + ! ;
 
-: test-d-b ( -- )
+: displayboard ( -- )
     cr s" X Y Z0 1 2 3 4" type cr s" **************" type
     5 0 ?DO
 	5 0 ?DO
@@ -96,20 +96,6 @@ thepuzzle board% %size  5 * 5 * 5 * dup allot erase \ this makes the working boa
 	    thepuzzle piece# i j 4 xyz-puzzle-index@ .
 	LOOP
 	cr s" **************" type
-    LOOP ;
-
-: display-board ( -- ) \ displays current board solution
-    cr s" X Y Z0 1 2 3 4" type cr s" **************" type 
-    5 0 ?DO
-	5 0 ?DO
-	    cr i . j . s" :" type
-	    thepuzzle board% %size i j 5 * 0 25 * + + * + piece# @ .
-	    thepuzzle board% %size i j 5 * 1 25 * + + * + piece# @ .
-	    thepuzzle board% %size i j 5 * 2 25 * + + * + piece# @ .
-	    thepuzzle board% %size i j 5 * 3 25 * + + * + piece# @ .
-	    thepuzzle board% %size i j 5 * 4 25 * + + * + piece# @ .
-	LOOP
-	cr s" **************" type 
     LOOP ;
 
 : piece-valid? ( nvalue -- nflag ) \ nflag is false if piece is able to be places on board
@@ -138,33 +124,7 @@ thepuzzle board% %size  5 * 5 * 5 * dup allot erase \ this makes the working boa
     or or
     or or or or ;
 
-: piece>board { npiece npiecerot nxboard nyboard nzboard }
-     npiecerot nxboard nyboard nzboard place-piece?    
-     false = if
-	npiece thepuzzle piece# board% %size
-	nxboard pattern-list a x npiecerot pl-index@ + 
-	nyboard pattern-list a y npiecerot pl-index@ + 5 *
-	nzboard pattern-list a z npiecerot pl-index@ + 25 * + + * + !
-	npiece thepuzzle piece# board% %size
-	nxboard pattern-list b x npiecerot pl-index@ + 
-	nyboard pattern-list b y npiecerot pl-index@ + 5 *
-	nzboard pattern-list b z npiecerot pl-index@ + 25 * + + * + !
-	npiece thepuzzle piece# board% %size
-	nxboard pattern-list c x npiecerot pl-index@ +
-	nyboard pattern-list c y npiecerot pl-index@ + 5 *
-	nzboard pattern-list c z npiecerot pl-index@ + 25 * + + * + !
-	npiece thepuzzle piece# board% %size
-	nxboard pattern-list d x npiecerot pl-index@ + 
-	nyboard pattern-list d y npiecerot pl-index@ + 5 *
-	nzboard pattern-list d z npiecerot pl-index@ + 25 * + + * + !
-	npiece thepuzzle piece# board% %size
-	nxboard pattern-list e x npiecerot pl-index@ + 
-	nyboard pattern-list e y npiecerot pl-index@ + 5 *
-	nzboard pattern-list e z npiecerot pl-index@ + 25 * + + * + !
-     then
-;
-
-: test-p>b { npiece npiecerot nxboard nyboard nzboard }
+: ponboard { npiece npiecerot nxboard nyboard nzboard }
     npiecerot nxboard nyboard nzboard place-piece?
     false = if
 	npiece thepuzzle piece# 
