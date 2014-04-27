@@ -97,32 +97,36 @@ thepuzzle board% %size  5 * 5 * 5 * dup allot erase \ this makes the working boa
 	LOOP
 	cr s" **************" type
     LOOP ;
+: piece-there? { nxboard nyboard nzboard -- nflag } \ nflag is false if no piece is on the board at location
+    thepuzzle piece# nxboard nyboard nzboard xyz-puzzle-index@
+    0 = if false else true then ;
 
 : piece-valid? ( nvalue -- nflag ) \ nflag is false if piece is able to be places on board
     dup 4 > swap 0 < or ;
 
-: place-piece? { npiecerot nxboard nyboard nzboard -- nflag }  \ nflag is false if piece can be placed  
-    pattern-list a x npiecerot pl-index@ nxboard +  piece-valid?
-    pattern-list a y npiecerot pl-index@ nyboard +  piece-valid?
-    pattern-list a z npiecerot pl-index@ nzboard +  piece-valid?
-    or or
-    pattern-list b x npiecerot pl-index@ nxboard +  piece-valid?
-    pattern-list b y npiecerot pl-index@ nyboard +  piece-valid?
-    pattern-list b z npiecerot pl-index@ nzboard +  piece-valid?
-    or or
-    pattern-list c x npiecerot pl-index@ nxboard +  piece-valid?
-    pattern-list c y npiecerot pl-index@ nyboard +  piece-valid?
-    pattern-list c z npiecerot pl-index@ nzboard +  piece-valid?
-    or or
-    pattern-list d x npiecerot pl-index@ nxboard +  piece-valid?
-    pattern-list d y npiecerot pl-index@ nyboard +  piece-valid?
-    pattern-list d z npiecerot pl-index@ nzboard +  piece-valid?
-    or or
-    pattern-list e x npiecerot pl-index@ nxboard +  piece-valid?
-    pattern-list e y npiecerot pl-index@ nyboard +  piece-valid?
-    pattern-list e z npiecerot pl-index@ nzboard +  piece-valid?
-    or or
-    or or or or ;
+: place-piece? ( npiecerot nxboard nyboard nzboard ) \ nflag is false if piece can be placed
+    0
+    { npiecerot nxboard nyboard nzboard tmpflag -- nflag }    
+    pattern-list a x npiecerot pl-index@ nxboard +  dup piece-valid?
+    pattern-list a y npiecerot pl-index@ nyboard +  dup piece-valid? rot or 
+    pattern-list a z npiecerot pl-index@ nzboard +  dup piece-valid? rot or to tmpflag
+    piece-there? tmpflag or to tmpflag 
+    pattern-list b x npiecerot pl-index@ nxboard +  dup piece-valid?
+    pattern-list b y npiecerot pl-index@ nyboard +  dup piece-valid? rot or
+    pattern-list b z npiecerot pl-index@ nzboard +  dup piece-valid? rot or tmpflag or to tmpflag
+    piece-there? tmpflag or to tmpflag
+    pattern-list c x npiecerot pl-index@ nxboard +  dup piece-valid?
+    pattern-list c y npiecerot pl-index@ nyboard +  dup piece-valid? rot or
+    pattern-list c z npiecerot pl-index@ nzboard +  dup piece-valid? rot or tmpflag or to tmpflag
+    piece-there? tmpflag or to tmpflag
+    pattern-list d x npiecerot pl-index@ nxboard +  dup piece-valid?
+    pattern-list d y npiecerot pl-index@ nyboard +  dup piece-valid? rot or 
+    pattern-list d z npiecerot pl-index@ nzboard +  dup piece-valid? rot or tmpflag or to tmpflag
+    piece-there? tmpflag or to tmpflag
+    pattern-list e x npiecerot pl-index@ nxboard +  dup piece-valid?
+    pattern-list e y npiecerot pl-index@ nyboard +  dup piece-valid? rot or
+    pattern-list e z npiecerot pl-index@ nzboard +  dup piece-valid? rot or tmpflag or to tmpflag
+    piece-there? tmpflag or ;
 
 : ponboard { npiece npiecerot nxboard nyboard nzboard }
     npiecerot nxboard nyboard nzboard place-piece?
