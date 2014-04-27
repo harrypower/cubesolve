@@ -111,6 +111,78 @@ pattern-list blc% %size 24 * dup allot erase  \ this makes an array of 24 of the
 2 0 -1 pattern-list d 11 xyz!
 3 0 -1 pattern-list e 11 xyz!
 \ *************************
+0 0 0 pattern-list a 12 xyz!
+0 -1 0 pattern-list b 12 xyz!
+0 -2 0 pattern-list c 12 xyz!
+1 -2 0 pattern-list d 12 xyz!
+1 -3 0 pattern-list e 12 xyz!
+
+0 0 0 pattern-list a 13 xyz!
+0 -1 0 pattern-list b 13 xyz!
+0 -2 0 pattern-list c 13 xyz!
+0 -2 1 pattern-list d 13 xyz!
+0 -3 1 pattern-list e 13 xyz!
+
+0 0 0 pattern-list a 14 xyz!
+0 -1 0 pattern-list b 14 xyz!
+0 -2 0 pattern-list c 14 xyz!
+-1 -2 0 pattern-list d 14 xyz!
+-1 -3 0 pattern-list e 14 xyz!
+
+0 0 0 pattern-list a 15 xyz!
+0 -1 0 pattern-list b 15 xyz!
+0 -2 0 pattern-list c 15 xyz!
+0 -2 -1 pattern-list d 15 xyz!
+0 -3 -1 pattern-list e 15 xyz!
+\ *************************
+0 0 0 pattern-list a 16 xyz!
+0 0 -1 pattern-list b 16 xyz!
+0 0 -2 pattern-list c 16 xyz!
+0 1 -2 pattern-list d 16 xyz!
+0 1 -3 pattern-list e 16 xyz!
+
+0 0 0 pattern-list a 17 xyz!
+0 0 -1 pattern-list b 17 xyz!
+0 0 -2 pattern-list c 17 xyz!
+-1 0 -2 pattern-list d 17 xyz!
+-1 0 -3  pattern-list e 17 xyz!
+
+0 0 0 pattern-list a 18 xyz!
+0 0 -1 pattern-list b 18 xyz!
+0 0 -2 pattern-list c 18 xyz!
+0 -1 -2 pattern-list d 18 xyz!
+0 -1 -3 pattern-list e 18 xyz!
+
+0 0 0 pattern-list a 19 xyz!
+0 0 -1 pattern-list b 19 xyz!
+0 0 -2 pattern-list c 19 xyz!
+1 0 -2 pattern-list d 19 xyz!
+1 0 -3 pattern-list e 19 xyz!
+\ *************************
+0 0 0 pattern-list a 20 xyz!
+-1 0 0  pattern-list b 20 xyz!
+-2 0 0 pattern-list c 20 xyz!
+-2 -1 0 pattern-list d 20 xyz!
+-3 -1 0 pattern-list e 20 xyz!
+
+0 0 0 pattern-list a 21 xyz!
+-1 0 0 pattern-list b 21 xyz!
+-2 0 0 pattern-list c 21 xyz!
+-2 0 1 pattern-list d 21 xyz!
+-3 0 1  pattern-list e 21 xyz!
+
+0 0 0 pattern-list a 22 xyz!
+-1 0 0 pattern-list b 22 xyz!
+-2 0 0 pattern-list c 22 xyz!
+-2 1 0 pattern-list d 22 xyz!
+-3 1 0 pattern-list e 22 xyz!
+
+0 0 0 pattern-list a 23 xyz!
+-1 0 0 pattern-list b 23 xyz!
+-2 0 0 pattern-list c 23 xyz!
+-2 0 -1 pattern-list d 23 xyz!
+-3 0 -1 pattern-list e 23 xyz!
+\ *************************
 
 
 struct
