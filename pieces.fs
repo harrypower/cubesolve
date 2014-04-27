@@ -62,6 +62,56 @@ pattern-list blc% %size 24 * dup allot erase  \ this makes an array of 24 of the
 0 2 0 pattern-list c 3 xyz!
 0 2 -1 pattern-list d 3 xyz!
 0 3 -1 pattern-list e 3 xyz!
+\ *************************
+0 0 0 pattern-list a 4 xyz!
+0 0 1 pattern-list b 4 xyz!
+0 0 2 pattern-list c 4 xyz!
+0 1 2 pattern-list d 4 xyz!
+0 1 3 pattern-list e 4 xyz!
+
+0 0 0 pattern-list a 5 xyz!
+0 0 1 pattern-list b 5 xyz!
+0 0 2 pattern-list c 5 xyz!
+-1 0 2 pattern-list d 5 xyz!
+-1 0 3  pattern-list e 5 xyz!
+
+0 0 0 pattern-list a 6 xyz!
+0 0 1 pattern-list b 6 xyz!
+0 0 2 pattern-list c 6 xyz!
+0 -1 2 pattern-list d 6 xyz!
+0 -1 3 pattern-list e 6 xyz!
+
+0 0 0 pattern-list a 7 xyz!
+0 0 1 pattern-list b 7 xyz!
+0 0 2 pattern-list c 7 xyz!
+1 0 2 pattern-list d 7 xyz!
+1 0 3 pattern-list e 7 xyz!
+\ *************************
+0 0 0 pattern-list a 8 xyz!
+1 0 0  pattern-list b 8 xyz!
+2 0 0 pattern-list c 8 xyz!
+2 -1 0 pattern-list d 8 xyz!
+3 -1 0 pattern-list e 8 xyz!
+
+0 0 0 pattern-list a 9 xyz!
+1 0 0 pattern-list b 9 xyz!
+2 0 0 pattern-list c 9 xyz!
+2 0 1 pattern-list d 9 xyz!
+3 0 1  pattern-list e 9 xyz!
+
+0 0 0 pattern-list a 10 xyz!
+1 0 0 pattern-list b 10 xyz!
+2 0 0 pattern-list c 10 xyz!
+2 1 0 pattern-list d 10 xyz!
+3 1 0 pattern-list e 10 xyz!
+
+0 0 0 pattern-list a 11 xyz!
+1 0 0 pattern-list b 11 xyz!
+2 0 0 pattern-list c 11 xyz!
+2 0 -1 pattern-list d 11 xyz!
+3 0 -1 pattern-list e 11 xyz!
+\ *************************
+
 
 struct
     cell% field piece#
