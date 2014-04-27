@@ -129,35 +129,37 @@ thepuzzle board% %size  5 * 5 * 5 * dup allot erase \ this makes the working boa
     piece-there? tmpflag or ;
 
 : ponboard { npiece npiecerot nxboard nyboard nzboard }
+    npiece thepuzzle piece# 
+    nxboard pattern-list a x npiecerot pl-index@ +
+    nyboard pattern-list a y npiecerot pl-index@ +
+    nzboard pattern-list a z npiecerot pl-index@ +
+    xyz-puzzle-index!
+    npiece thepuzzle piece# 
+    nxboard pattern-list b x npiecerot pl-index@ +
+    nyboard pattern-list b y npiecerot pl-index@ + 
+    nzboard pattern-list b z npiecerot pl-index@ +
+    xyz-puzzle-index!
+    npiece thepuzzle piece# 
+    nxboard pattern-list c x npiecerot pl-index@ +
+    nyboard pattern-list c y npiecerot pl-index@ + 
+    nzboard pattern-list c z npiecerot pl-index@ +
+    xyz-puzzle-index!
+    npiece thepuzzle piece# 
+    nxboard pattern-list d x npiecerot pl-index@ +
+    nyboard pattern-list d y npiecerot pl-index@ + 
+    nzboard pattern-list d z npiecerot pl-index@ +
+    xyz-puzzle-index!
+    npiece thepuzzle piece# 
+    nxboard pattern-list e x npiecerot pl-index@ +
+    nyboard pattern-list e y npiecerot pl-index@ + 
+    nzboard pattern-list e z npiecerot pl-index@ +
+    xyz-puzzle-index! ;
+
+: place-pieceonboard { npiece npiecerot nxboard nyboard nzboard }
     npiecerot nxboard nyboard nzboard place-piece?
     false = if
-	npiece thepuzzle piece# 
-	nxboard pattern-list a x npiecerot pl-index@ +
-	nyboard pattern-list a y npiecerot pl-index@ +
-	nzboard pattern-list a z npiecerot pl-index@ +
-	xyz-puzzle-index!
-	npiece thepuzzle piece# 
-	nxboard pattern-list b x npiecerot pl-index@ +
-	nyboard pattern-list b y npiecerot pl-index@ + 
-	nzboard pattern-list b z npiecerot pl-index@ +
-	xyz-puzzle-index!
-	npiece thepuzzle piece# 
-	nxboard pattern-list c x npiecerot pl-index@ +
-	nyboard pattern-list c y npiecerot pl-index@ + 
-	nzboard pattern-list c z npiecerot pl-index@ +
-	xyz-puzzle-index!
-	npiece thepuzzle piece# 
-	nxboard pattern-list d x npiecerot pl-index@ +
-	nyboard pattern-list d y npiecerot pl-index@ + 
-	nzboard pattern-list d z npiecerot pl-index@ +
-	xyz-puzzle-index!
-	npiece thepuzzle piece# 
-	nxboard pattern-list e x npiecerot pl-index@ +
-	nyboard pattern-list e y npiecerot pl-index@ + 
-	nzboard pattern-list e z npiecerot pl-index@ +
-	xyz-puzzle-index!
-    then
-;
+	npiece npiecerot nxboard nyboard nzboard ponboard
+    then ;
 
 : clear-board ( -- ) \ clear the puzzle board 
     thepuzzle board% %size 5 * 5 * 5 * erase ;
