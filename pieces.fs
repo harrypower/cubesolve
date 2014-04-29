@@ -1,3 +1,4 @@
+24 constant rotations
 
 struct
     cell% field x
@@ -14,7 +15,7 @@ struct
 end-struct blc%
 
 create pattern-list
-pattern-list blc% %size 24 * dup allot erase  \ this makes an array of 24 of the blc% starting at pattern-list address
+pattern-list blc% %size rotations * dup allot erase  \ this makes an array of 24 of the blc% starting at pattern-list address
 \ note when using this array bounds are not checked at all!
 
 : pl-index! ( nvalue pattern-list-addr nindex -- )
@@ -184,6 +185,9 @@ pattern-list blc% %size 24 * dup allot erase  \ this makes an array of 24 of the
 -3 0 -1 pattern-list e 23 xyz!
 \ *************************
 
+5 constant x-count
+5 constant y-count
+5 constant z-count
 
 struct
     cell% field piece#
@@ -191,25 +195,25 @@ struct
 end-struct board%
 
 create thepuzzle
-thepuzzle board% %size  5 * 5 * 5 * dup allot erase \ this makes the working board to solve puzzle
+thepuzzle board% %size  x-count * y-count * z-count * dup allot erase \ this makes the working board to solve puzzle
 \ remember thepuzzle is only a 5 x 5 x 5 dimentioned board% structure
 
 : xyz-puzzle-index@ ( nthepuzzle-addr nx ny nz -- nvalue )
     \ retreieve thepuzzle structure with nx ny nz coordinates
-    25 * swap
-    5 * + + 
+    z-count y-count * * swap
+    y-count * + + 
     board% %size * + @ ;
 
 : xyz-puzzle-index! ( nvalue nthepuzzle-addr nx ny nz -- ) 
     \ store thepuzzle nvalue at nthepuzzle-addr nx ny nz location
-    25 * swap
-    5 * + +
+    z-count y-count * * swap
+    y-count * + +
     board% %size * + ! ;
 
 : displayboard ( -- )
     cr s" X Y Z0 1 2 3 4" type cr s" **************" type
-    5 0 ?DO
-	5 0 ?DO
+    x-count 0 ?DO
+	y-count 0 ?DO
 	    cr i . j . s" :" type
 	    thepuzzle piece# i j 0 xyz-puzzle-index@ .
 	    thepuzzle piece# i j 1 xyz-puzzle-index@ .
@@ -284,7 +288,7 @@ thepuzzle board% %size  5 * 5 * 5 * dup allot erase \ this makes the working boa
     then ;
 
 : clear-board ( -- ) \ clear the puzzle board 
-    thepuzzle board% %size 5 * 5 * 5 * erase ;
+    thepuzzle board% %size x-count * y-count * z-count * erase ;
 
 
 
