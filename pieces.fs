@@ -230,9 +230,9 @@ thepuzzle board% %size  x-count * y-count * z-count * dup allot erase \ this mak
 : piece-valid? ( nvalue -- nflag ) \ nflag is false if piece is able to be places on board
     dup 4 > swap 0 < or ;
 
-: place-piece? ( npiecerot nxboard nyboard nzboard ) \ nflag is false if piece can be placed
+: place-piece? ( npiecerot nxboard nyboard nzboard -- nflag ) \ nflag is false if piece can be placed
     0
-    { npiecerot nxboard nyboard nzboard tmpflag -- nflag }    
+    { npiecerot nxboard nyboard nzboard tmpflag }    
     pattern-list a x npiecerot pl-index@ nxboard +  dup piece-valid?
     pattern-list a y npiecerot pl-index@ nyboard +  dup piece-valid? rot or 
     pattern-list a z npiecerot pl-index@ nzboard +  dup piece-valid? rot or to tmpflag
@@ -254,7 +254,7 @@ thepuzzle board% %size  x-count * y-count * z-count * dup allot erase \ this mak
     pattern-list e z npiecerot pl-index@ nzboard +  dup piece-valid? rot or tmpflag or to tmpflag
     piece-there? tmpflag or ;
 
-: ponboard { npiece npiecerot nxboard nyboard nzboard }
+: ponboard { npiece npiecerot nxboard nyboard nzboard -- }
     npiece thepuzzle piece# 
     nxboard pattern-list a x npiecerot pl-index@ +
     nyboard pattern-list a y npiecerot pl-index@ +
@@ -281,7 +281,7 @@ thepuzzle board% %size  x-count * y-count * z-count * dup allot erase \ this mak
     nzboard pattern-list e z npiecerot pl-index@ +
     xyz-puzzle-index! ;
 
-: place-pieceonboard { npiece npiecerot nxboard nyboard nzboard }
+: place-pieceonboard { npiece npiecerot nxboard nyboard nzboard -- }
     npiecerot nxboard nyboard nzboard place-piece?
     false = if
 	npiece npiecerot nxboard nyboard nzboard ponboard
@@ -291,5 +291,49 @@ thepuzzle board% %size  x-count * y-count * z-count * dup allot erase \ this mak
     thepuzzle board% %size x-count * y-count * z-count * erase ;
 
 
+x-count y-count * z-count * rotations * constant total-possibilitys
+variable total-solutions 0 total-solutions !
+
+loc%
+    cell% field rot#
+end-struct solution-list%
+
+create thesolutions
+thesolutions solution-list% %size total-possibilitys * dup allot erase
 
 
+: solutions! ( nx ny nz nrot nindex -- )
+    solution-list% %size * thesolutions + dup
+    rot# rot swap ! dup
+    z rot swap ! dup
+    y rot swap !
+    x ! ;
+
+: solutions@ ( nindex -- nx ny nz nrot )
+    solution-list% %size * thesolutions + dup
+    x @ swap dup
+    y @ swap dup
+    z @ swap 
+    rot# @ ;
+
+: do-inner-solutions { nindex nx ny nz -- nindex1 }
+    
+    rotations 0
+    ?DO
+	i nx ny nz place-piece? false =
+	if 
+	    nx ny nz i nindex solutions!
+	    nindex 1 + to nindex
+	then
+    LOOP
+    nindex ;
+
+: make-solutions-list ( -- ) \ populate thesolutions list
+    clear-board 0 
+    x-count 0 ?DO
+	y-count 0 ?DO
+	    z-count 0 ?DO
+		k j i do-inner-solutions
+	    LOOP
+	LOOP
+    LOOP total-solutions ! ;
