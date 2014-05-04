@@ -254,7 +254,7 @@ thepuzzle board% %size  x-count * y-count * z-count * dup allot erase \ this mak
     pattern-list e z npiecerot pl-index@ nzboard +  dup piece-valid? rot or tmpflag or to tmpflag
     piece-there? tmpflag or ;
 
-: ponboard { npiece npiecerot nxboard nyboard nzboard -- }
+: ponboard { npiece npiecerot nxboard nyboard nzboard -- }  \ will place the piece on board but will not validate
     npiece thepuzzle piece# 
     nxboard pattern-list a x npiecerot pl-index@ +
     nyboard pattern-list a y npiecerot pl-index@ +
@@ -281,7 +281,7 @@ thepuzzle board% %size  x-count * y-count * z-count * dup allot erase \ this mak
     nzboard pattern-list e z npiecerot pl-index@ +
     xyz-puzzle-index! ;
 
-: place-pieceonboard { npiece npiecerot nxboard nyboard nzboard -- }
+: place-pieceonboard { npiece npiecerot nxboard nyboard nzboard -- } \ validates and places piece on board if no issues are found
     npiecerot nxboard nyboard nzboard place-piece?
     false = if
 	npiece npiecerot nxboard nyboard nzboard ponboard

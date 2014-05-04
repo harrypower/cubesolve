@@ -14,14 +14,15 @@ create thesolutions
 thesolutions solution-list% %size total-possibilitys * dup allot erase
 
 
-: solutions! ( nx ny nz nrot nindex -- )
+: solutions! ( nx ny nz nrot nindex -- ) \ store rotational possible placement in solution-list%
     solution-list% %size * thesolutions + dup
     rot# rot swap ! dup
     z rot swap ! dup
     y rot swap !
     x ! ;
 
-: solutions@ ( nindex -- nx ny nz nrot )
+: solutions@ ( nindex -- nx ny nz nrot ) \ retreave rotational possible placemet in the solution-list% at nindex location
+    \ note the list will retreave empty entry in the list as 0 rotation value
     solution-list% %size * thesolutions + dup
     x @ swap dup
     y @ swap dup
@@ -48,7 +49,7 @@ thesolutions solution-list% %size total-possibilitys * dup allot erase
 		k j i do-inner-solutions
 	    LOOP
 	LOOP
-    LOOP total-solutions ! ;
+    LOOP total-solutions ! ;  \ note only here is the variable total-solutions correctly populated
 
 \ ************
 \ These next words are about solving one path of the puzzle to see how it could be done
