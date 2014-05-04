@@ -10,7 +10,7 @@ loc%
     cell% field rot#
 end-struct solution-list%
 
-create thesolutions
+create thesolutions   \ a table of possible rotational solutions that can be used on the board
 thesolutions solution-list% %size total-possibilitys * dup allot erase
 
 
@@ -54,3 +54,45 @@ thesolutions solution-list% %size total-possibilitys * dup allot erase
 \ ************
 \ These next words are about solving one path of the puzzle to see how it could be done
 \ ************
+
+25 constant total-pieces \ this is the amount of pieces needed to be placed to solve puzzle
+0 value working-piece  \ this will be the piece that is being worked on now
+create thepieces-solution  \ a table for working on the final solutions.  Will contain a list of total-pieces as that is the amount needed to solve this puzzle
+thepieces-solution solution-list% %size total-pieces * dup allot erase
+
+: piece! ( nx ny nz nrot npiece -- ) \ store the piece into thepieces-solution table
+    solution-list% %size * thepieces-solution + dup
+    rot# rot swap ! dup
+    z rot swap ! dup
+    y rot swap !
+    x ! ;
+
+: piece@ ( npiece -- nx ny nz nrot ) \ retreave the piece at nindex ( note nindex can not exceed total-pieces - 1 )
+    solution-list% %size * thepieces-solution + dup
+    x @ swap dup
+    y @ swap dup
+    z @ swap
+    rot# @ ;
+
+: do-inner-piece-rotation-placement
+
+;
+
+: do-inner-piece-placement { nx ny nz -- }
+    nx ny nz piece-there? false =
+    if
+	
+    then
+;
+
+: find-first-solution ( -- )
+    clear-board 
+    x-count 0 ?DO
+	y-count 0 ?DO
+	    z-count 0 ?DO
+		k j i do-inner-piece-placement
+	    LOOP
+	LOOP
+    LOOP
+;
+
