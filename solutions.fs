@@ -74,14 +74,18 @@ thepieces-solution solution-list% %size total-pieces * dup allot erase
     z @ swap
     rot# @ ;
 
-: do-inner-piece-rotation-placement
-
-;
-
-: do-inner-piece-placement { nx ny nz -- }
-    nx ny nz piece-there? false =
+: do-rotation-placement { nx ny nz -- }
+    working-piece total-pieces <  
     if
-	
+	rotations 0 ?DO
+	    i nx ny nz place-piece? false =
+	    if
+		working-piece 1 + i nx ny nz ponboard
+		nx ny nz i working-piece piece!
+		working-piece 1 + to working-piece
+		LEAVE
+	    then
+	LOOP
     then
 ;
 
@@ -90,7 +94,10 @@ thepieces-solution solution-list% %size total-pieces * dup allot erase
     x-count 0 ?DO
 	y-count 0 ?DO
 	    z-count 0 ?DO
-		k j i do-inner-piece-placement
+		k j i piece-there? false =
+		if
+		    k j i do-rotation-placement
+		then
 	    LOOP
 	LOOP
     LOOP
