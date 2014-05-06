@@ -59,6 +59,8 @@ thesolutions solution-list% %size total-possibilitys * dup allot erase
 0 value working-piece  \ this will be the piece that is being worked on now
 create thepieces-solution  \ a table for working on the final solutions.  Will contain a list of total-pieces as that is the amount needed to solve this puzzle
 thepieces-solution solution-list% %size total-pieces * dup allot erase
+create thelast-solution \ the last rotation solution found
+thelast-solution solution-list% %size dup allot erase
 
 : piece! ( nx ny nz nrot npiece -- ) \ store the piece into thepieces-solution table
     solution-list% %size * thepieces-solution + dup
@@ -74,6 +76,18 @@ thepieces-solution solution-list% %size total-pieces * dup allot erase
     z @ swap
     rot# @ ;
 
+: thelast-solution! ( nx ny nz nrot -- )
+    thelast-solution rot# !
+    thelast-solution z !
+    thelast-solution y !
+    thelast-solution x ! ;
+
+: thelast-solution@ ( -- nx ny nz nrot )
+    thelast-solution x @
+    thelast-solution y @
+    thelast-solution z @
+    thelast-solution rot# @ ;
+
 : do-rotation-placement { nx ny nz -- }
     working-piece total-pieces <  
     if
@@ -83,6 +97,7 @@ thepieces-solution solution-list% %size total-pieces * dup allot erase
 		working-piece 1 + i nx ny nz ponboard
 		nx ny nz i working-piece piece!
 		working-piece 1 + to working-piece
+		nx ny nz i thelast-solution!
 		LEAVE
 	    then
 	LOOP
