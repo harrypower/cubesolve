@@ -59,34 +59,39 @@ thesolutions solution-list% %size total-possibilitys * dup allot erase
 0 value working-piece  \ this will be the piece that is being worked on now
 create thepieces-solution  \ a table for working on the final solutions.  Will contain a list of total-pieces as that is the amount needed to solve this puzzle
 thepieces-solution solution-list% %size total-pieces * dup allot erase
+solution-list%
+    cell% field thepiece#
+end-struct working-solution-list% 
 create thelast-solution \ the last rotation solution found
-thelast-solution solution-list% %size dup allot erase
+thelast-solution working-solution-list% %size dup allot erase
 
-: piece! ( nx ny nz nrot npiece -- ) \ store the piece into thepieces-solution table
+: thepieces-solution! ( nx ny nz nrot npiece -- ) \ store the piece into thepieces-solution table
     solution-list% %size * thepieces-solution + dup
     rot# rot swap ! dup
     z rot swap ! dup
     y rot swap !
     x ! ;
 
-: piece@ ( npiece -- nx ny nz nrot ) \ retreave the piece at nindex ( note nindex can not exceed total-pieces - 1 )
+: thepieces-solution@ ( npiece -- nx ny nz nrot ) \ retreave the piece at nindex ( note nindex can not exceed total-pieces - 1 )
     solution-list% %size * thepieces-solution + dup
     x @ swap dup
     y @ swap dup
     z @ swap
     rot# @ ;
 
-: thelast-solution! ( nx ny nz nrot -- )
+: thelast-solution! ( nx ny nz nrot thepiece# -- )
+    thelast-solution thepiece# !
     thelast-solution rot# !
     thelast-solution z !
     thelast-solution y !
     thelast-solution x ! ;
 
-: thelast-solution@ ( -- nx ny nz nrot )
+: thelast-solution@ ( -- nx ny nz nrot thepiece# )
     thelast-solution x @
     thelast-solution y @
     thelast-solution z @
-    thelast-solution rot# @ ;
+    thelast-solution rot# @
+    thelast-solution thepiece# @ ;
 
 : do-rotation-placement { nx ny nz -- }
     working-piece total-pieces <  
@@ -95,9 +100,9 @@ thelast-solution solution-list% %size dup allot erase
 	    i nx ny nz place-piece? false =
 	    if
 		working-piece 1 + i nx ny nz ponboard
-		nx ny nz i working-piece piece!
+		nx ny nz i working-piece thepieces-solution!
+		nx ny nz i working-piece thelast-solution!
 		working-piece 1 + to working-piece
-		nx ny nz i thelast-solution!
 		LEAVE
 	    then
 	LOOP
@@ -117,4 +122,40 @@ thelast-solution solution-list% %size dup allot erase
 	LOOP
     LOOP
 ;
+
+: repopulate-board ( -- )
+    clear-board
+    thelast-solution thepiece# @ 0 ?DO
+	i 1 + i thepieces-solution@ swap 2swap rot ponboard 
+    LOOP ;
+
+: fill-holes ( -- )
+    thelast-solution thepiece# @ to working-piece
+    \ need to iterate through the display for holes and try to solve them 
+
+;
+
+: isit-solved? ( -- nflag ) \ nflag is true when puzzle is solved
+    thelast-solution thepiece# @ total-pieces 1 - = ;
+
+: backup-one-piece ( -- )
+    thelast-solution thepiece# @ 1 - dup >r
+    thepieces-solution@ r>
+    thelast-solution! ;
+
+: find-many-solutions ( -- )
+    clear-board 0 to working-piece
+    find-first-solution
+    begin
+	repopulate-board
+	fill-holes
+	isit-solved? true =
+	if
+	    true
+	else
+	    backup-one-piece
+	    \ false
+	    true \ just for testing
+	then
+    until ;
 
