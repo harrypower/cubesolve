@@ -110,7 +110,6 @@ thelast-solution working-solution-list% %size dup allot erase
 ;
 
 : find-first-solution ( -- )
-    clear-board 
     x-count 0 ?DO
 	y-count 0 ?DO
 	    z-count 0 ?DO
@@ -132,20 +131,31 @@ thelast-solution working-solution-list% %size dup allot erase
 : fill-holes ( -- )
     thelast-solution thepiece# @ to working-piece
     \ need to iterate through the display for holes and try to solve them 
-
-;
+    x-count 0 ?DO
+	y-count 0 ?DO
+	    z-count 0 ?DO
+		k j i piece-there? false =
+		if
+		    k j i do-rotation-placement
+		then
+	    LOOP
+	LOOP
+    LOOP ;
 
 : isit-solved? ( -- nflag ) \ nflag is true when puzzle is solved
     thelast-solution thepiece# @ total-pieces 1 - = ;
 
+0 value piecestuckon
+
 : backup-one-piece ( -- )
-    thelast-solution thepiece# @ 1 - dup >r
-    thepieces-solution@ r>
-    thelast-solution! ;
+    piecestuckon 1 - dup to piecestuckon 
+    thepieces-solution@
+    piecestuckon thelast-solution! ;
 
 : find-many-solutions ( -- )
     clear-board 0 to working-piece
     find-first-solution
+    working-piece 1 - to piecestuckon
     begin
 	repopulate-board
 	fill-holes
@@ -154,8 +164,37 @@ thelast-solution working-solution-list% %size dup allot erase
 	    true
 	else
 	    backup-one-piece
-	    \ false
-	    true \ just for testing
+	    piecestuckon -1 =
+	    if
+		true
+	    else
+		false
+	    then
 	then
+	piecestuckon . cr
     until ;
+
+: place-x-solution ( nindex -- )
+    dup 1 swap 
+    solutions@ swap 2swap rot ponboard
+    solutions@ 1 thelast-solution! ;
+
+0 value mostsolutions
+
+: find-many-solutions2 ( -- )
+    make-solutions-list
+    total-solutions @ 0 ?DO
+	clear-board
+	i place-x-solution 
+	1 to working-piece
+	find-first-solution
+	working-piece total-pieces =
+	if
+	    leave
+	else
+	    mostsolutions working-piece <
+	    if working-piece dup to mostsolutions . i . cr
+	    then
+	then
+    LOOP ;
 
