@@ -129,31 +129,18 @@ false value skiptestflag
 	    y @ ny = swap dup
 	    z @ nz = swap dup
 	    rot# @ nrot = swap 
-	    thepiece# @ npiece# =
+	    thepiece# @ npiece# = drop true
 	    and and and and
 	    true = if true to skiptestflag LEAVE then 
 	LOOP
     then
     skiptestflag ;
 
-: skiptest ( nx ny nz nrot -- nflag ) \ nflag is true only if the skip should be performed
-    thelast-solution thepiece# @ total-pieces = 
-    if
-	2drop 2drop false
-    else
-	thelast-solution rot# @ = swap
-	thelast-solution z @ = and swap
-	thelast-solution y @ = and swap
-	thelast-solution x @ = and
-	working-piece thelast-solution thepiece# @ = and 
-    then ;
-
 : do-rotation-placement { nx ny nz -- }
     working-piece total-pieces <  
     if
 	rotations 0 ?DO
 	    i nx ny nz place-piece? \ false =
-	    \ nx ny nz i skiptest or false = 
 	    nx ny nz i working-piece skiplisttest or false =
 	    if
 		working-piece 1 + i nx ny nz ponboard
@@ -172,6 +159,7 @@ false value skiptestflag
 		k j i piece-there? false =
 		if
 		    k j i do-rotation-placement
+		    \ ." skip" skiplistindex . cr
 		then
 	    LOOP
 	LOOP
@@ -183,34 +171,38 @@ false value skiptestflag
 	i 1 + i thepieces-solution@ swap 2swap rot ponboard 
     LOOP ;
 
-: find-many-solutions ( -- )
+0 value lastfailed-solution
+: find-many-solutions { nstart -- }
     clear-board
-    0 to working-piece
+    1 to working-piece
     skiplistclear
-    total-pieces thelast-solution thepiece# ! \ to ensure skip test is not done for first solution finding
+    1 nstart 0 0 0 place-pieceonboard
     fill-holes 
     working-piece 1 - thepieces-solution@ working-piece 1 - thelast-solution!
-    thelast-solution@ skiplist! 
+    thelast-solution@ skiplist!
+    working-piece 1 - to lastfailed-solution
     begin
 	repopulate-board
-	working-piece 1 - to working-piece
+	lastfailed-solution to working-piece
 	skiplistclear
 	fill-holes
-	working-piece total-pieces >= 
+	working-piece total-pieces 1 - >= 
 	if
 	    true
 	else
 	    \ skiplistclear
 	    working-piece 1 - thepieces-solution@ working-piece 1 - thelast-solution! 
-	    thelast-solution@ skiplist!
+	    \ thelast-solution@ skiplist!
+	    lastfailed-solution 1 - to lastfailed-solution
+	    lastfailed-solution 1 < if 1 to lastfailed-solution then
 	    false
 	then
-	working-piece . thelast-solution@ . . . . . skiplistindex . cr 
+	working-piece . thelast-solution@ . . . . . lastfailed-solution . cr 
 	theskip-list x @ .
 	theskip-list y @ .
 	theskip-list z @ .
 	theskip-list rot# @ .
-	theskip-list thepiece# @ . cr 500 ms
+	theskip-list thepiece# @ . cr cr \ 500 ms
     until
 ;
 
