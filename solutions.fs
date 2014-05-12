@@ -188,22 +188,21 @@ false value skiptestflag
 	fill-holes
 	working-piece total-pieces 1 - >= 
 	if
-	    true
+	    true ." winner " nstart . cr
 	else
 	    \ skiplistclear
 	    working-piece 1 - thepieces-solution@ working-piece 1 - thelast-solution! 
 	    \ thelast-solution@ skiplist!
 	    lastfailed-solution 1 - to lastfailed-solution
-	    lastfailed-solution 1 < if 1 to lastfailed-solution then
-	    false
+	    lastfailed-solution 0 < if true else false then
 	then
 	working-piece . thelast-solution@ . . . . . lastfailed-solution . cr 
-	theskip-list x @ .
-	theskip-list y @ .
-	theskip-list z @ .
-	theskip-list rot# @ .
-	theskip-list thepiece# @ . cr cr \ 500 ms
-    until
+	\ theskip-list x @ .
+	\ theskip-list y @ .
+	\ theskip-list z @ .
+	\ theskip-list rot# @ .
+	\ theskip-list thepiece# @ . cr cr \ 500 ms
+    until 
 ;
 
 \ ****************************
