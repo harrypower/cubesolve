@@ -69,6 +69,8 @@ solution-list%
 end-struct working-solution-list% 
 create thelast-solution \ the last rotation solution found
 thelast-solution working-solution-list% %size dup allot erase
+create theskip-list
+theskip-list working-solution-list% %size total-pieces * dup allot erase
 
 : thepieces-solution! ( nx ny nz nrot npiece -- ) \ store the piece into thepieces-solution table
     solution-list% %size * thepieces-solution + dup
@@ -77,7 +79,7 @@ thelast-solution working-solution-list% %size dup allot erase
     y rot swap !
     x ! ;
 
-: thepieces-solution@ ( npiece -- nx ny nz nrot ) \ retreave the piece at nindex ( note nindex can not exceed total-pieces - 1 )
+: thepieces-solution@ ( npiece -- nx ny nz nrot ) \ retreave the piece at npiece ( note npiece can not exceed total-pieces - 1 )
     solution-list% %size * thepieces-solution + dup
     x @ swap dup
     y @ swap dup
@@ -98,6 +100,42 @@ thelast-solution working-solution-list% %size dup allot erase
     thelast-solution rot# @
     thelast-solution thepiece# @ ;
 
+0 value skiplistindex
+false value skiptestflag
+: skiplist! ( nx ny nz nrot npiece# -- )
+    working-solution-list% %size skiplistindex * theskip-list + dup
+    thepiece# rot swap ! dup
+    rot# rot swap ! dup
+    z rot swap ! dup
+    y rot swap !
+    x !
+    skiplistindex 1 + to skiplistindex
+    skiplistindex total-pieces =
+    if
+	skiplistindex 1 - to skiplistindex
+    then ;
+
+: skiplistclear ( -- )
+    theskip-list working-solution-list% %size total-pieces * erase
+    0 to skiplistindex ;
+
+: skiplisttest { nx ny nz nrot npiece# -- nflag } \ nflag is true only if the skip should be performed
+    false to skiptestflag
+    thelast-solution thepiece# @ total-pieces = false =
+    if
+	skiplistindex 0 ?DO
+	    working-solution-list% %size i * theskip-list + dup
+	    x @ nx = swap dup
+	    y @ ny = swap dup
+	    z @ nz = swap dup
+	    rot# @ nrot = swap 
+	    thepiece# @ npiece# =
+	    and and and and
+	    true = if true to skiptestflag LEAVE then 
+	LOOP
+    then
+    skiptestflag ;
+
 : skiptest ( nx ny nz nrot -- nflag ) \ nflag is true only if the skip should be performed
     thelast-solution thepiece# @ total-pieces = 
     if
@@ -115,10 +153,12 @@ thelast-solution working-solution-list% %size dup allot erase
     if
 	rotations 0 ?DO
 	    i nx ny nz place-piece? \ false =
-	    nx ny nz i skiptest or false = 
+	    \ nx ny nz i skiptest or false = 
+	    nx ny nz i working-piece skiplisttest or false =
 	    if
 		working-piece 1 + i nx ny nz ponboard
 		nx ny nz i working-piece thepieces-solution!
+		nx ny nz i working-piece skiplist!
 		working-piece 1 + to working-piece
 		LEAVE
 	    then
@@ -146,21 +186,31 @@ thelast-solution working-solution-list% %size dup allot erase
 : find-many-solutions ( -- )
     clear-board
     0 to working-piece
+    skiplistclear
     total-pieces thelast-solution thepiece# ! \ to ensure skip test is not done for first solution finding
     fill-holes 
     working-piece 1 - thepieces-solution@ working-piece 1 - thelast-solution!
+    thelast-solution@ skiplist! 
     begin
 	repopulate-board
 	working-piece 1 - to working-piece
+	skiplistclear
 	fill-holes
 	working-piece total-pieces >= 
 	if
 	    true
 	else
+	    \ skiplistclear
 	    working-piece 1 - thepieces-solution@ working-piece 1 - thelast-solution! 
+	    thelast-solution@ skiplist!
 	    false
 	then
-	working-piece . thelast-solution@ . . . . . cr 500 ms
+	working-piece . thelast-solution@ . . . . . skiplistindex . cr 
+	theskip-list x @ .
+	theskip-list y @ .
+	theskip-list z @ .
+	theskip-list rot# @ .
+	theskip-list thepiece# @ . cr 500 ms
     until
 ;
 
