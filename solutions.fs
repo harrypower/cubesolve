@@ -1,5 +1,4 @@
 include pieces.fs
-
 \ *************
 \ these structures and words are an attempt to understand total rotational combinations
 \ *************
