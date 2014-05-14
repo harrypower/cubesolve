@@ -1,19 +1,27 @@
 include pieces.fs
 include ffl/snl.fs
 \ using the forth foundation library generic single linked list code
-
 \ *******************
 \ Will find the total solutions and put them in a list
 \ *******************
-begin-structure ts%  \ this is the solutions structure node
-snn% +field ts>node  \ this is used to index the list of nodes ( it is a generic single linked list node structure )
-    field: ts>x          \ the solutions x value
-    field: ts>y          \ ts y value
-    field: ts>z          \ ts z value
-    field: ts>rot#       \ ts rotation #
+\ This structure is one way to do it!
+\ begin-structure ts%  \ this is the solutions structure node
+\ snn% +field ts>node  \ this is used to index the list of nodes ( it is a generic single linked list node structure )
+\     field: ts>x          \ the solutions x value
+\     field: ts>y          \ ts y value
+\     field: ts>z          \ ts z value
+\     field: ts>rot#       \ ts rotation #
+\ end-structure
+\ This structure is the same as above commented out structure
+begin-structure ts%
+aligned snn% +field ts>node
+aligned cell +field ts>x
+aligned cell +field ts>y
+aligned cell +field ts>z
+aligned cell +field ts>rot#
 end-structure
 
-: ts-new ( nx ny nz nrot# -- ts )  \ this will add a tsnode% structure to the list and returns ts ( also a "snn" ) 
+: ts-new ( nx ny nz nrot# -- ts )  \ this will add a tsnode% structure to the list and returns ts ( also a "snn" )
     ts% allocate throw
     >r
     r@ ts>node snn-init
