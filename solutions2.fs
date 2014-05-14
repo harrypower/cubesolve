@@ -15,10 +15,10 @@ include ffl/snl.fs
 \ This structure is the same as above commented out structure
 begin-structure ts%
 aligned snn% +field ts>node
-aligned cell +field ts>x
-aligned cell +field ts>y
-aligned cell +field ts>z
-aligned cell +field ts>rot#
+aligned 1 cells +field ts>x
+aligned 1 cells +field ts>y
+aligned 1 cells +field ts>z
+aligned 1 cells +field ts>rot#
 end-structure
 
 : ts-new ( nx ny nz nrot# -- ts )  \ this will add a tsnode% structure to the list and returns ts ( also a "snn" )
