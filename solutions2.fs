@@ -59,7 +59,6 @@ snl-create thesolutions-list  \ get room for this linked list on the heap
 \ Next words will try to do a back trace type method by first making a list of one solution and then back step and iterate
 \ ***************************
 25 constant total-pieces \ this is the amount of pieces needed to be placed to solve puzzle
-0 value working-piece  \ this will be the piece that is being worked on now
 
 begin-structure sl%
 aligned snn% +field sl>node
@@ -71,6 +70,7 @@ aligned 1 cells +field sl>thepiece#
 end-structure
 
 snl-create a-solution-list
+snl-create skip-list
 
 : sl-new ( nx ny nz nrot npiece -- sl ) \ will add a sl% structure to the list and returns sl ( a "snn" )
     sl% allocate throw
@@ -83,15 +83,25 @@ snl-create a-solution-list
     r@ sl>x !
     r> ;
 
+: solved? ( -- nflag ) \ nflag is true if solution for puzzle is found
+    a-solution-list snl-length@ total-pieces = ;
+
 : do-rotation-placement { nx ny nz -- }
-    working-piece total-pieces <
+    solved? false =
     if
 	rotations 0 ?DO
 	    i nx ny nz place-piece? false =
 	    if
-		working-piece 1 + i nx ny nz ponboard
-		nx ny nz i working-piece 1 + sl-new a-solution-list snl-append
-		working-piece 1 + to working-piece
+		a-solution-list snl-empty? false =
+		if
+		    a-solution-list snl-last@ sl>thepiece# @ 1 + 
+		    i nx ny nz ponboard
+		    nx ny nz i a-solution-list snl-last@ sl>thepiece# @ 1 +
+		else
+		    1 i nx ny nz ponboard
+		    nx ny nz i 1 
+		then
+		sl-new a-solution-list snl-append
 		LEAVE
 	    then
 	LOOP
@@ -108,3 +118,28 @@ snl-create a-solution-list
 	    LOOP
 	LOOP
     LOOP ;
+
+: repopulate-board ( -- )
+    clear-board
+    a-solution-list snl-length@ 0 ?DO
+	i a-solution-list snl-get dup
+	sl>thepiece# @ swap dup
+	sl>rot# @ swap dup
+	sl>x @ swap dup
+	sl>y @ swap 
+	sl>z @ ponboard
+    LOOP ;
+
+: find-many-solutions ( -- )
+    clear-board
+    fill-holes
+    solved? false =
+    if
+	a-solution-list snl-last@ sl>thepiece# @ 1 - 0 ?DO
+	    backup-list-once
+	    
+	LOOP
+    then
+;
+
+    
