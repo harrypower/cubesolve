@@ -69,8 +69,9 @@ aligned 1 cells +field sl>rot#
 aligned 1 cells +field sl>thepiece#
 end-structure
 
-snl-create a-solution-list
-snl-create skip-list
+snl-create a-solution-list a-solution-list snl-init
+snl-create skip-list skip-list snl-init
+snl-create b-solution-list b-solution-list snl-init
 
 : sl-new ( nx ny nz nrot npiece -- sl ) \ will add a sl% structure to the list and returns sl ( a "snn" )
     sl% allocate throw
@@ -83,11 +84,8 @@ snl-create skip-list
     r@ sl>x !
     r> ;
 
-: solved? ( -- nflag ) \ nflag is true if solution for puzzle is found
-    a-solution-list snl-length@ total-pieces = ;
-
 : do-rotation-placement { nx ny nz -- }
-    solved? false =
+    a-solution-list snl-length@ total-pieces = false =
     if
 	rotations 0 ?DO
 	    i nx ny nz place-piece? false =
@@ -130,16 +128,83 @@ snl-create skip-list
 	sl>z @ ponboard
     LOOP ;
 
+: in-skip-list? ( nx ny nz nrot npiece -- nflag ) \ nflag is true if data is in skip-list
+    drop drop drop drop drop 
+    false
+;
+
+: rerotation-placement { nx ny nz -- }
+    b-solution-list snl-length@ total-pieces = false =
+    if
+	rotations 0 ?DO
+	    i nx ny nz place-piece? 
+	    nx ny nz i b-solution-list snl-last@ sl>thepiece# @ 1 + in-skip-list?
+	    or false = 
+	    if
+		b-solution-list snl-empty? false =
+		if
+		    b-solution-list snl-last@ sl>thepiece# @ 1 +
+		    i nx ny nz ponboard
+		    nx ny nz i b-solution-list snl-last@ sl>thepiece# @ 1 +
+		else
+		    1 i nx ny nz ponboard
+		    nx ny nz i 1
+		then
+		sl-new b-solution-list snl-append
+		LEAVE
+	    then
+	LOOP
+    then ;
+
+: refill-holes ( -- )
+    x-count 0 ?DO
+	y-count 0 ?DO
+	    z-count 0 ?DO
+		k j i piece-there? false =
+		if
+		    k j i rerotation-placement
+		    b-solution-list snl-length@ total-pieces =
+		    if
+			LEAVE \ bail solution found
+		    else
+			b-solution-list snl-length@ 1 - b-solution-list snl-delete
+			skip-list snl-append
+		    then
+		then
+	    LOOP
+	LOOP
+    LOOP ;
+
+: backup-list-once ( -- )
+    \ remove last item from a list and place it in skip list
+    \ clear b list
+    \ copy all nodes in a list to b list
+    a-solution-list snl-length@ 1 - a-solution-list snl-delete
+    skip-list snl-init
+    skip-list snl-append
+    b-solution-list snl-init
+    a-solution-list snl-length@ 0 ?DO
+	i a-solution-list snl-get dup
+	sl>x @ swap dup
+	sl>y @ swap dup
+	sl>z @ swap dup
+	sl>rot# @ swap
+	sl>thepiece# @ sl-new 
+	b-solution-list snl-append
+    LOOP ;
+
 : find-many-solutions ( -- )
     clear-board
     fill-holes
-    solved? false =
+    a-solution-list snl-length@ total-pieces = false =
     if
 	a-solution-list snl-last@ sl>thepiece# @ 1 - 0 ?DO
 	    backup-list-once
-	    
+	    repopulate-board
+	    refill-holes
+	    b-solution-list snl-length@ total-pieces = if LEAVE then
+	    i . cr
 	LOOP
-    then
-;
+    then ;
 
     
