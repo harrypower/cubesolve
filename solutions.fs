@@ -1,151 +1,105 @@
-Include pieces.fs
-\ *************
-\ these structures and words are an attempt to understand total rotational combinations
-\ *************
-x-count y-count * z-count * rotations * constant total-possibilitys
-variable total-solutions 0 total-solutions !
+include pieces.fs
+include ffl/snl.fs
+\ using the forth foundation library generic single linked list code
+\ *******************
+\ Will find the total solutions and put them in a list
+\ *******************
+\ This structure is one way to do it!
+\ begin-structure ts%  \ this is the solutions structure node
+\ snn% +field ts>node  \ this is used to index the list of nodes ( it is a generic single linked list node structure )
+\     field: ts>x          \ the solutions x value
+\     field: ts>y          \ ts y value
+\     field: ts>z          \ ts z value
+\     field: ts>rot#       \ ts rotation #
+\ end-structure
+\ This structure is the same as above commented out structure
+begin-structure ts%
+aligned snn% +field ts>node
+aligned 1 cells +field ts>x
+aligned 1 cells +field ts>y
+aligned 1 cells +field ts>z
+aligned 1 cells +field ts>rot#
+end-structure
 
-loc%
-    cell% field rot#
-end-struct solution-list%
+: ts-new ( nx ny nz nrot# -- ts )  \ this will add a ts% structure to the list and returns ts ( also know as "snn" )
+    ts% allocate throw
+    >r
+    r@ ts>node snn-init
+    r@ ts>rot# !
+    r@ ts>z !
+    r@ ts>y !
+    r@ ts>x !
+    r> ;
 
-create thesolutions   \ a table of possible rotational solutions that can be used on the board
-thesolutions solution-list% %size total-possibilitys * dup allot erase
+snl-create thesolutions-list  \ get room for this linked list on the heap
 
-
-: solutions! ( nx ny nz nrot nindex -- ) \ store rotational possible placement in solution-list%
-    solution-list% %size * thesolutions + dup
-    rot# rot swap ! dup
-    z rot swap ! dup
-    y rot swap !
-    x ! ;
-
-: solutions@ ( nindex -- nx ny nz nrot ) \ retreave rotational possible placemet in the solution-list% at nindex location
-    \ note the list will retreave empty entry in the list as 0 rotation value
-    solution-list% %size * thesolutions + dup
-    x @ swap dup
-    y @ swap dup
-    z @ swap
-    rot# @ ;
-
-: do-inner-solutions { nindex nx ny nz -- nindex1 }
-
-    rotations 0
+: do-inner-solutions { nx ny nz -- }  \ go through all rotations for this board location and place 
+    rotations 0                       \ piece in thesolutions-list if it can be placed
     ?DO
 	i nx ny nz place-piece? false =
 	if
-	    nx ny nz i nindex solutions!
-	    nindex 1 + to nindex
+	    nx ny nz i ts-new thesolutions-list snl-append
 	then
-    LOOP
-    nindex ;
+    LOOP ;
 
-: make-solutions-list ( -- ) \ populate thesolutions list
-    clear-board 0
+: make-solutions-list ( -- ) \ search each board location for piece solutions and place in thesolutions-list
+    clear-board 
     x-count 0 ?DO
 	y-count 0 ?DO
 	    z-count 0 ?DO
 		k j i do-inner-solutions
 	    LOOP
 	LOOP
-    LOOP total-solutions ! ;  \ note only here is the variable total-solutions correctly populated
+    LOOP ;  
 
-\ ************
-\ These next words are about solving one path of the puzzle to see how it could be done
-\ ************
-\ A flaw with this method is back tracing for solutions means you need to remember multipul failed
-\ piece placement to find the combinations that work. This is not a good way to do it!
+\ thesolutions-list snl-length@ .   \ this should produce 960 as that is how many solutions there are
+\ 5 thesolutions-list snl-get ts>rot# @ .  \ this should produce the rotaion# for the sixth list entry ( 10 )
 
+\ ***************************
+\ Next words will try to do a back trace type method by first making a list of one solution and then back step and iterate
+\ ***************************
 25 constant total-pieces \ this is the amount of pieces needed to be placed to solve puzzle
-0 value working-piece  \ this will be the piece that is being worked on now
-create thepieces-solution  \ a table for working on the final solutions.  Will contain a list of total-pieces as that is the amount needed to solve this puzzle
-thepieces-solution solution-list% %size total-pieces * dup allot erase
-create thelastpieces-solution  \ a table that will be the working copy of the final solutions .
-thelastpieces-solution solution-list% %size total-pieces * dup allot erase
 
-solution-list%
-    cell% field thepiece#
-end-struct working-solution-list% 
-create thelast-solution \ the last rotation solution found
-thelast-solution working-solution-list% %size dup allot erase
-create theskip-list
-theskip-list working-solution-list% %size total-pieces * dup allot erase
+begin-structure sl%
+aligned snn% +field sl>node
+aligned 1 cells +field sl>x
+aligned 1 cells +field sl>y
+aligned 1 cells +field sl>z
+aligned 1 cells +field sl>rot#
+aligned 1 cells +field sl>thepiece#
+end-structure
 
-: thepieces-solution! ( nx ny nz nrot npiece -- ) \ store the piece into thepieces-solution table
-    solution-list% %size * thepieces-solution + dup
-    rot# rot swap ! dup
-    z rot swap ! dup
-    y rot swap !
-    x ! ;
+snl-create a-solution-list a-solution-list snl-init
+snl-create skip-list skip-list snl-init
+snl-create b-solution-list b-solution-list snl-init
 
-: thepieces-solution@ ( npiece -- nx ny nz nrot ) \ retreave the piece at npiece ( note npiece can not exceed total-pieces - 1 )
-    solution-list% %size * thepieces-solution + dup
-    x @ swap dup
-    y @ swap dup
-    z @ swap
-    rot# @ ;
-
-: thelast-solution! ( nx ny nz nrot thepiece# -- )
-    thelast-solution thepiece# !
-    thelast-solution rot# !
-    thelast-solution z !
-    thelast-solution y !
-    thelast-solution x ! ;
-
-: thelast-solution@ ( -- nx ny nz nrot thepiece# )
-    thelast-solution x @
-    thelast-solution y @
-    thelast-solution z @
-    thelast-solution rot# @
-    thelast-solution thepiece# @ ;
-
-0 value skiplistindex
-false value skiptestflag
-: skiplist! ( nx ny nz nrot npiece# -- )
-    working-solution-list% %size skiplistindex * theskip-list + dup
-    thepiece# rot swap ! dup
-    rot# rot swap ! dup
-    z rot swap ! dup
-    y rot swap !
-    x !
-    skiplistindex 1 + to skiplistindex
-    skiplistindex total-pieces =
-    if
-	skiplistindex 1 - to skiplistindex
-    then ;
-
-: skiplistclear ( -- )
-    theskip-list working-solution-list% %size total-pieces * erase
-    0 to skiplistindex ;
-
-: skiplisttest { nx ny nz nrot npiece# -- nflag } \ nflag is true only if the skip should be performed
-    false to skiptestflag
-    thelast-solution thepiece# @ total-pieces = false =
-    if
-	skiplistindex 0 ?DO
-	    working-solution-list% %size i * theskip-list + dup
-	    x @ nx = swap dup
-	    y @ ny = swap dup
-	    z @ nz = swap dup
-	    rot# @ nrot = swap 
-	    thepiece# @ npiece# = drop true
-	    and and and and
-	    true = if true to skiptestflag LEAVE then 
-	LOOP
-    then
-    skiptestflag ;
+: sl-new ( nx ny nz nrot npiece -- sl ) \ will add a sl% structure to the list and returns sl ( a "snn" )
+    sl% allocate throw
+    >r
+    r@ sl>node snn-init
+    r@ sl>thepiece# !
+    r@ sl>rot# !
+    r@ sl>z !
+    r@ sl>y !
+    r@ sl>x !
+    r> ;
 
 : do-rotation-placement { nx ny nz -- }
-    working-piece total-pieces <  
+    a-solution-list snl-length@ total-pieces = false =
     if
 	rotations 0 ?DO
-	    i nx ny nz place-piece? \ false =
-	    nx ny nz i working-piece skiplisttest or false =
+	    i nx ny nz place-piece? false =
 	    if
-		working-piece 1 + i nx ny nz ponboard
-		nx ny nz i working-piece thepieces-solution!
-		nx ny nz i working-piece skiplist!
-		working-piece 1 + to working-piece
+		a-solution-list snl-empty? false =
+		if
+		    a-solution-list snl-last@ sl>thepiece# @ 1 + 
+		    i nx ny nz ponboard
+		    nx ny nz i a-solution-list snl-last@ sl>thepiece# @ 1 +
+		else
+		    1 i nx ny nz ponboard
+		    nx ny nz i 1 
+		then
+		sl-new a-solution-list snl-append
 		LEAVE
 	    then
 	LOOP
@@ -158,7 +112,6 @@ false value skiptestflag
 		k j i piece-there? false =
 		if
 		    k j i do-rotation-placement
-		    \ ." skip" skiplistindex . cr
 		then
 	    LOOP
 	LOOP
@@ -166,47 +119,112 @@ false value skiptestflag
 
 : repopulate-board ( -- )
     clear-board
-    thelast-solution thepiece# @ 0 ?DO
-	i 1 + i thepieces-solution@ swap 2swap rot ponboard 
+    a-solution-list snl-length@ 0 ?DO
+	i a-solution-list snl-get dup
+	sl>thepiece# @ swap dup
+	sl>rot# @ swap dup
+	sl>x @ swap dup
+	sl>y @ swap 
+	sl>z @ ponboard
     LOOP ;
 
-0 value lastfailed-solution
-: find-many-solutions { nstart -- }
+: in-skip-list? { nx ny nz nrot npiece -- nflag } \ nflag is true if data is in skip-list
+    skip-list snl-length@ 0 ?DO
+	i skip-list snl-get dup
+	sl>thepiece# @ npiece = swap dup
+	sl>rot# @ nrot = swap dup
+	sl>x @ nx = swap dup
+	sl>y @ ny = swap 
+	sl>z @ nz =
+	and and and and dup true = if leave then
+    LOOP ;
+
+: rerotation-placement false { nx ny nz nflag -- nflag1 } \ nflag1 is true only if list added to 
+    b-solution-list snl-length@ total-pieces = false =
+    if
+	rotations 0 ?DO
+	    i nx ny nz place-piece? 
+	    nx ny nz i b-solution-list snl-last@ sl>thepiece# @ 1 + in-skip-list?
+	    or false = 
+	    if
+		b-solution-list snl-empty? false =
+		if
+		    b-solution-list snl-last@ sl>thepiece# @ 1 +
+		    i nx ny nz ponboard
+		    nx ny nz i b-solution-list snl-last@ sl>thepiece# @ 1 +
+		else
+		    1 i nx ny nz ponboard
+		    nx ny nz i 1
+		then
+		sl-new b-solution-list snl-append
+		true to nflag
+		LEAVE
+	    then
+	LOOP
+    then
+    nflag ;
+
+: refill-holes ( -- )
+    x-count 0 ?DO
+	y-count 0 ?DO
+	    z-count 0 ?DO
+		k j i piece-there? false =
+		if 
+		    k j i rerotation-placement true =
+		    if
+			b-solution-list snl-length@ total-pieces = false =
+			if
+			    b-solution-list snl-length@ 1 - b-solution-list snl-delete dup dup
+			    sl>x @ swap dup
+			    sl>y @ swap dup
+			    sl>z @ swap dup
+			    sl>rot# @ swap 
+			    sl>thepiece# @
+			    sl-new skip-list snl-append
+			    snn-free
+			then
+		    then
+		then
+	    LOOP
+	LOOP
+    LOOP ;
+
+: backup-list-once ( -- )
+    \ remove last item from a list and place it in skip list
+    \ clear b list
+    \ copy all nodes in a list to b list
+    a-solution-list snl-length@ 1 - a-solution-list snl-delete dup dup
+    skip-list snl-init
+    sl>x @ swap dup
+    sl>y @ swap dup
+    sl>z @ swap dup
+    sl>rot# @ swap
+    sl>thepiece# @ sl-new
+    skip-list snl-append
+    snn-free
+    b-solution-list snl-init
+    a-solution-list snl-length@ 0 ?DO
+	i a-solution-list snl-get dup
+	sl>x @ swap dup
+	sl>y @ swap dup
+	sl>z @ swap dup
+	sl>rot# @ swap
+	sl>thepiece# @
+	sl-new b-solution-list snl-append
+    LOOP ;
+
+: find-many-solutions ( -- )
     clear-board
-    1 to working-piece
-    skiplistclear
-    1 nstart 0 0 0 place-pieceonboard
-    fill-holes 
-    working-piece 1 - thepieces-solution@ working-piece 1 - thelast-solution!
-    thelast-solution@ skiplist!
-    working-piece 1 - to lastfailed-solution
-    begin
-	repopulate-board
-	lastfailed-solution to working-piece
-	skiplistclear
-	fill-holes
-	working-piece total-pieces 1 - >= 
-	if
-	    true ." winner " nstart . cr
-	else
-	    \ skiplistclear
-	    working-piece 1 - thepieces-solution@ working-piece 1 - thelast-solution! 
-	    \ thelast-solution@ skiplist!
-	    lastfailed-solution 1 - to lastfailed-solution
-	    lastfailed-solution 0 < if true else false then
-	then
-	working-piece . thelast-solution@ . . . . . lastfailed-solution . cr 
-	\ theskip-list x @ .
-	\ theskip-list y @ .
-	\ theskip-list z @ .
-	\ theskip-list rot# @ .
-	\ theskip-list thepiece# @ . cr cr \ 500 ms
-    until 
-;
+    fill-holes
+    a-solution-list snl-length@ total-pieces = false =
+    if
+	a-solution-list snl-last@ sl>thepiece# @ 1 - 0 ?DO
+	    backup-list-once
+	    repopulate-board
+	    refill-holes
+	    b-solution-list snl-length@ total-pieces = if LEAVE then
+	    i . cr
+	LOOP
+    then ;
 
-\ ****************************
-\ These next words will take the data table made from the total rotatianl combinations and
-\ make groupings of rotational combinations.  This would allow groups of 2 , 3 , 4  or more so then
-\ it is a matter of grouping groups that work together to solve the final puzzle
-\ ****************************
-
+    
