@@ -163,10 +163,8 @@ snl-create b-solution-list b-solution-list snl-init
 		k j i piece-there? false =
 		if
 		    k j i rerotation-placement
-		    b-solution-list snl-length@ total-pieces =
+		    b-solution-list snl-length@ total-pieces = false =
 		    if
-			LEAVE \ bail solution found
-		    else
 			b-solution-list snl-length@ 1 - b-solution-list snl-delete
 			skip-list snl-append
 		    then
@@ -201,7 +199,7 @@ snl-create b-solution-list b-solution-list snl-init
 	a-solution-list snl-last@ sl>thepiece# @ 1 - 0 ?DO
 	    backup-list-once
 	    repopulate-board
-	    refill-holes
+	    \ refill-holes
 	    b-solution-list snl-length@ total-pieces = if LEAVE then
 	    i . cr
 	LOOP
