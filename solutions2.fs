@@ -128,10 +128,16 @@ snl-create b-solution-list b-solution-list snl-init
 	sl>z @ ponboard
     LOOP ;
 
-: in-skip-list? ( nx ny nz nrot npiece -- nflag ) \ nflag is true if data is in skip-list
-    drop drop drop drop drop 
-    false
-;
+: in-skip-list? { nx ny nz nrot npiece -- nflag } \ nflag is true if data is in skip-list
+    skip-list snl-length@ 0 ?DO
+	i skip-list snl-get dup
+	sl>thepiece# @ npiece = swap dup
+	sl>rot# @ nrot = swap dup
+	sl>x @ nx = swap dup
+	sl>y @ ny = swap 
+	sl>z @ nz =
+	and and and and dup true = if leave then
+    LOOP ;
 
 : rerotation-placement false { nx ny nz nflag -- nflag1 } \ nflag1 is true only if list added to 
     b-solution-list snl-length@ total-pieces = false =
@@ -173,8 +179,8 @@ snl-create b-solution-list b-solution-list snl-init
 			    sl>y @ swap dup
 			    sl>z @ swap dup
 			    sl>rot# @ swap 
-			    sl>thepiece# @ sl-new
-			    skip-list snl-append
+			    sl>thepiece# @
+			    sl-new skip-list snl-append
 			    snn-free
 			then
 		    then
@@ -203,8 +209,8 @@ snl-create b-solution-list b-solution-list snl-init
 	sl>y @ swap dup
 	sl>z @ swap dup
 	sl>rot# @ swap
-	sl>thepiece# @ sl-new 
-	b-solution-list snl-append
+	sl>thepiece# @
+	sl-new b-solution-list snl-append
     LOOP ;
 
 : find-many-solutions ( -- )
