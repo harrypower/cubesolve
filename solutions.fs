@@ -176,14 +176,15 @@ snl-create b-solution-list b-solution-list snl-init
 		    if
 			b-solution-list snl-length@ total-pieces = false = 
 			if \ ~~ ." here!" cr
-			   b-solution-list snl-length@ 1 - b-solution-list snl-delete dup dup
-			   sl>x @ swap dup
-			   sl>y @ swap dup
-			   sl>z @ swap dup
-			   sl>rot# @ swap 
-			   sl>thepiece# @
-			   sl-new skip-list snl-append
-			   snn-free
+			    b-solution-list snl-length@ 1 - b-solution-list snl-delete dup dup
+			    sl>x @ swap dup
+			    sl>y @ swap dup
+			    sl>z @ swap dup
+			    sl>rot# @ swap 
+			    sl>thepiece# @
+			    sl-new skip-list snl-append
+			    snn-free
+			    repopulate-board
 			then
 		    then
 		then
