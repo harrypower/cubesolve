@@ -128,7 +128,8 @@ snl-create b-solution-list b-solution-list snl-init
 	sl>z @ ponboard
     LOOP ;
 
-: in-skip-list? { nx ny nz nrot npiece -- nflag } \ nflag is true if data is in skip-list
+: in-skip-list? ( nz ny nz nrot npiece -- nflag ) \ nflag is true only if data is in skip list 
+    false { nx ny nz nrot npiece nflag } \ nflag is true if data is in skip-list
     skip-list snl-length@ 0 ?DO
 	i skip-list snl-get dup
 	sl>thepiece# @ npiece = swap dup
@@ -136,10 +137,11 @@ snl-create b-solution-list b-solution-list snl-init
 	sl>x @ nx = swap dup
 	sl>y @ ny = swap 
 	sl>z @ nz =
-	and and and and dup true = if leave then
-    LOOP ;
+	and and and and dup to nflag true = if leave then
+    LOOP nflag ;
 
-: rerotation-placement false { nx ny nz nflag -- nflag1 } \ nflag1 is true only if list added to 
+: rerotation-placement ( nx ny nz -- nflag ) \ nflag is true only if b-solution-list is added to 
+    false { nx ny nz nflag -- nflag1 } \ nflag1 is true only if list added to 
     b-solution-list snl-length@ total-pieces = false =
     if
 	rotations 0 ?DO
@@ -158,7 +160,7 @@ snl-create b-solution-list b-solution-list snl-init
 		then
 		sl-new b-solution-list snl-append
 		true to nflag
-		LEAVE
+		LEAVE ~~ ." the leave in rerota..." cr
 	    then
 	LOOP
     then
@@ -169,19 +171,19 @@ snl-create b-solution-list b-solution-list snl-init
 	y-count 0 ?DO
 	    z-count 0 ?DO
 		k j i piece-there? false =
-		if 
-		    k j i rerotation-placement true =
+		if \ ~~ ." piece-there?" cr
+		    k j i rerotation-placement true = 
 		    if
-			b-solution-list snl-length@ total-pieces = false =
-			if
-			    b-solution-list snl-length@ 1 - b-solution-list snl-delete dup dup
-			    sl>x @ swap dup
-			    sl>y @ swap dup
-			    sl>z @ swap dup
-			    sl>rot# @ swap 
-			    sl>thepiece# @
-			    sl-new skip-list snl-append
-			    snn-free
+			b-solution-list snl-length@ total-pieces = false = 
+			if \ ~~ ." here!" cr
+			   b-solution-list snl-length@ 1 - b-solution-list snl-delete dup dup
+			   sl>x @ swap dup
+			   sl>y @ swap dup
+			   sl>z @ swap dup
+			   sl>rot# @ swap 
+			   sl>thepiece# @
+			   sl-new skip-list snl-append
+			   snn-free
 			then
 		    then
 		then
@@ -189,7 +191,7 @@ snl-create b-solution-list b-solution-list snl-init
 	LOOP
     LOOP ;
 
-: backup-list-once ( -- )
+: backup-list-once ( -- ) 
     \ remove last item from a list and place it in skip list
     \ clear b list
     \ copy all nodes in a list to b list
@@ -209,7 +211,7 @@ snl-create b-solution-list b-solution-list snl-init
 	sl>y @ swap dup
 	sl>z @ swap dup
 	sl>rot# @ swap
-	sl>thepiece# @
+	sl>thepiece# @ 
 	sl-new b-solution-list snl-append
     LOOP ;
 
@@ -219,11 +221,11 @@ snl-create b-solution-list b-solution-list snl-init
     a-solution-list snl-length@ total-pieces = false =
     if
 	a-solution-list snl-last@ sl>thepiece# @ 1 - 0 ?DO
-	    backup-list-once
-	    repopulate-board
-	    refill-holes
+	    backup-list-once 
+	    repopulate-board  \ ~~ ." after repopu" cr
+	    refill-holes \ ~~ ." refill-ho" cr
 	    b-solution-list snl-length@ total-pieces = if LEAVE then
-	    i . cr
+	    ~~ ." backup index #" i . cr
 	LOOP
     then ;
 
