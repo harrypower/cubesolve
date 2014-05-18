@@ -143,11 +143,16 @@ snl-create b-solution-list b-solution-list snl-init
 : rerotation-placement ( nx ny nz -- nflag ) \ nflag is true only if b-solution-list is added to 
     false { nx ny nz nflag -- nflag1 } \ nflag1 is true only if list added to 
     b-solution-list snl-length@ total-pieces = false =
-    if
+    if 
 	rotations 0 ?DO
-	    i nx ny nz place-piece? 
-	    nx ny nz i b-solution-list snl-last@ sl>thepiece# @ 1 + in-skip-list?
-	    or false = 
+	    i nx ny nz place-piece? ~~ ." place a piece" cr
+	    b-solution-list snl-empty? true =
+	    if
+		nx ny nz i 1 in-skip-list?
+	    else
+		nx ny nz i b-solution-list snl-last@ sl>thepiece# @ 1 + in-skip-list?
+	    then
+	    or false = ~~ ." skip a piece now" cr
 	    if
 		b-solution-list snl-empty? false =
 		if
@@ -171,11 +176,11 @@ snl-create b-solution-list b-solution-list snl-init
 	y-count 0 ?DO
 	    z-count 0 ?DO
 		k j i piece-there? false =
-		if \ ~~ ." piece-there?" cr
+		if  ~~ ." piece-there?" cr
 		    k j i rerotation-placement true = 
 		    if
 			b-solution-list snl-length@ total-pieces = false = 
-			if \ ~~ ." here!" cr
+			if  ~~ ." here!" cr
 			    b-solution-list snl-length@ 1 - b-solution-list snl-delete dup dup
 			    sl>x @ swap dup
 			    sl>y @ swap dup
@@ -221,10 +226,10 @@ snl-create b-solution-list b-solution-list snl-init
     fill-holes
     a-solution-list snl-length@ total-pieces = false =
     if
-	a-solution-list snl-last@ sl>thepiece# @ 1 - 0 ?DO
+	a-solution-list snl-last@ sl>thepiece# @  0 ?DO
 	    backup-list-once 
-	    repopulate-board  \ ~~ ." after repopu" cr
-	    refill-holes \ ~~ ." refill-ho" cr
+	    repopulate-board   \ ~~ ." after repopu" cr
+	    refill-holes  \ ~~ ." refill-ho" cr
 	    b-solution-list snl-length@ total-pieces = if LEAVE then
 	    ~~ ." backup index #" i . cr
 	LOOP
