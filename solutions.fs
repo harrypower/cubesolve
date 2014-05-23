@@ -235,4 +235,81 @@ snl-create b-solution-list b-solution-list snl-init
 	LOOP
     then ;
 
-    
+
+
+\ ****************************
+\ the above back trace type method did not work or at least i do not understand how to proceed
+\ The following will be what i call combination reduction brute force method
+\ ****************************
+
+begin-structure dsl%  \ this is double solution list structure
+    snn% +field dsl>node  
+    field: dsl>a          
+    field: dsl>b          
+end-structure
+
+snl-create twolistsolutions-list  \ get room for this linked list on the heap
+
+: dsl-new ( na nb -- dsl.snn )  \ this will add a dsl% structure to the list and returns dsl.snn
+    dsl% allocate throw
+    >r
+    r@ dsl>node snn-init
+    r@ dsl>a !
+    r@ dsl>b !
+    r> ;
+
+: do-double-inner-loops 0 { ndsl>a snn snn1 -- }
+    clear-board
+    1 snn ts>rot# @ snn ts>x @ snn ts>y @ snn ts>z @ ponboard
+    thesolutions-list snl-length@ 0 ?DO
+	i thesolutions-list snl-get to snn1 snn1 ts>rot# @ snn1 ts>x @ snn1 ts>y @ snn1 ts>z @ place-piece?
+	false =
+	if
+	    ndsl>a i dsl-new twolistsolutions-list snl-append
+	then
+    LOOP ;
+
+: make-double-solution-list ( -- )
+    clear-board
+    thesolutions-list snl-init
+    make-solutions-list
+    thesolutions-list snl-length@ 0 ?DO
+	i i thesolutions-list snl-get do-double-inner-loops  
+    LOOP ;
+
+snl-create fourlistsolutions-list
+
+: do-quad-inner-loops 0 { ndsl>a snn snn1 -- }
+    twolistsolutions-list snl-length@ 0 ?DO
+	clear-board
+	1 snn dsl>a @ thesolutions-list snl-get dup
+	ts>rot# @ swap dup ts>x @ swap dup ts>y @ swap ts>z @ ponboard
+	2 snn dsl>b @ thesolutions-list snl-get dup
+	ts>rot# @ swap dup ts>x @ swap dup ts>y @ swap ts>z @ ponboard
+	i twolistsolutions-list snl-get to snn1
+	snn1 dsl>a @ thesolutions-list snl-get dup
+	ts>rot# @ swap dup ts>x @ swap dup ts>y @ swap ts>z @ place-piece?
+	false =
+	if
+	    3 snn1 dsl>a @ thesolutions-list snl-get dup
+	    ts>rot# @ swap dup ts>x @ swap dup ts>y @ swap ts>z @ ponboard
+	    snn1 dsl>b @ thesolutions-list snl-get dup
+	    ts>rot# @ swap dup ts>x @ swap dup ts>y @ swap ts>z @ place-piece?
+	else
+	    true \ this means this quad group does not work 
+	then
+	false =
+	if
+	    ndsl>a i dsl-new fourlistsolutions-list snl-append
+	then
+    LOOP ;
+
+: make-quad-solution-list ( -- )
+    clear-board
+    thesolutions-list snl-init
+    twolistsolutions-list snl-init
+    make-double-solution-list
+    twolistsolutions-list snl-length@ 0 ?DO
+	i i twolistsolutions-list snl-get do-quad-inner-loops
+    LOOP ;
+
