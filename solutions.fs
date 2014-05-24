@@ -304,12 +304,63 @@ snl-create fourlistsolutions-list
 	then
     LOOP ;
 
-: make-quad-solution-list ( -- )
-    clear-board
+: make-quad-solution-list ( -- )  \ this will find list of 4 pieces on the board that work togeter
+    clear-board                   \ note this will take a long time to solve.  test showed 64 per second out of 586 billion combinations so that is 290 years on the virtual box used for testing... 
     thesolutions-list snl-init
     twolistsolutions-list snl-init
     make-double-solution-list
     twolistsolutions-list snl-length@ 0 ?DO
 	i i twolistsolutions-list snl-get do-quad-inner-loops
+    LOOP ;
+
+\ ********************
+\ Ok the idea of  double list is good but adding a double double list takes too long to calculate
+\ So now i will try to add one at a time from double to triple etc to see if this starts to reduce the list size
+\ ********************
+
+begin-structure tsl%  \ this is three solution list structure
+snn% +field tsl>node
+field: tsl>a
+field: tsl>b
+field: tsl>c
+end-structure
+
+snl-create threelistsolutions-list
+
+: tsl-new ( na nb nc -- tsl.snn )  \ this will add a tsl% structure to the list and returns tsl.snn
+    tsl% allocate throw
+    >r
+    r@ tsl>node snn-init
+    r@ tsl>a !
+    r@ tsl>b !
+    r@ tsl>c !
+    r> ;
+
+: do-three-inner-loops 0 { ntsl>a snn snn1 -- }
+    thesolutions-list snl-length@ 0 ?DO
+	clear-board
+	1 snn dsl>a @ thesolutions-list snl-get dup
+	ts>rot# @ swap dup ts>x @ swap dup ts>y @ swap ts>z @ ponboard
+	2 snn dsl>b @ thesolutions-list snl-get dup
+	ts>rot# @ swap dup ts>x @ swap dup ts>y @ swap ts>z @ ponboard
+	i thesolutions-list snl-get to snn1
+	snn1 ts>rot# @ snn1 ts>x @ snn1 ts>y @ snn1 ts>z @ place-piece?
+	false =
+	if
+	    snn dsl>a @
+	    snn dsl>b @
+	    i tsl-new threelistsolutions-list snl-append
+	then
+    LOOP ;
+
+: make-three-solution-list ( -- )
+    clear-board
+    thesolutions-list snl-init
+    twolistsolutions-list snl-init
+    make-double-solution-list
+    twolistsolutions-list snl-length@ 0 ?DO
+	\ utime
+	i i twolistsolutions-list snl-get do-three-inner-loops
+	\ utime 2swap d- d. ."  " i . cr
     LOOP ;
 
