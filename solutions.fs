@@ -38,42 +38,50 @@ snl-create noncorner-list
 
 8 car-create corners
 
-begin-structure cpas%
-12  fields: cpas>rot#
-12  fields: cpas>x
-12  fields: cpas>y
-12  fields: cpas>z
-end-structure
+snl-create corner0 
+snl-create corner1
+snl-create corner2
+snl-create corner3
+snl-create corner4
+snl-create corner5 
+snl-create corner6 
+snl-create corner7
 
-: make-corners ( -- )
-    8 0 ?DO
-	cpas% allocate throw i corners car-set
-    LOOP ;
-make-corners \ allocates memory for the corners arrays
+: create-corners ( -- )
+    corner0 0 corners car-set
+    corner1 1 corners car-set
+    corner2 2 corners car-set
+    corner3 3 corners car-set
+    corner4 4 corners car-set
+    corner5 5 corners car-set
+    corner6 6 corners car-set
+    corner7 7 corners car-set ;
+create-corners
 
-: #cpas! { nrot# nx ny nz ncpasindex ncornersindex -- }
-    nrot# ncornersindex corners car-get cpas>rot# ncpasindex cell * + !
-    nx ncornersindex corners car-get cpas>x ncpasindex cell * + !
-    ny ncornersindex corners car-get cpas>y ncpasindex cell * + !
-    nz ncornersindex corners car-get cpas>z ncpasindex cell * + ! ;
+: #cpas! { nrot# nx ny nz ncornersindex -- }
+    nx ny nz nrot# ts-new 
+    ncornersindex corners car-get snl-append ;
 
-: #cpas@ { ncpasindex ncornersindex -- nrot# nx ny nz }
-    ncornersindex corners car-get cpas>rot# ncpasindex cell * + @
-    ncornersindex corners car-get cpas>x ncpasindex cell * + @
-    ncornersindex corners car-get cpas>y ncpasindex cell * + @
-    ncornersindex corners car-get cpas>z ncpasindex cell * + @ ;
+: #cpas@ { ncornersindex ncpasindex -- nrot# nx ny nz }
+    ncpasindex 
+    ncornersindex corners car-get
+    snl-get dup
+    ts>rot# @ swap dup
+    ts>x @ swap dup
+    ts>y @ swap 
+    ts>z @ ;
 
 : isit-corner? { nx ny nz nrot -- nflag } \ nflag is true if a corner piece is found
                                                 \ nflag is false if it is a noncorner piece
     1 nrot nx ny nz ponboard
-    0 0 0 piece-there?
-    0 0 4 piece-there?
-    0 4 0 piece-there?
-    0 4 4 piece-there?
-    4 0 0 piece-there?
-    4 0 4 piece-there?
-    4 4 0 piece-there?
-    4 4 4 piece-there?
+    0 0 0 piece-there? dup if nrot nx ny nz 0 #cpas! then
+    0 0 4 piece-there? dup if nrot nx ny nz 1 #cpas! then
+    0 4 0 piece-there? dup if nrot nx ny nz 2 #cpas! then
+    0 4 4 piece-there? dup if nrot nx ny nz 3 #cpas! then
+    4 0 0 piece-there? dup if nrot nx ny nz 4 #cpas! then
+    4 0 4 piece-there? dup if nrot nx ny nz 5 #cpas! then
+    4 4 0 piece-there? dup if nrot nx ny nz 6 #cpas! then
+    4 4 4 piece-there? dup if nrot nx ny nz 7 #cpas! then
     or or or or or or or  
     clear-board ;
 
@@ -106,7 +114,7 @@ make-corners \ allocates memory for the corners arrays
 \ thesolutions-list snl-length@ .   \ this should produce 960 as that is how many solutions there are
 \ 5 thesolutions-list snl-get ts>rot# @ .  \ this should produce the rotaion# for the sixth list entry ( 10 )
 \ corner-list snl-length@ . \ this should produce 96
-\ noncorner-list snl-lenght@ . \ this should produce 864
+\ noncorner-list snl-length@ . \ this should produce 864
 
 \ ****************************
 \ The following will be what i call combination reduction brute force method
