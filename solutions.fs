@@ -1,5 +1,6 @@
 include pieces.fs
 include ffl/snl.fs
+include ffl/car.fs
 \ using the forth foundation library generic single linked list code
 \ *******************
 \ Will find the total solutions and put them in a list
@@ -35,12 +36,35 @@ snl-create thesolutions-list  \ get room for this linked list on the heap
 snl-create corner-list
 snl-create noncorner-list
 
+8 car-create corners
+
+begin-structure cpas%
+12  fields: cpas>rot#
+12  fields: cpas>x
+12  fields: cpas>y
+12  fields: cpas>z
+end-structure
+
+: make-corners ( -- )
+    8 0 ?DO
+	cpas% allocate throw i corners car-set
+    LOOP ;
+make-corners \ allocates memory for the corners arrays
+
+: #cpas! { nrot# nx ny nz ncpasindex ncornersindex -- }
+    nrot# ncornersindex corners car-get cpas>rot# ncpasindex cell * + !
+    nx ncornersindex corners car-get cpas>x ncpasindex cell * + !
+    ny ncornersindex corners car-get cpas>y ncpasindex cell * + !
+    nz ncornersindex corners car-get cpas>z ncpasindex cell * + ! ;
+
+: #cpas@ { ncpasindex ncornersindex -- nrot# nx ny nz }
+    ncornersindex corners car-get cpas>rot# ncpasindex cell * + @
+    ncornersindex corners car-get cpas>x ncpasindex cell * + @
+    ncornersindex corners car-get cpas>y ncpasindex cell * + @
+    ncornersindex corners car-get cpas>z ncpasindex cell * + @ ;
+
 : isit-corner? { nx ny nz nrot -- nflag } \ nflag is true if a corner piece is found
                                                 \ nflag is false if it is a noncorner piece
-    nx 0 = nx 4 = or
-    ny 0 = ny 4 = or
-    nz 0 = nz 4 = or
-    and and \ false is noncorner true is corner 
     1 nrot nx ny nz ponboard
     0 0 0 piece-there?
     0 0 4 piece-there?
@@ -50,7 +74,7 @@ snl-create noncorner-list
     4 0 4 piece-there?
     4 4 0 piece-there?
     4 4 4 piece-there?
-    or or or or or or or or 
+    or or or or or or or  
     clear-board ;
 
 : do-inner-solutions { nx ny nz -- }  \ go through all rotations for this board location and place
@@ -83,6 +107,7 @@ snl-create noncorner-list
 \ 5 thesolutions-list snl-get ts>rot# @ .  \ this should produce the rotaion# for the sixth list entry ( 10 )
 \ corner-list snl-length@ . \ this should produce 96
 \ noncorner-list snl-lenght@ . \ this should produce 864
+
 \ ****************************
 \ The following will be what i call combination reduction brute force method
 \ ****************************
