@@ -116,6 +116,60 @@ create-corners
 \ corner-list snl-length@ . \ this should produce 96
 \ noncorner-list snl-length@ . \ this should produce 864
 
+\ ***********************************
+\ This code will find all corner combinations that exist from corners array that contains organized corners
+\ Note make-solutions-list needs to be run to make the data these next words work with
+\ **********************************
+begin-structure corner%  \ this is the solutions structure node
+snn% +field corner>node  \ this is used to index the list of nodes 
+field: corner>crnindex-0   \ index value to corners array for 1 corner
+field: corner>cpasindex-0  \ index value to link list pointed to in give corners array for 1 corner
+field: corner>crnindex-1
+field: corner>cpasindex-1
+field: corner>crnindex-2
+field: corner>cpasindex-2
+field: corner>crnindex-3
+field: corner>cpasindex-3
+field: corner>crnindex-4
+field: corner>cpasindex-4
+field: corner>crnindex-5
+field: corner>cpasindex-5
+field: corner>crnindex-6
+field: corner>cpasindex-6
+field: corner>crnindex-7
+field: corner>cpasindex-7
+end-structure
+
+snl-create corner-solutions-list
+
+: corner-new
+    ( crni-0 cpasi-0 crni-1 cpasi-1 crni-2 cpasi-2 crni-3 cpasi-3 crni-4 cpasi-4 crni-5 cpasi-5 crni-6 cpasi-6 crni-7 cpasi-7 -- corner )  
+    corner% allocate throw
+    >r
+    r@ corner>node snn-init
+    r@ corner>crnindex-0 !
+    r@ corner>cpasindex-0 !
+    r@ corner>crnindex-1 !
+    r@ corner>cpasindex-1 !
+    r@ corner>crnindex-2 !
+    r@ corner>cpasindex-2 !
+    r@ corner>crnindex-3 !
+    r@ corner>cpasindex-3 !
+    r@ corner>crnindex-4 !
+    r@ corner>cpasindex-4 !
+    r@ corner>crnindex-5 !
+    r@ corner>cpasindex-5 !
+    r@ corner>crnindex-6 !
+    r@ corner>cpasindex-6 !
+    r@ corner>crnindex-7 !
+    r@ corner>cpasindex-7 !
+    r> ;
+
+
+
+
+
+
 \ ****************************
 \ The following will be what i call combination reduction brute force method
 \ ****************************
