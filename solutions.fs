@@ -228,7 +228,7 @@ clr-corner-index
 		i i corner-index car-get 
 	    LOOP
 	    corner-new corner-solutions-list snl-append
-	    7 corner-index car-get 1 =
+	    7 corner-index car-get seewhere =
 	    if
 		seewhere . corner-solutions-list snl-length@ . cr
 		seewhere 1 + to seewhere
