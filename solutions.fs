@@ -217,6 +217,8 @@ clr-corner-index
     restore	
     endtry ;
 
+1 value seewhere
+
 : make-corners-list ( -- )
     begin
 	corner?
@@ -226,7 +228,11 @@ clr-corner-index
 		i i corner-index car-get 
 	    LOOP
 	    corner-new corner-solutions-list snl-append
-	    corner-solutions-list snl-length@ . cr
+	    7 corner-index car-get 1 =
+	    if
+		seewhere . corner-solutions-list snl-length@ . cr
+		seewhere 1 + to seewhere
+	    then
 	then
 	next-corner-index
     until
