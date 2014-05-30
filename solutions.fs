@@ -141,6 +141,7 @@ field: corner>cpasindex-7
 end-structure
 
 snl-create corner-solutions-list
+8 car-create corner-index
 
 : corner-new
     ( crni-0 cpasi-0 crni-1 cpasi-1 crni-2 cpasi-2 crni-3 cpasi-3 crni-4 cpasi-4 crni-5 cpasi-5 crni-6 cpasi-6 crni-7 cpasi-7 -- corner )  
@@ -165,8 +166,37 @@ snl-create corner-solutions-list
     r@ corner>cpasindex-7 !
     r> ;
 
+: clr-corner-index ( -- )
+    8 0 ?DO 0 i corner-index car-set LOOP ;
 
+clr-corner-index
 
+: inc-ncorner-index ( nindex -- nflag ) \ nflag is false for no overflow true for overflow happened
+    >r r@ corner-index car-get
+    dup 11 =
+    if
+	drop 0 r@ corner-index car-set
+	true 
+    else
+	1 + r@ corner-index car-set
+	false
+    then r> drop ;
+    
+: next-corner-index ( -- nflag ) \ nflag is false if more numbers to go thru yet and true if at the end of numbers
+    0
+    BEGIN
+	dup inc-ncorner-index
+	if
+	    dup 7 =
+	    if
+		drop true true
+	    else
+		1 + false
+	    then
+	else
+	    drop false true 
+	then
+    UNTIL ;
 
 
 
