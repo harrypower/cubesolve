@@ -198,7 +198,39 @@ clr-corner-index
 	then
     UNTIL ;
 
+\ #cpas! { nrot# nx ny nz ncornersindex -- }
+\ #cpas@ { ncornersindex ncpasindex -- nrot# nx ny nz }
 
+: corner? ( -- nflag ) \ nflag is false if a corner combo was found nflag is true if not found
+    try
+	clear-board
+	8 0 ?DO
+	    i dup corner-index car-get #cpas@ place-piece?
+	    false =
+	    if
+		i 1 + i dup corner-index car-get #cpas@ ponboard
+	    else
+		true throw 
+	    then
+	LOOP
+	false
+    restore	
+    endtry ;
+
+: make-corners-list ( -- )
+    begin
+	corner?
+	false =
+	if
+	    8 0 ?DO
+		i i corner-index car-get 
+	    LOOP
+	    corner-new corner-solutions-list snl-append
+	    corner-solutions-list snl-length@ . cr
+	then
+	next-corner-index
+    until
+;
 
 \ ****************************
 \ The following will be what i call combination reduction brute force method
