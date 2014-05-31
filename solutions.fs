@@ -148,22 +148,22 @@ snl-create corner-solutions-list
     corner% allocate throw
     >r
     r@ corner>node snn-init
-    r@ corner>crnindex-0 !
-    r@ corner>cpasindex-0 !
-    r@ corner>crnindex-1 !
-    r@ corner>cpasindex-1 !
-    r@ corner>crnindex-2 !
-    r@ corner>cpasindex-2 !
-    r@ corner>crnindex-3 !
-    r@ corner>cpasindex-3 !
-    r@ corner>crnindex-4 !
-    r@ corner>cpasindex-4 !
-    r@ corner>crnindex-5 !
-    r@ corner>cpasindex-5 !
-    r@ corner>crnindex-6 !
-    r@ corner>cpasindex-6 !
-    r@ corner>crnindex-7 !
     r@ corner>cpasindex-7 !
+    r@ corner>crnindex-7 !
+    r@ corner>cpasindex-6 !
+    r@ corner>crnindex-6 !
+    r@ corner>cpasindex-5 !
+    r@ corner>crnindex-5 !
+    r@ corner>cpasindex-4 !
+    r@ corner>crnindex-4 !
+    r@ corner>cpasindex-3 !
+    r@ corner>crnindex-3 !
+    r@ corner>cpasindex-2 !
+    r@ corner>crnindex-2 !
+    r@ corner>cpasindex-1 !
+    r@ corner>crnindex-1 !
+    r@ corner>cpasindex-0 !
+    r@ corner>crnindex-0 !
     r> ;
 
 : clr-corner-index ( -- )
@@ -181,13 +181,14 @@ clr-corner-index
 	1 + r@ corner-index car-set
 	false
     then r> drop ;
-    
+
+7 value cornercount  \ this value is 7 for all corners or 6 one less of all corners. 
 : next-corner-index ( -- nflag ) \ nflag is false if more numbers to go thru yet and true if at the end of numbers
     0
     BEGIN
 	dup inc-ncorner-index
 	if
-	    dup 7 =
+	    dup cornercount =  
 	    if
 		drop true true
 	    else
@@ -197,9 +198,6 @@ clr-corner-index
 	    drop false true 
 	then
     UNTIL ;
-
-\ #cpas! { nrot# nx ny nz ncornersindex -- }
-\ #cpas@ { ncornersindex ncpasindex -- nrot# nx ny nz }
 
 : corner? ( -- nflag ) \ nflag is false if a corner combo was found nflag is true if not found
     try
@@ -217,9 +215,12 @@ clr-corner-index
     restore	
     endtry ;
 
-1 value seewhere
+\ 1 value seewhere
 
-: make-corners-list ( -- )
+: make-corners-list ( ncornerselection -- ) \ ncornerselection is 0 to 11 only 
+    6 to cornercount \ makes next-corner-index only count 7 of the 8 corners 
+    clr-corner-index
+    7 corner-index car-set \ this sets the 8th corner to the value ncornerselection
     begin
 	corner?
 	false =
@@ -228,15 +229,65 @@ clr-corner-index
 		i i corner-index car-get 
 	    LOOP
 	    corner-new corner-solutions-list snl-append
-	    7 corner-index car-get seewhere =
-	    if
-		seewhere . corner-solutions-list snl-length@ . cr
-		seewhere 1 + to seewhere
-	    then
+	    \ 7 corner-index car-get seewhere =
+	    \ if
+		\ seewhere . corner-solutions-list snl-length@ . cr
+		\ seewhere 1 + to seewhere
+	    \ then
 	then
 	next-corner-index
-    until
-;
+    until ;
+\ turns out there are 23378748 working corner combinations of 429981696 possible or 5.43% or so
+\ 0 make-corners-list corner-solutions-list snl-length@ . will produce 1836247 combos or 12 of complete list
+\ Seems there is some incorrect stuff here for finding corners... mmmm
+: dcorners ( -- )
+    8 0 ?DO
+	i corner-index car-get . 
+    LOOP cr ;
+: d#cpas@-list ( -- )
+    8 0 ?do
+	12 0 ?do
+	    j i #cpas@ j . i . . . . . cr
+	loop
+    loop ;
+
+: ponboard-ncorner ( ncornerindex -- )
+    corner-solutions-list snl-get >r
+    1 r@ corner>crnindex-0 @
+    r@ corner>cpasindex-0 @ #cpas@ ponboard
+    2 r@ corner>crnindex-1 @
+    r@ corner>cpasindex-1 @ #cpas@ ponboard
+    3 r@ corner>crnindex-2 @
+    r@ corner>cpasindex-2 @ #cpas@ ponboard
+    4 r@ corner>crnindex-3 @
+    r@ corner>cpasindex-3 @ #cpas@ ponboard
+    5 r@ corner>crnindex-4 @
+    r@ corner>cpasindex-4 @ #cpas@ ponboard
+    6 r@ corner>crnindex-5 @
+    r@ corner>cpasindex-5 @ #cpas@ ponboard
+    7 r@ corner>crnindex-6 @
+    r@ corner>cpasindex-6 @ #cpas@ ponboard
+    8 r@ corner>crnindex-7 @
+    r@ corner>cpasindex-7 @ #cpas@ ponboard
+    r> drop ;
+
+0 value listcounter
+: ncornerlist>noncornerlist ( -- )
+    noncorner-list snl-length@ 0 ?DO
+	clear-board
+	0 ponboard-ncorner
+	i noncorner-list snl-get dup
+	ts>rot# @ swap dup
+	ts>x @ swap dup
+	ts>y @ swap 
+	ts>z @
+	place-piece? false =
+	if
+	    listcounter 1 + to listcounter
+	then
+    LOOP ;
+
+
 
 \ ****************************
 \ The following will be what i call combination reduction brute force method
