@@ -239,19 +239,19 @@ clr-corner-index
     until ;
 \ turns out there are 23378748 working corner combinations of 429981696 possible or 5.43% or so
 \ 0 make-corners-list corner-solutions-list snl-length@ . will produce 1836247 combos or 12 of complete list
-\ Seems there is some incorrect stuff here for finding corners... mmmm
-: dcorners ( -- )
+ 
+: dcorners ( -- ) \ test word to see the current corner-index values
     8 0 ?DO
 	i corner-index car-get . 
     LOOP cr ;
-: d#cpas@-list ( -- )
+: d#cpas@-list ( -- ) \ test word to see the current populated corner total combonations
     8 0 ?do
 	12 0 ?do
 	    j i #cpas@ j . i . . . . . cr
 	loop
     loop ;
 
-: ponboard-ncorner ( ncornerindex -- )
+: ponboard-ncorner ( ncornerindex -- )  \ word to place a corner combination working list on the board 
     corner-solutions-list snl-get >r
     1 r@ corner>crnindex-0 @
     r@ corner>cpasindex-0 @ #cpas@ ponboard
@@ -272,7 +272,7 @@ clr-corner-index
     r> drop ;
 
 0 value listcounter
-: ncornerlist>noncornerlist ( -- )
+: ncornerlist>noncornerlist ( -- ) \ word to start to work on how to reduce combinations 
     noncorner-list snl-length@ 0 ?DO
 	clear-board
 	0 ponboard-ncorner
