@@ -1,6 +1,7 @@
 include pieces.fs
 include ffl/snl.fs
 include ffl/car.fs
+include ffl/scl.fs
 \ using the forth foundation library generic single linked list code
 \ *******************
 \ Will find the total solutions and put them in a list
@@ -215,8 +216,6 @@ clr-corner-index
     restore	
     endtry ;
 
-\ 1 value seewhere
-
 : make-corners-list ( ncornerselection -- ) \ ncornerselection is 0 to 11 only 
     6 to cornercount \ makes next-corner-index only count 7 of the 8 corners 
     clr-corner-index
@@ -228,12 +227,6 @@ clr-corner-index
 	    8 0 ?DO
 		i i corner-index car-get 
 	    LOOP
-	    corner-new corner-solutions-list snl-append
-	    \ 7 corner-index car-get seewhere =
-	    \ if
-		\ seewhere . corner-solutions-list snl-length@ . cr
-		\ seewhere 1 + to seewhere
-	    \ then
 	then
 	next-corner-index
     until ;
@@ -271,8 +264,10 @@ clr-corner-index
     r@ corner>cpasindex-7 @ #cpas@ ponboard
     r> drop ;
 
-0 value listcounter
-: ncornerlist>noncornerlist ( -- ) \ word to start to work on how to reduce combinations 
+scl-new value reduced-noncorner-list
+scl-new value wnc-solution-list
+
+: make-reduced-noncorner-list ( -- ) \ creates a reduced noncorner list from original non corner list 
     noncorner-list snl-length@ 0 ?DO
 	clear-board
 	0 ponboard-ncorner
@@ -283,11 +278,61 @@ clr-corner-index
 	ts>z @
 	place-piece? false =
 	if
-	    listcounter 1 + to listcounter
+	    i reduced-noncorner-list scl-append
 	then
     LOOP ;
 
+: work-onit  ( ncornersolutions -- )
+    clear-board
+    ponboard-ncorner
+    reduced-noncorner-list scl-length@ 0 ?DO
+	i reduced-noncorner-list scl-get 
+	noncorner-list snl-get dup
+	ts>rot# @ swap dup
+	ts>x @ swap dup
+	ts>y @ swap 
+	ts>z @ 
+	place-piece? false =
+	if
+	    i wnc-solution-list scl-append
+	    wnc-solution-list scl-length@ 8 +
+	    i reduced-noncorner-list scl-get
+	    noncorner-list snl-get dup
+	    ts>rot# @ swap dup
+	    ts>x @ swap dup
+	    ts>y @ swap 
+	    ts>z @ 
+	    ponboard
+	then
+    LOOP ;
 
+0 value sizenow
+
+: do-corners&noncorners ( -- )
+    corner-solutions-list snl-length@ 0 ?DO
+	i work-onit
+	wnc-solution-list scl-length@ 17 >=
+	if
+	    displayboard
+	    LEAVE
+	else
+	    wnc-solution-list scl-length@ sizenow >
+	    if
+		i . wnc-solution-list scl-length@ dup . cr
+		to sizenow
+	    then
+	    wnc-solution-list scl-clear
+	then
+    LOOP ;
+
+: testone ( -- )
+    make-solutions-list
+    0 make-corners-list
+    reduced-noncorner-list scl-clear
+    wnc-solution-list scl-clear
+    make-reduced-noncorner-list
+    \ do-corners&noncorners
+    ;
 
 \ ****************************
 \ The following will be what i call combination reduction brute force method
