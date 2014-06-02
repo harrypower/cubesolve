@@ -227,6 +227,7 @@ clr-corner-index
 	    8 0 ?DO
 		i i corner-index car-get 
 	    LOOP
+	    corner-new corner-solutions-list snl-append
 	then
 	next-corner-index
     until ;
