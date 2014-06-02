@@ -268,10 +268,10 @@ clr-corner-index
 scl-new value reduced-noncorner-list
 scl-new value wnc-solution-list
 
-: make-reduced-noncorner-list ( -- ) \ creates a reduced noncorner list from original non corner list 
+: make-reduced-noncorner-list ( ncorners -- ) \ creates a reduced noncorner list from original non corner list 
     noncorner-list snl-length@ 0 ?DO
 	clear-board
-	0 ponboard-ncorner
+	dup ponboard-ncorner
 	i noncorner-list snl-get dup
 	ts>rot# @ swap dup
 	ts>x @ swap dup
@@ -283,10 +283,10 @@ scl-new value wnc-solution-list
 	then
     LOOP ;
 
-: work-onit  ( ncornersolutions -- )
+: work-onit  ( ncornersolutions nindex -- )
     clear-board
-    ponboard-ncorner
-    reduced-noncorner-list scl-length@ 0 ?DO
+    swap ponboard-ncorner
+    reduced-noncorner-list scl-length@ swap ?DO
 	i reduced-noncorner-list scl-get 
 	noncorner-list snl-get dup
 	ts>rot# @ swap dup
@@ -308,22 +308,43 @@ scl-new value wnc-solution-list
     LOOP ;
 
 0 value sizenow
+0 value wnc-skip
+false value finalsolution
 
-: do-corners&noncorners ( -- )
-    corner-solutions-list snl-length@ 0 ?DO
-	i work-onit
+: do-noncorners ( ncornersolutions -- )
+    BEGIN
+	dup wnc-skip work-onit
 	wnc-solution-list scl-length@ 17 >=
 	if
 	    displayboard
-	    LEAVE
+	    true to finalsolution
+	    drop true
 	else
 	    wnc-solution-list scl-length@ sizenow >
 	    if
-		i . wnc-solution-list scl-length@ dup . cr
+		wnc-skip . wnc-solution-list scl-length@ dup . cr
 		to sizenow
+	    then
+	    0 wnc-solution-list scl-get 1 + dup
+	    reduced-noncorner-list scl-length@ 16 - >
+	    if
+		drop drop true
+	    else
+		to wnc-skip false
 	    then
 	    wnc-solution-list scl-clear
 	then
+    UNTIL ;
+
+: do-corners&noncorners ( -- )
+    corner-solutions-list snl-length@ 0 ?DO
+	i make-reduced-noncorner-list
+	i do-noncorners
+	i . ." next corner" cr
+	finalsolution true = if LEAVE then
+	0 to wnc-skip
+	0 to sizenow
+	wnc-solution-list scl-clear
     LOOP ;
 
 : testone ( -- )
@@ -331,47 +352,9 @@ scl-new value wnc-solution-list
     0 make-corners-list
     reduced-noncorner-list scl-clear
     wnc-solution-list scl-clear
-    make-reduced-noncorner-list
-    \ do-corners&noncorners
+    0 make-reduced-noncorner-list
+    \ do-noncorners
     ;
 
-\ ****************************
-\ The following will be what i call combination reduction brute force method
-\ ****************************
-
-begin-structure dsl%  \ this is double solution list structure
-    snn% +field dsl>node  
-    field: dsl>a          
-    field: dsl>b          
-end-structure
-
-snl-create twolistsolutions-list  \ get room for this linked list on the heap
-
-: dsl-new ( na nb -- dsl.snn )  \ this will add a dsl% structure to the list and returns dsl.snn
-    dsl% allocate throw
-    >r
-    r@ dsl>node snn-init
-    r@ dsl>a !
-    r@ dsl>b !
-    r> ;
-
-: do-double-inner-loops 0 { ndsl>a snn snn1 -- }
-    clear-board
-    1 snn ts>rot# @ snn ts>x @ snn ts>y @ snn ts>z @ ponboard
-    thesolutions-list snl-length@ 0 ?DO
-	i thesolutions-list snl-get to snn1 snn1 ts>rot# @ snn1 ts>x @ snn1 ts>y @ snn1 ts>z @ place-piece?
-	false =
-	if
-	    ndsl>a i dsl-new twolistsolutions-list snl-append
-	then
-    LOOP ;
-
-: make-double-solution-list ( -- )
-    clear-board
-    thesolutions-list snl-init
-    make-solutions-list
-    thesolutions-list snl-length@ 0 ?DO
-	i i thesolutions-list snl-get do-double-inner-loops  
-    LOOP ;
 
 
