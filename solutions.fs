@@ -325,7 +325,7 @@ false value finalsolution
 		wnc-skip . wnc-solution-list scl-length@ dup . cr
 		to sizenow
 	    then
-	    0 wnc-solution-list scl-get 1 + dup
+	    0 wnc-solution-list scl-get 1 + dup 
 	    reduced-noncorner-list scl-length@ 16 - >
 	    if
 		drop drop true
@@ -339,12 +339,14 @@ false value finalsolution
 : do-corners&noncorners ( -- )
     corner-solutions-list snl-length@ 0 ?DO
 	i make-reduced-noncorner-list
+	i . ." next corner"
+	noncorner-list snl-length@ . reduced-noncorner-list scl-length@ . ." non reduce" cr
 	i do-noncorners
-	i . ." next corner" cr
 	finalsolution true = if LEAVE then
 	0 to wnc-skip
 	0 to sizenow
 	wnc-solution-list scl-clear
+	reduced-noncorner-list scl-clear
     LOOP ;
 
 : testone ( -- )
