@@ -283,10 +283,10 @@ scl-new value wnc-solution-list
 	then
     LOOP ;
 
-: work-onit  ( ncornersolutions nindex -- )
+: work-onit  { ncornersolutions nindex -- }
     clear-board
-    swap ponboard-ncorner
-    reduced-noncorner-list scl-length@ swap ?DO
+    ncornersolutions ponboard-ncorner
+    reduced-noncorner-list scl-length@ nindex ?DO
 	i reduced-noncorner-list scl-get 
 	noncorner-list snl-get dup
 	ts>rot# @ swap dup
@@ -311,26 +311,26 @@ scl-new value wnc-solution-list
 0 value wnc-skip
 false value finalsolution
 
-: do-noncorners ( ncornersolutions -- )
+: do-noncorners { ncornersolutions -- }
     BEGIN
-	dup wnc-skip work-onit
+	ncornersolutions wnc-skip work-onit
 	wnc-solution-list scl-length@ 17 >=
 	if
 	    displayboard
 	    true to finalsolution
-	    drop true
+	    true
 	else
 	    wnc-solution-list scl-length@ sizenow >
 	    if
 		wnc-skip . wnc-solution-list scl-length@ dup . cr
 		to sizenow
 	    then
-	    0 wnc-solution-list scl-get 1 + dup 
+	    0 wnc-solution-list scl-get 1 +  
 	    reduced-noncorner-list scl-length@ 16 - >
 	    if
-		drop drop true
+		true
 	    else
-		to wnc-skip false
+		0 wnc-solution-list scl-get 1 + to wnc-skip false
 	    then
 	    wnc-solution-list scl-clear
 	then
@@ -349,14 +349,12 @@ false value finalsolution
 	reduced-noncorner-list scl-clear
     LOOP ;
 
-: testone ( -- )
+: test-solution ( -- )
     make-solutions-list
     0 make-corners-list
     reduced-noncorner-list scl-clear
     wnc-solution-list scl-clear
-    0 make-reduced-noncorner-list
-    \ do-noncorners
-    ;
+    do-corners&noncorners  ;
 
 
 
