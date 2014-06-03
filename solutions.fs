@@ -268,10 +268,10 @@ clr-corner-index
 scl-new value reduced-noncorner-list
 scl-new value wnc-solution-list
 
-: make-reduced-noncorner-list ( ncorners -- ) \ creates a reduced noncorner list from original non corner list 
+: make-reduced-noncorner-list { ncorners -- } \ creates a reduced noncorner list from original non corner list 
     noncorner-list snl-length@ 0 ?DO
 	clear-board
-	dup ponboard-ncorner
+	ncorners ponboard-ncorner
 	i noncorner-list snl-get dup
 	ts>rot# @ swap dup
 	ts>x @ swap dup
@@ -330,7 +330,8 @@ false value finalsolution
 	    if
 		true
 	    else
-		0 wnc-solution-list scl-get 1 + to wnc-skip false
+		0 wnc-solution-list scl-get 1 + to wnc-skip
+		false
 	    then
 	    wnc-solution-list scl-clear
 	then
@@ -339,7 +340,7 @@ false value finalsolution
 : do-corners&noncorners ( -- )
     corner-solutions-list snl-length@ 0 ?DO
 	i make-reduced-noncorner-list
-	i . ." next corner"
+	i . ." next corner" depth . ." depth" 
 	noncorner-list snl-length@ . reduced-noncorner-list scl-length@ . ." non reduce" cr
 	i do-noncorners
 	finalsolution true = if LEAVE then
