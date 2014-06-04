@@ -337,11 +337,11 @@ false value finalsolution
 	then
     UNTIL ;
 
-: do-corners&noncorners ( -- )
-    corner-solutions-list snl-length@ 0 ?DO
+: do-corners&noncorners { nstart -- }
+    corner-solutions-list snl-length@ nstart ?DO
 	i make-reduced-noncorner-list
-	i . ." next corner" depth . ." depth" 
-	noncorner-list snl-length@ . reduced-noncorner-list scl-length@ . ." non reduce" cr
+	i . ." next corner " depth . ." depth" 
+	reduced-noncorner-list scl-length@ . ." reduced" cr
 	i do-noncorners
 	finalsolution true = if LEAVE then
 	0 to wnc-skip
