@@ -350,7 +350,7 @@ false value finalsolution
 	reduced-noncorner-list scl-clear
     LOOP ;
 
-: test-solution ( -- )
+: test-solution ( nstart -- )
     make-solutions-list
     0 make-corners-list
     reduced-noncorner-list scl-clear
