@@ -307,6 +307,7 @@ scl-new value wnc-solution-list
 	then
     LOOP ;
 
+0 value maxsize
 0 value sizenow
 0 value wnc-skip
 false value finalsolution
@@ -324,6 +325,7 @@ false value finalsolution
 	    if
 		wnc-skip . wnc-solution-list scl-length@ dup . cr
 		to sizenow
+		sizenow maxsize > if sizenow to maxsize then  
 	    then
 	    0 wnc-solution-list scl-get 1 +  
 	    reduced-noncorner-list scl-length@ 16 - >
@@ -340,8 +342,9 @@ false value finalsolution
 : do-corners&noncorners { nstart -- }
     corner-solutions-list snl-length@ nstart ?DO
 	i make-reduced-noncorner-list
-	i . ." next corner " depth . ." depth" 
-	reduced-noncorner-list scl-length@ . ." reduced" cr
+	i . ." next" depth . ." depth" 
+	reduced-noncorner-list scl-length@ . ." reduced" 
+	maxsize . ." max" cr
 	i do-noncorners
 	finalsolution true = if LEAVE then
 	0 to wnc-skip
