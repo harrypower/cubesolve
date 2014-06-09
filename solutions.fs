@@ -1,7 +1,7 @@
-include pieces.fs
-include ffl/snl.fs
-include ffl/car.fs
-include ffl/scl.fs
+include c:\Users\Philip\Documents\GitHub\cubesolve\pieces.fs
+include ffl\snl.fs
+include ffl\car.fs
+include ffl\scl.fs
 \ using the forth foundation library generic single linked list code
 \ *******************
 \ Will find the total solutions and put them in a list
