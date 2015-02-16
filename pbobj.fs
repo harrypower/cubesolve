@@ -27,10 +27,6 @@ object class
 	piece-location @ 25 / piece-az !
 	piece-location @ 25 mod 5 / piece-ay !
 	piece-location @ 25 mod 5 mod piece-ax ! ;m method loc>xyz!
-    m: ( piece -- x y z ) \ piece-location in xyz values and put on stack
-	piece-ax @
-	piece-ay @
-	piece-az @ ;m method loc>xyz@
     m: ( nvalue pattern-list-addr nindex piece -- )
 	blc% %size * + ! ;m method pl-index!
     m: ( pattern-list-addr nindex piece -- nvalue )
@@ -45,14 +41,15 @@ object class
 	npattern-list-addr x nindex this pl-index@
 	npattern-list-addr y nindex this pl-index@
 	npattern-list-addr z nindex this pl-index@ ;m method xyz@
-\  public
     m: ( nxa nya nza nxb nyb nzb piece -- nflag ) \ compair two sets of xyz coordinates
 	{ nxa nya nza nxb nyb nzb }              \ nflag is true if match found only 
 	nxa nxb =                                \ nflag is false if no match found
 	nya nyb =
 	nza nzb =
 	and and ;m method testxyz
-\  public
+    m: ( nvalue piece -- nflag ) \ nvalue is tested for > 4 or < 0
+	dup 4 > swap 0 < or ;m method boundry-test
+  public
     m: ( nblock piece -- nx ny nz ) \ produces the block xyz values given the piece orientation and location
 	case
 	    0 of pattern-list a endof
@@ -66,7 +63,14 @@ object class
 	piece-az @ + rot
 	piece-ax @ + rot
 	piece-ay @ + rot ;m method blockxyz@
-  public
+    m: ( piece -- nflag ) \ test bound for 5x5x5 board
+	0
+	5 0 do
+	    i this blockxyz@
+	    this boundry-test rot
+	    this boundry-test rot
+	    this boundry-test or or or
+	loop ;m method inboard-test
     m: ( piece -- ) \ constructor populates the pattern-list
 	0 0 0 pattern-list a 0 this xyz!
 	0 1 0 pattern-list b 0 this xyz!
@@ -230,13 +234,14 @@ object class
 	pattern-list c piece-orientation @ this xyz@ rot . swap . . ."  c rel" cr
 	pattern-list d piece-orientation @ this xyz@ rot . swap . . ."  d rel" cr
 	pattern-list e piece-orientation @ this xyz@ rot . swap . . ."  e rel" cr ;m overrides print
-    m: ( norient nloc piece -- ) \ set the piece orientation and location 
-	piece-location !
-	piece-orientation !
-	this loc>xyz! ;m method set-piece
+    m: ( norient nloc piece -- nflag ) \ set the piece orientation and location 
+	piece-location !               \ nflag is false if the piece fits in the board boundarys
+	piece-orientation !            \ nflag is true if the piece has a block that exceedes the board boundarys
+	this loc>xyz!
+	this inboard-test ;m method set-piece
     m: ( piece-test piece -- nflag ) \ compare piece-test to this piece for any unions
-	{ piece-test }
-	0
+	{ piece-test }               \ nflag is false only if no blocks overlap other blocks in test pieces
+	0                            \ nflag is a negative number that indicates total blocks that overlapped if it is not false
 	5 0 do
 	    5 0 do 
 		i this blockxyz@ 
@@ -244,5 +249,4 @@ object class
 		this testxyz + 
 	    loop
 	loop ;m method compair-pieces
-
 end-class piece
