@@ -33,16 +33,39 @@ object class
 	piece-az @ ;m method loc>xyz@
     m: ( nvalue pattern-list-addr nindex piece -- )
 	blc% %size * + ! ;m method pl-index!
-    m: ( pattern-list-addr nindex -- nvalue )
+    m: ( pattern-list-addr nindex piece -- nvalue )
 	blc% %size * + @ ;m method pl-index@
-    m: { nx ny nz npattern-list-addr nindex -- } \ store xyz into pattern-list at index nindex
+    m: ( nx ny nz npattern-list-addr nindex piece -- )
+	{ nx ny nz npattern-list-addr nindex } \ store xyz into pattern-list at index nindex
 	nx npattern-list-addr x nindex this pl-index!
 	ny npattern-list-addr y nindex this pl-index!
 	nz npattern-list-addr z nindex this pl-index! ;m method xyz!
-    m: { npattern-list-addr nindex -- x y z } \ retreave xyz from pattern-list at index nindex
+    m: ( npattern-list-addr nindex piece -- x y z )
+	{ npattern-list-addr nindex } \ retreave xyz from pattern-list at index nindex
 	npattern-list-addr x nindex this pl-index@
 	npattern-list-addr y nindex this pl-index@
 	npattern-list-addr z nindex this pl-index@ ;m method xyz@
+\  public
+    m: ( nxa nya nza nxb nyb nzb piece -- nflag ) \ compair two sets of xyz coordinates
+	{ nxa nya nza nxb nyb nzb }              \ nflag is true if match found only 
+	nxa nxb =                                \ nflag is false if no match found
+	nya nyb =
+	nza nzb =
+	and and ;m method testxyz
+\  public
+    m: ( nblock piece -- nx ny nz ) \ produces the block xyz values given the piece orientation and location
+	case
+	    0 of pattern-list a endof
+	    1 of pattern-list b endof
+	    2 of pattern-list c endof
+	    3 of pattern-list d endof
+	    4 of pattern-list e endof
+	    s" nblock can only be 0 to 4" exception throw
+	endcase
+	piece-orientation @ this xyz@
+	piece-az @ + rot
+	piece-ax @ + rot
+	piece-ay @ + rot ;m method blockxyz@
   public
     m: ( piece -- ) \ constructor populates the pattern-list
 	0 0 0 pattern-list a 0 this xyz!
@@ -197,30 +220,29 @@ object class
 	cr piece-orientation @ . ."  orientation" cr
 	piece-location @ . ."  loc" cr
 	piece-ax @ . ."  ax " piece-ay @ . ."  ay " piece-az @ . ."  az" cr 
-	pattern-list a piece-orientation @ this xyz@ rot . space swap . space . ."  a" cr
-	pattern-list b piece-orientation @ this xyz@ rot . space swap . space . ."  b" cr
-	pattern-list c piece-orientation @ this xyz@ rot . space swap . space . ."  c" cr
-	pattern-list d piece-orientation @ this xyz@ rot . space swap . space . ."  d" cr
-	pattern-list e piece-orientation @ this xyz@ rot . space swap . space . ."  e" cr ;m overrides print
+	0 this blockxyz@ rot . swap . . ."  a abs" cr
+	1 this blockxyz@ rot . swap . . ."  b abs" cr
+	2 this blockxyz@ rot . swap . . ."  c abs" cr
+	3 this blockxyz@ rot . swap . . ."  d abs" cr
+	4 this blockxyz@ rot . swap . . ."  e abs" cr
+	pattern-list a piece-orientation @ this xyz@ rot . swap . . ."  a rel" cr
+	pattern-list b piece-orientation @ this xyz@ rot . swap . . ."  b rel" cr
+	pattern-list c piece-orientation @ this xyz@ rot . swap . . ."  c rel" cr
+	pattern-list d piece-orientation @ this xyz@ rot . swap . . ."  d rel" cr
+	pattern-list e piece-orientation @ this xyz@ rot . swap . . ."  e rel" cr ;m overrides print
     m: ( norient nloc piece -- ) \ set the piece orientation and location 
 	piece-location !
 	piece-orientation !
 	this loc>xyz! ;m method set-piece
-    m: ( piece-test piece -- ) \ compare piece-test to this piece for any unions
-	0 0 0 0 0 0 
-	{ piece-test test-x test-y test-z this-x this-y this-z }
-	pattern-list b piece-orientation @ this xyz@
-	piece-az @ + to this-z
-	piece-ay @ + to this-y
-	piece-ax @ + to this-x
-	pattern-list b piece-orientation @ piece-test xyz@
-	to test-z to test-y to test-x
-	piece-test loc>xyz@
-	test-z + to test-z
-	test-y + to test-y
-	test-x + to test-x
-	this-x . space this-y . space this-z . cr
-	test-x . space test-y . space test-y . cr
-    ;m method compair-pieces
+    m: ( piece-test piece -- nflag ) \ compare piece-test to this piece for any unions
+	{ piece-test }
+	0
+	5 0 do
+	    5 0 do 
+		i this blockxyz@ 
+		j piece-test blockxyz@ 
+		this testxyz + 
+	    loop
+	loop ;m method compair-pieces
 
 end-class piece
