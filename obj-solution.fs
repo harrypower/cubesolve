@@ -45,13 +45,13 @@ make-pieces
 		i j working-pieces @ piece@ set-piece drop
 		working-pieces @ 1 + working-pieces !
 	    then
-	    working-pieces @ total-pieces 1 - >= if leave then 
+	    working-pieces @ total-pieces  >= if leave then 
 	loop
-	working-pieces @ total-pieces 1 - >= if leave then
-    loop
-;
+	working-pieces @ total-pieces  >= if leave then
+    loop ;
 
 : displayboard ( -- )
-    working-pieces 0 ?do
-	
+    working-pieces @ 0 ?do
+	i . ."  *************" 
+	i piece@ print 
     loop ;
