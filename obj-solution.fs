@@ -55,3 +55,17 @@ make-pieces
 	i . ."  *************" 
 	i piece@ print 
     loop ;
+
+: solveit2 { nstart -- }
+    total-locations total-orientations * nstart ?do
+	i total-orientations mod i total-locations /
+	2dup place-piece true =
+	if
+	    working-pieces @ piece@ set-piece drop
+	    working-pieces @ 1 + working-pieces !
+	else
+	    2drop
+	then
+	working-pieces @ total-pieces >= if leave then 
+    loop ;
+
