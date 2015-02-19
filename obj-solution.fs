@@ -58,7 +58,7 @@ make-pieces
 
 : solveit2 { nstart -- }
     total-locations total-orientations * nstart ?do
-	i total-orientations mod i total-locations /
+	i total-orientations mod i total-orientations /
 	2dup place-piece true =
 	if
 	    working-pieces @ piece@ set-piece drop
@@ -69,3 +69,17 @@ make-pieces
 	working-pieces @ total-pieces >= if leave then 
     loop ;
 
+: solve2top ( -- )
+    0 \ start at 0 for solution
+    begin
+	solveit2
+	working-pieces @ total-pieces < 
+    while
+	    working-pieces @ 1 - piece@ get-piece * 1 +
+	    dup total-orientations total-locations * >=
+	    if drop 0 then
+	    working-pieces @ 1 - working-pieces !
+	    dup . ." start val "
+	    working-pieces @ . ." working pieces " cr
+    repeat
+    ;
