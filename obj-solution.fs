@@ -11,6 +11,7 @@ end-struct pieces%
 create pieces-array
 pieces-array pieces% %size total-pieces * dup allot erase
 piece heap-new constant testpiece
+variable solution false solution !
 variable working-pieces 0 working-pieces ! \ note working-pieces starts at 0 because there are 0 working pieces 
 \ now i have an array of cell size variables to hold the piece objects
 \ This array will constitute the 25 pieces to solve the puzzle.
@@ -61,25 +62,29 @@ make-pieces
 	i total-orientations mod i total-orientations /
 	2dup place-piece true =
 	if
+	    working-pieces @ . ." wp " i . ." i " swap dup . ." or " swap dup . ."  loc" cr
 	    working-pieces @ piece@ set-piece drop
 	    working-pieces @ 1 + working-pieces !
 	else
 	    2drop
 	then
-	working-pieces @ total-pieces >= if leave then 
+	working-pieces @ total-pieces >= if true solution ! leave then 
     loop ;
 
 : solve2top ( -- )
     0 \ start at 0 for solution
     begin
 	solveit2
-	working-pieces @ total-pieces < 
+	solution @ false =
+	\ working-pieces @ total-pieces < 
     while
-	    working-pieces @ 1 - piece@ get-piece * 1 +
-	    dup total-orientations total-locations * >=
-	    if drop 0 then
-	    working-pieces @ 1 - working-pieces !
+	    working-pieces @ 1 - dup working-pieces !
+	    piece@ get-piece total-orientations * + 1 +
+	    \ dup total-orientations 1 - total-locations 1 - * >=
+	    \ if drop 0 then
+	    ." **************" cr
 	    dup . ." start val "
 	    working-pieces @ . ." working pieces " cr
+	    ." **************" cr
     repeat
     ;

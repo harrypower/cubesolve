@@ -240,8 +240,8 @@ object class
 	this loc>xyz!
 	this inboard-test ;m method set-piece 
     m: ( piece -- norientation nlocation )
-	piece-location @
-	piece-orientation @ ;m method get-piece
+	piece-orientation @
+	piece-location @ ;m method get-piece
     m: ( piece-test piece -- nflag ) \ compare piece-test to this piece for any unions
 	{ piece-test }               \ nflag is false only if no blocks overlap other blocks in test pieces
 	0                            \ nflag is a negative number that indicates total blocks that overlapped if it is not false
