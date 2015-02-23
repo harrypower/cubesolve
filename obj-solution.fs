@@ -61,7 +61,6 @@ make-pieces
 	i total-orientations mod i total-orientations /
 	2dup place-piece true =
 	if
-	    working-pieces @ . ." wp " i . ." i " swap dup . ." or " swap dup . ."  loc" cr
 	    working-pieces @ piece@ set-piece drop
 	    working-pieces @ 1 + working-pieces !
 	else
@@ -74,16 +73,17 @@ make-pieces
     0 \ start at 0 for solution
     begin
 	solveit2
-	solution @ false =
-	\ working-pieces @ total-pieces < 
+	solution @ false = key? false = and 
     while
 	    working-pieces @ 1 - dup working-pieces !
-	    piece@ get-piece total-orientations * + 1 +
-	    \ dup total-orientations 1 - total-locations 1 - * >=
-	    \ if drop 0 then
-	    ." **************" cr
-	    dup . ." start val "
-	    working-pieces @ . ." working pieces " cr
-	    ." **************" cr
+	    dup piece@ get-piece total-orientations * + 1 +
+		dup . ."  sv " swap . ."  wp"cr 
     repeat
     ;
+	
+: solvekeytest ( -- )
+	solve2top
+	key? if key drop ." do datasave and stop!" cr then
+	working-pieces @ . ." working-pieces current value!" cr
+	;
+	
