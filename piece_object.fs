@@ -1,5 +1,5 @@
-
-require objects.fs
+require c:\Users\Philip\Documents\GitHub\cubesolve\object.fs
+\ require objects.fs
 
 object class
     24 constant rotations

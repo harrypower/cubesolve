@@ -1,5 +1,5 @@
-
-require piece_object.fs
+require c:\Users\Philip\Documents\GitHub\cubesolve\piece_object.fs
+\ require piece_object.fs
 
 25 constant total-pieces
 24 constant total-orientations
