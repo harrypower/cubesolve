@@ -1,4 +1,5 @@
 require c:\Users\Philip\Documents\GitHub\cubesolve\piece_object.fs
+require string.fs
 
 25 constant total-pieces
 24 constant total-orientations
@@ -7,6 +8,7 @@ struct
     cell% field apiece
 end-struct pieces%
 
+variable solutionoutput$ s" " solutionoutput$ $!
 create pieces-array
 pieces-array pieces% %size total-pieces * dup allot erase
 piece heap-new constant testpiece
@@ -14,6 +16,14 @@ variable solution false solution !
 variable working-pieces 0 working-pieces ! \ note working-pieces starts at 0 because there are 0 working pieces 
 \ now i have an array of cell size variables to hold the piece objects
 \ This array will constitute the 25 pieces to solve the puzzle.
+
+: dto$ ( d -- caddr u )  \ convert double signed to a string
+    swap over dabs <<# #s rot sign #> #>> ;
+
+: #to$ ( n -- c-addr u1 ) \ convert n to string 
+    s>d
+    swap over dabs
+    <<# #s rot sign #> #>> ;
 
 : piece@ ( nindex -- piece ) \ return piece object address stored in pieces-array 
     pieces-array apiece pieces% %size rot * + @ ;
@@ -81,6 +91,18 @@ make-pieces
     repeat
     ;
 	
+: addcr ( -- ) \ addes cr to solutionoutput$ 
+		s\" \n" solutionoutput$ $+! ;
+		
+: make-so ( -- ) \ populates the string solutionoutput$ to place in an output file
+		working-pieces @ #to$ solutionoutput$ $! addcr
+		total-pieces 0 do
+			i piece@ get-piece swap 
+			#to$ solutionoutput$ $+!
+		    s"   " solutionoutput$ $+!
+			#to$ solutionoutput$ $+! addcr
+		loop ;
+		
 : solvekeytest ( -- )
 	solve2top
 	key? if key drop ." do datasave and stop!" cr then
