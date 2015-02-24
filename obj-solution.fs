@@ -9,6 +9,9 @@ struct
 end-struct pieces%
 
 variable solutionoutput$ s" " solutionoutput$ $!
+variable puzzlefile$ s" c:\Users\Philip\Documents\GitHub\cubesolve\puzzlesolution.txt" puzzlefile$ $!
+variable fid
+variable junk$ s" " junk$ $!
 create pieces-array
 pieces-array pieces% %size total-pieces * dup allot erase
 piece heap-new constant testpiece
@@ -47,26 +50,13 @@ make-pieces
 	false = if true else false then
     then ;
 
-: solveit ( -- )
-    total-locations 0 ?do
-	total-orientations 0 ?do
-	    i j place-piece true =
-	    if
-		i j working-pieces @ piece@ set-piece drop
-		working-pieces @ 1 + working-pieces !
-	    then
-	    working-pieces @ total-pieces  >= if leave then 
-	loop
-	working-pieces @ total-pieces  >= if leave then
-    loop ;
-
 : displayboard ( -- )
     working-pieces @ 0 ?do
 	i . ."  *************" 
 	i piece@ print 
     loop ;
 
-: solveit2 { nstart -- }
+: solveit { nstart -- }  \ does the main solving iterations. solve_top starts this code
     total-locations total-orientations * nstart ?do
 	i total-orientations mod i total-orientations /
 	2dup place-piece true =
@@ -79,10 +69,9 @@ make-pieces
 	working-pieces @ total-pieces >= if true solution ! leave then 
     loop ;
 
-: solve2top ( -- )
-    0 \ start at 0 for solution
+: solve_top ( nstart -- ) \ solve puzzle from nstart as beginning point 
     begin
-	solveit2
+	solveit
 	solution @ false = key? false = and 
     while
 	    working-pieces @ 1 - dup working-pieces !
@@ -91,21 +80,58 @@ make-pieces
     repeat
     ;
 	
-: addcr ( -- ) \ addes cr to solutionoutput$ 
-		s\" \n" solutionoutput$ $+! ;
-		
-: make-so ( -- ) \ populates the string solutionoutput$ to place in an output file
-		working-pieces @ #to$ solutionoutput$ $! addcr
+: make-solutionoutput$ ( -- ) \ populates the string solutionoutput$ to place in an output file
+		working-pieces @ #to$ solutionoutput$ $! s" ;" solutionoutput$ $+!
 		total-pieces 0 do
 			i piece@ get-piece swap 
 			#to$ solutionoutput$ $+!
-		    s"   " solutionoutput$ $+!
-			#to$ solutionoutput$ $+! addcr
-		loop ;
+		    s" ," solutionoutput$ $+!
+			#to$ solutionoutput$ $+! s" ;" solutionoutput$ $+!
+		loop
+		s"  " solutionoutput$ $+!
+		;
 		
-: solvekeytest ( -- )
-	solve2top
-	key? if key drop ." do datasave and stop!" cr then
+: savepuzzle ( -- )
+		puzzlefile$ $@ w/o open-file swap fid !	0 <> 
+		if
+			puzzlefile$ $@ w/o create-file throw fid !
+		then
+		make-solutionoutput$ solutionoutput$ $@ fid @ write-file throw
+		fid @ flush-file throw
+		fid @ close-file throw ;
+		
+: parsepieces ( -- ) \ take data in solutionoutput$ and place in piece objects
+	solutionoutput$ $@  ';' $split junk$ $!
+	s>unumber? true <> throw d>s working-pieces !
+	total-pieces 0 ?do
+		junk$ $@ ',' $split solutionoutput$ $! 
+		s>unumber? true <> throw d>s 
+		solutionoutput$ $@ ';' $split junk$ $!
+		s>unumber? true <> throw d>s 
+		i piece@ set-piece
+	loop
+;  
+: loadpuzzle ( -- )
+	puzzlefile$ $@ r/o open-file throw fid ! 
+	fid @ slurp-fid
+	solutionoutput$ $!
+	fid @ close-file throw
+	;
+	
+: solvepuzzle ( nstart npiece-start -- ) \ solve puzzle from a point 
+\ nstart is 0 to 2999 ( orientation and location together )
+\ npiece-start is the working-pieces setting to start with 
+\ normaly start the puzzle at 0 0 
+	working-pieces !
+	solve_top
+	key drop 
+	." Saving puzzle current solution!" cr
+	make-solutionoutput$ savepuzzle
+	." Current solution now saved!" cr
 	working-pieces @ . ." working-pieces current value!" cr
 	;
 	
+: continuepuzzle ( -- ) \ continue to solve puzzle from file 
+	loadpuzzle parsepieces
+	0 working-pieces @ solvepuzzle
+	;
