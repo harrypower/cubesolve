@@ -182,7 +182,7 @@ object class
 		loop ;m method dodisplay
 end-class display
 
-display heap-new constant mydisplay
+display heap-new constant thedisplay
 
 : seesolution ( -- )
-	mydisplay dodisplay ;
+	thedisplay dodisplay ;
