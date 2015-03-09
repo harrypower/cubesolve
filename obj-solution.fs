@@ -145,7 +145,7 @@ object class
 		cell% field cube#
 	end-struct acell%
 	create mydisplay
-	mydisplay acell% %size xyz-size xyz-size * xyz-size * dup allot erase
+	mydisplay acell% %size xyz-size xyz-size * xyz-size * * dup allot erase
 	
 	m: ( npiece# nx ny nz display -- ) \ store the piece # at location into a display array for viewing later
 		xyz-size xyz-size * * swap \ z calculation offset
