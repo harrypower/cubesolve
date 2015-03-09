@@ -140,7 +140,7 @@ make-pieces
 object class
 	4 constant displaycellsize
 	5 constant topoffset
-	5 constant xyz-size
+	7 constant xyz-size
 	struct
 		cell% field cube#
 	end-struct acell%
@@ -174,7 +174,7 @@ object class
 				xyz-size 0 ?do	\ z
 					i j k this display@ \ retrieve piece value to display  
 					i displaycellsize * \ x 
-					xyz-size k * y + topoffset + \ y
+					xyz-size k * j + topoffset + \ y
 					at-xy
 					." :" #to$ type 
 				loop
