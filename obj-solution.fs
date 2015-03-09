@@ -160,7 +160,7 @@ object class
 		acell% %size * mydisplay + \ final address calculation
 		@ ;m method display@
 	m: ( display -- ) \ populate display array 
-		mydisplay acell% %size xyz-size xyz-size * xyz-size * erase \ clear array
+		mydisplay acell% %size xyz-size xyz-size * xyz-size * * erase \ clear array
 		working-pieces @ 0 ?do
 			5 0 ?do
 				i j i piece@ blockxyz@ this display!
