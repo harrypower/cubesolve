@@ -1,5 +1,6 @@
 require c:\Users\Philip\Documents\GitHub\cubesolve\piece_object.fs
 require string.fs
+require objects.fs
 
 25 constant total-pieces
 24 constant total-orientations
@@ -135,3 +136,41 @@ make-pieces
 	loadpuzzle parsepieces
 	0 working-pieces @ solvepuzzle
 	;
+	
+object class
+	4 constant displaycellsize
+	5 constant xyz-size
+	structure
+		cell% field cube#
+	end-struct acell%
+	create mydisplay
+	mydisplay acell% %size xyz-size xyz-size * xyz-size * dup allot erase
+	
+	m: ( npiece# nx ny nz display -- ) \ store the piece # at location into a display array for viewing later
+		xyz-size xyz-size * * swap \ z calculation offset
+		xyz-size * +               \ y calculation offset
+		+                          \ x calculation offset
+		acell% %size * mydisplay + \ final address calculation
+		! ;m method display!
+	m: ( nx ny nz display --- npiece# ) \ retreave piece # at location from display array for use
+		xyz-size xyz-size * * swap \ z calculation offset
+		xyz-size * +               \ y calculation offset
+		+                          \ x calculation offset
+		acell% %size * mydisplay + \ final address calculation
+		@ ;m method display@
+	m: ( display -- ) \ populate display array 
+		mydisplay acell% %size xyz-size xyz-size * xyz-size * erase \ clear array
+		working-pieces @ 0 ?do
+			5 0 ?do
+				i j i piece@ blockxyz@ this display!
+			loop
+		loop ;m method popdisplay
+	m: ( display -- ) \ populate and display current solution
+		this popdisplay
+		xyz-size 0 ?do    		\ x
+			xyz-size 0 ?do		\ y
+				zyx-size 0 ?do	\ z
+				
+				loop
+			loop
+		loop ;m method dodisplay
