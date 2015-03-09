@@ -139,8 +139,9 @@ make-pieces
 	
 object class
 	4 constant displaycellsize
+	5 constant topoffset
 	5 constant xyz-size
-	structure
+	struct
 		cell% field cube#
 	end-struct acell%
 	create mydisplay
@@ -167,10 +168,21 @@ object class
 		loop ;m method popdisplay
 	m: ( display -- ) \ populate and display current solution
 		this popdisplay
+		page
 		xyz-size 0 ?do    		\ x
 			xyz-size 0 ?do		\ y
-				zyx-size 0 ?do	\ z
-				
+				xyz-size 0 ?do	\ z
+					i j k this display@ \ retrieve piece value to display  
+					i displaycellsize * \ x 
+					xyz-size k * y + topoffset + \ y
+					at-xy
+					." :" #to$ type 
 				loop
 			loop
 		loop ;m method dodisplay
+end-class display
+
+display heap-new constant mydisplay
+
+: seesolution ( -- )
+	mydisplay dodisplay ;
