@@ -164,7 +164,7 @@ object class
 		mydisplay acell% %size xyz-size xyz-size * xyz-size * * erase \ clear array
 		working-pieces @ 0 ?do
 			5 0 ?do
-				j i j piece@ .s cr blockxyz@ this display!
+				j 1 + i j piece@ .s cr blockxyz@ this display!
 			loop
 		loop ;m method popdisplay
 	m: ( display -- ) \ populate and display current solution
