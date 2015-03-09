@@ -139,8 +139,9 @@ make-pieces
 	
 object class
 	4 constant displaycellsize
-	5 constant topoffset
-	7 constant xyz-size
+	1 constant topoffset
+	5 constant xyz-size
+	1 constant zplane-spacing
 	struct
 		cell% field cube#
 	end-struct acell%
@@ -163,7 +164,7 @@ object class
 		mydisplay acell% %size xyz-size xyz-size * xyz-size * * erase \ clear array
 		working-pieces @ 0 ?do
 			5 0 ?do
-				i j i piece@ blockxyz@ this display!
+				j i j piece@ .s cr blockxyz@ this display!
 			loop
 		loop ;m method popdisplay
 	m: ( display -- ) \ populate and display current solution
@@ -172,9 +173,9 @@ object class
 		xyz-size 0 ?do    		\ x
 			xyz-size 0 ?do		\ y
 				xyz-size 0 ?do	\ z
-					i j k this display@ \ retrieve piece value to display  
-					i displaycellsize * \ x 
-					xyz-size k * j + topoffset + \ y
+					k j i this display@ \ retrieve piece value to display  
+					k displaycellsize * \ x 
+					xyz-size zplane-spacing + i * j + topoffset + \ y
 					at-xy
 					." :" #to$ type 
 				loop
