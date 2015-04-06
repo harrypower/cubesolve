@@ -51,12 +51,6 @@ make-pieces
 	false = if true else false then
     then ;
 
-: displayboard ( -- )
-    working-pieces @ 0 ?do
-	i . ."  *************" 
-	i piece@ print 
-    loop ;
-
 : solveit { nstart -- }  \ does the main solving iterations. solve_top starts this code
     total-locations total-orientations * nstart ?do
 	i total-orientations mod i total-orientations /
