@@ -15,9 +15,13 @@ object class
   end-struct blc%
   create base-shapes
   base-shapes blc% %size 4 * dup allot erase \ 4 sets of pieces data
+  create buff-shapes
+  buff-shapes blc% %size 4 * dup allot erase
   create orientations
   orientations blc% %size 2 * 5 * 4 * 4 *  dup allot erase \ basic piece one orientation
   \ 2 x translation placements 5 y translation placements 4 z translation placements of 4 sets of pieces
+  create buff-orient
+  buff-orient blc% %sze 2 * 5 * 4 * 4 * dup allot erase
   create all-orient
   all-orient blc% %size 2 * 5 * 4 * 4 * 6 * dup allot erase \ all pieces list
   \ 6 transformations from basic piece orientation
