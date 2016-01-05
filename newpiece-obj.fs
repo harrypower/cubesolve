@@ -14,22 +14,36 @@ object class
     loc% field e
   end-struct blc%
   create base-shapes
-  base-shapes blc% %size 4 * dup allot erase \ 4 sets of pieces data
-  create buff-shapes
-  buff-shapes blc% %size 4 * dup allot erase
-  create orientations
-  orientations blc% %size 2 * 5 * 4 * 4 *  dup allot erase \ basic piece one orientation
+  base-shapes blc% %size 4 * dup allot erase \ 4 sets of piece data
+  create shapes-x
+  shapes-x blc% %size 4 * 2 * dup allot erase \ data with x translation
+  create shapes-xy
+  shapes-xy blc% %size 4 * 2 * 5 * dup allot erase \ data with x and y translation
+  create shapes-xyz
+  shapes-xyz blc% %size 2 * 5 * 4 * 4 *  dup allot erase \ basic piece one orientation
   \ 2 x translation placements 5 y translation placements 4 z translation placements of 4 sets of pieces
-  create buff-orient
-  buff-orient blc% %sze 2 * 5 * 4 * 4 * dup allot erase
   create all-orient
   all-orient blc% %size 2 * 5 * 4 * 4 * 6 * dup allot erase \ all pieces list
   \ 6 transformations from basic piece orientation
   cell% inst-var bshape-max
-  cell% inst-var orient-max
+  cell% inst-var sx-max
+  cell% inst-var sxy-max
+  cell% inst-var sxyz-max
   cell% inst-var allorient-max
 
   protected
+  m: ( nx ny nz naddr nindex piece -- )
+    { nx ny nz naddr nindex }
+    nx naddr x loc% %size nindex * + !
+    ny naddr y loc% %size nindex * + !
+    nz naddr z loc% %size nindex * + !
+  ;m method bulk!
+  m: ( naddr nindex piece -- nx ny nz )
+    { naddr nindex }
+    naddr x loc% %size nindex * + @
+    naddr y loc% %size nindex * + @
+    naddr z loc% %size nindex * + @
+  ;m method bulk@
   m: ( nx ny nz nbase-shapes-addr nindex piece -- ) \ to store basic-shape data array
     { nx ny nz nbsa nindex }
     nx nbsa x nindex blc% %size * + !
@@ -42,24 +56,10 @@ object class
     nbsa y nindex blc% %size * + @
     nbsa z nindex blc% %size * + @
   ;m method bshape@
-  m: ( nindex piece -- nx ny nz )
-    { nindex }
-    base-shapes x loc% %size nindex * + @
-    base-shapes y loc% %size nindex * + @
-    base-shapes z loc% %size nindex * + @
-  ;m method bshapebulk@
-  m: ( nx ny nz nindex piece -- )
-    { nx ny nz nindex }
-    nx orientations x loc% %size nindex * + !
-    ny orientations y loc% %size nindex * + !
-    nz orientations z loc% %size nindex * + !
-  ;m method orient!
-  m: ( nindex piece -- nx ny nz )
-    { nindex }
-    orientations x loc% %size nindex * + @
-    orientations y loc% %size nindex * + @
-    orientations z loc% %size nindex * + @
-  ;m method orient@
+  m: ( piece -- )
+    bshape-max @ 0 do base-shapes i this bulk@ shapes-x i this bulk! loop
+    bshape-max @ 0 do base-shapes i this bulk@ rot 1 + -rot shapes-x i bshape-max @ + this bulk! loop
+  ;m method xtranslation!
   public
   m: ( piece -- )
     0 0 0 base-shapes a 0 this bshape! \ first shape
@@ -83,14 +83,19 @@ object class
     2 0 0 base-shapes d 3 this bshape!
     3 0 0 base-shapes e 3 this bshape!
     20 bshape-max !
-    800 orient-max !
+    40 sx-max !
+    200 sxy-max !
+    800 sxyz-max !
     4800 allorient-max !
   ;m overrides construct
   m: ( piece -- )
     base-shapes e 3 this bshape@ . . . cr
     base-shapes d 2 this bshape@ . . . cr
-    ." ........" cr
-    bshape-max @ 0 ?do i this bshapebulk@ rot ." x:" . swap ."  y:" . ."  z:" . cr loop
+    ." XXXXXXXX" cr
+    bshape-max @ 0 ?do base-shapes i this bulk@ rot ." x:" . swap ."  y:" . ."  z:" . ."  #" i . cr loop
+    this xtranslation!
+    ." ********" cr
+    sx-max @ 0 ?do shapes-x i this bulk@ rot ." x:" . swap ."  y:" . ."  z:" . ."  #" i . cr loop
   ;m method testing
 end-class piece
 
