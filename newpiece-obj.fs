@@ -130,14 +130,28 @@ object class
 end-class piece
 
 piece class
-
+  struct
+    cell% field pieces
+  end-struct thepieces%
+  create theboard
+  theboard thepieces% %size 25 * dup allot erase \ array of 25 board pieces
+  protected
+  m: ( npiece nindex board -- )
+    thepieces% %size * theboard + !
+  ;m method piece!
+  m: ( nindex board -- npiece )
+    thepieces% %size * theboard + @
+  ;m method piece@
+  public
   m: ( piece -- )
     this [parent] construct
   ;m overrides construct
+  m: ( piece -- )
+    499 3 this piece!
+    3 this piece@ . ." this should be 499!" cr
+  ;m method testing2
 end-class board
-
-\ piece heap-new constant ptest
-\ ptest testing
 
 board heap-new constant btest
 btest testing
+btest testing2
