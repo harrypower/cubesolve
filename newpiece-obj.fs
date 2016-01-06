@@ -73,6 +73,15 @@ object class
     sxy-max @ 0 do shapes-xy i this bulk@ 2 + shapes-xyz i sxy-max @ 2 * + this bulk! loop
     sxy-max @ 0 do shapes-xy i this bulk@ 3 + shapes-xyz i sxy-max @ 3 * + this bulk! loop
   ;m method createxyztrans
+  m: ( piece -- )
+    sxyz-max @ 0 do shapes-xyz i this bulk@ all-orient i this bulk! loop
+    sxyz-max @ 0 do shapes-xyz i this bulk@ rot swap all-orient i sxyz-max @ + this bulk! loop
+    sxyz-max @ 0 do shapes-xyz i this bulk@ rot swap -rot all-orient i sxyz-max @ 2 * + this bulk! loop
+    sxyz-max @ 0 do shapes-xyz i this bulk@ swap all-orient i sxyz-max @ 3 * + this bulk! loop
+    sxyz-max @ 0 do shapes-xyz i this bulk@ rot all-orient i sxyz-max @ 4 * + this bulk! loop
+    sxyz-max @ 0 do shapes-xyz i this bulk@ -rot all-orient i sxyz-max @ 5 * + this bulk! loop
+  ;m method all6rotations
+
   public
   m: ( piece -- )
     0 0 0 base-shapes a 0 this bshape! \ first shape
@@ -103,6 +112,7 @@ object class
     this creatextrans
     this createxytrans
     this createxyztrans
+    this all6rotations
   ;m overrides construct
   m: ( piece -- )
     base-shapes e 3 this bshape@ . . . cr
@@ -115,6 +125,8 @@ object class
     sxy-max @ 0 do shapes-xy i this bulk@ rot ." x:" . swap ."  y:" . ."  z:" . ."  #" i . cr loop
     ." zzzzzzzzz" cr
     sxyz-max @ 0 do shapes-xyz i this bulk@ rot ." x:" . swap ."  y:" . ."  z:" . ."  #" i . cr loop
+    ." all------" cr
+    allorient-max @ 0 do all-orient i this bulk@ rot ." x:" . swap ."  y:" . ."  z:" . ."  #" i . cr loop
   ;m method testing
 end-class piece
 
@@ -125,8 +137,8 @@ piece class
   ;m overrides construct
 end-class board
 
-piece heap-new constant ptest
-ptest testing
+\ piece heap-new constant ptest
+\ ptest testing
 
 board heap-new constant btest
 btest testing
