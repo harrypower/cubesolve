@@ -25,11 +25,13 @@ object class
   create all-orient
   all-orient blc% %size 2 * 5 * 4 * 4 * 6 * dup allot erase \ all pieces list
   \ 6 transformations from basic piece orientation
-  cell% inst-var bshape-max
-  cell% inst-var sx-max
-  cell% inst-var sxy-max
-  cell% inst-var sxyz-max
-  cell% inst-var allorient-max
+
+  20 variable bshape-max bshape-max !
+  40 variable sx-max sx-max !
+  200 variable sxy-max sxy-max !
+  800 variable sxyz-max sxyz-max !
+  4800 variable  allorient-max allorient-max !
+  960 variable pindex-max pindex-max !
 
   protected
   m: ( nx ny nz naddr nindex piece -- )
@@ -104,21 +106,18 @@ object class
     1 0 0 base-shapes c 3 this bshape!
     2 0 0 base-shapes d 3 this bshape!
     3 0 0 base-shapes e 3 this bshape!
-    20 bshape-max !
-    40 sx-max !
-    200 sxy-max !
-    800 sxyz-max !
-    4800 allorient-max !
     this creatextrans
     this createxytrans
     this createxyztrans
     this all6rotations
+    \ at this moment the piece data base is populated
   ;m overrides construct
+
   m: ( piece -- )
     base-shapes e 3 this bshape@ . . . cr
     base-shapes d 2 this bshape@ . . . cr
     ." XXXXXXXX" cr
-    bshape-max @ 0 do base-shapes i this bulk@ rot ." x:" . swap ."  y:" . ."  z:" . ."  #" i . cr loop
+    bshape-max @  0 do base-shapes i this bulk@ rot ." x:" . swap ."  y:" . ."  z:" . ."  #" i . cr loop
     ." ********" cr
     sx-max @ 0 do shapes-x i this bulk@ rot ." x:" . swap ."  y:" . ."  z:" . ."  #" i . cr loop
     ." yyyyyyyyy" cr
