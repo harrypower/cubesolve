@@ -133,9 +133,10 @@ piece class
   struct
     cell% field pieces
   end-struct thepieces%
-  25 variable pieces-max pieces-max !
+  25 variable parray-max parray-max !
+  960 variable totalpossiblepieces totalpossiblepieces !
   create theboard
-  theboard thepieces% %size pieces-max @ * dup allot erase \ array of 25 board pieces
+  theboard thepieces% %size parray-max @ * dup allot erase \ array of 25 board pieces
   protected
   m: ( npiece nindex board -- )
     thepieces% %size * theboard + !
@@ -149,8 +150,8 @@ piece class
   ;m overrides construct
   m: ( piece -- )
     499 3 this piece!
-    3 this piece@ . ." this should be 499!" cr
-    pieces-max @ 0 do i this piece@ . ."  #" i . cr loop
+    cr 3 this piece@ . ." this should be 499!" cr
+    parray-max @ 0 do i this piece@ . ."  #" i . cr loop
   ;m method testing2
 end-class board
 
