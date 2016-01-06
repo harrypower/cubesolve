@@ -133,8 +133,9 @@ piece class
   struct
     cell% field pieces
   end-struct thepieces%
+  25 variable pieces-max pieces-max !
   create theboard
-  theboard thepieces% %size 25 * dup allot erase \ array of 25 board pieces
+  theboard thepieces% %size pieces-max @ * dup allot erase \ array of 25 board pieces
   protected
   m: ( npiece nindex board -- )
     thepieces% %size * theboard + !
@@ -149,9 +150,10 @@ piece class
   m: ( piece -- )
     499 3 this piece!
     3 this piece@ . ." this should be 499!" cr
+    pieces-max @ 0 do i this piece@ . ."  #" i . cr loop
   ;m method testing2
 end-class board
 
 board heap-new constant btest
-btest testing
+\ btest testing
 btest testing2
