@@ -59,7 +59,15 @@ object class
   m: ( piece -- )
     bshape-max @ 0 do base-shapes i this bulk@ shapes-x i this bulk! loop
     bshape-max @ 0 do base-shapes i this bulk@ rot 1 + -rot shapes-x i bshape-max @ + this bulk! loop
-  ;m method xtranslation!
+  ;m method creatextrans
+  m: ( piece -- )
+    sx-max @ 0 do shapes-x i this bulk@ shapes-xy i this bulk! loop
+    sx-max @ 0 do shapes-x i this bulk@ swap 1 + swap shapes-xy i sx-max @ + this bulk! loop
+    sx-max @ 0 do shapes-x i this bulk@ swap 2 + swap shapes-xy i sx-max @ 2 * + this bulk! loop
+    sx-max @ 0 do shapes-x i this bulk@ swap 3 + swap shapes-xy i sx-max @ 3 * + this bulk! loop
+    sx-max @ 0 do shapes-x i this bulk@ swap 4 + swap shapes-xy i sx-max @ 4 * + this bulk! loop
+  ;m method createxytrans
+  
   public
   m: ( piece -- )
     0 0 0 base-shapes a 0 this bshape! \ first shape
@@ -87,15 +95,18 @@ object class
     200 sxy-max !
     800 sxyz-max !
     4800 allorient-max !
+    this creatextrans
+    this createxytrans
   ;m overrides construct
   m: ( piece -- )
     base-shapes e 3 this bshape@ . . . cr
     base-shapes d 2 this bshape@ . . . cr
     ." XXXXXXXX" cr
     bshape-max @ 0 ?do base-shapes i this bulk@ rot ." x:" . swap ."  y:" . ."  z:" . ."  #" i . cr loop
-    this xtranslation!
     ." ********" cr
     sx-max @ 0 ?do shapes-x i this bulk@ rot ." x:" . swap ."  y:" . ."  z:" . ."  #" i . cr loop
+    ." yyyyyyyyy" cr
+    sxy-max @ 0 ?do shapes-xy i this bulk@ rot ." x:" . swap ."  y:" . ."  z:" . ."  #" i . cr loop
   ;m method testing
 end-class piece
 
