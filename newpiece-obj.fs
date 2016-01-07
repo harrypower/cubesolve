@@ -75,7 +75,27 @@ object class
     sxyz-max @ 0 do shapes-xyz i this bulk@ rot all-orient i sxyz-max @ 4 * + this bulk! loop
     sxyz-max @ 0 do shapes-xyz i this bulk@ -rot all-orient i sxyz-max @ 5 * + this bulk! loop
   ;m method all6rotations
-
+  m: ( nx1 ny1 nz1 nx2 ny2 nz2 piece -- nflag ) \ compare nx1 ny1 nz1 to nx2 ny2 nz2
+    >r >r >r rot r> = rot r> = rot r> = and and
+  ;m method test-voxel
+  m: ( nx ny nz nindex piece -- nflag ) \ compare nx ny nz voxel to nindex piece all voxels
+    { nx ny nz nindex }
+    nx ny nz all-orient a nindex this bshape@ this test-voxel
+    nx ny nz all-orient b nindex this bshape@ this test-voxel
+    nx ny nz all-orient c nindex this bshape@ this test-voxel
+    nx ny nz all-orient d nindex this bshape@ this test-voxel
+    nx ny nz all-orient e nindex this bshape@ this test-voxel
+    or or or or
+  ;m method test-voxeltovoxels
+  m: ( nindex1 nindex2 piece -- nflag ) \ compare one piece for collision with another piece
+    { nindex1 nindex2 }
+    all-orient a nindex1 this bshape@ nindex2 this test-voxeltovoxels
+    all-orient b nindex1 this bshape@ nindex2 this test-voxeltovoxels
+    all-orient c nindex1 this bshape@ nindex2 this test-voxeltovoxels
+    all-orient d nindex1 this bshape@ nindex2 this test-voxeltovoxels
+    all-orient e nindex1 this bshape@ nindex2 this test-voxeltovoxels
+    or or or or
+  ;m method test-collision
   public
   m: ( piece -- )
     0 0 0 base-shapes a 0 this bshape! \ first shape
@@ -105,19 +125,22 @@ object class
     \ at this moment the piece data base is populated
   ;m overrides construct
 
+  m: ( nx ny nz piece -- )
+    rot ." x:" . swap ."  y:" . ."  z:" .
+  ;m method xyz.
   m: ( piece -- )
-     base-shapes e 3 this bshape@ . . . cr
-     base-shapes d 2 this bshape@ . . . cr
-     ." XXXXXXXX" cr
-     bshape-max @  0 do base-shapes i this bulk@ rot ." x:" . swap ."  y:" . ."  z:" . ."  #" i . cr loop
-     ." ********" cr
-     sx-max @ 0 do shapes-x i this bulk@ rot ." x:" . swap ."  y:" . ."  z:" . ."  #" i . cr loop
-     ." yyyyyyyyy" cr
-     sxy-max @ 0 do shapes-xy i this bulk@ rot ." x:" . swap ."  y:" . ."  z:" . ."  #" i . cr loop
-     ." zzzzzzzzz" cr
-     sxyz-max @ 0 do shapes-xyz i this bulk@ rot ." x:" . swap ."  y:" . ."  z:" . ."  #" i . cr loop
-     ." all------" cr
-     allorient-max @ 0 do all-orient i this bulk@ rot ." x:" . swap ."  y:" . ."  z:" . ."  #" i . cr loop
+    base-shapes e 3 this bshape@ . . . cr
+    base-shapes d 2 this bshape@ . . . cr
+    ." XXXXXXXX" cr
+    bshape-max @  0 do base-shapes i this bulk@ this xyz. ."  #" i . cr loop
+    ." ********" cr
+    sx-max @ 0 do shapes-x i this bulk@ this xyz. ."  #" i . cr loop
+    ." yyyyyyyyy" cr
+    sxy-max @ 0 do shapes-xy i this bulk@ this xyz. ."  #" i . cr loop
+    ." zzzzzzzzz" cr
+    sxyz-max @ 0 do shapes-xyz i this bulk@ this xyz. ."  #" i . cr loop
+    ." all------" cr
+    allorient-max @ 0 do all-orient i this bulk@ this xyz. ."  #" i . cr loop
     pindex-max @ 0 do
       all-orient a i this bshape@ rot ." a:" . swap . .
       all-orient b i this bshape@ rot ." b:" . swap . .
@@ -126,6 +149,30 @@ object class
       all-orient e i this bshape@ rot ." e:" . swap . . ." #" i . cr
     loop
   ;m method testing
+  m: ( piece -- )
+    1 2 3 1 2 3 this test-voxel . ."  <- should be true!" cr
+    1 2 3 1 2 5 this test-voxel . ."  <- should be false!" cr
+    4 0 0 4 0 0 this test-voxel . ."  <- should be true!" cr
+    0 0 0 0 0 0 this test-voxel . ."  <- should be true!" cr
+    4 4 4 4 4 4 this test-voxel . ."  <- should be true!" cr
+    4 0 4 4 4 0 this test-voxel . ."  <- should be false!" cr
+    0 0 this test-collision . ."  <- collision should be true!" cr
+    0 1 this test-collision . ."  <- collision should be true!" cr
+    0 25 this test-collision . ."  <- collision should be false!" cr
+    all-orient a 0 this bshape@ this xyz. ."  :a 0" cr
+    all-orient b 0 this bshape@ this xyz. ."  :b 0" cr
+    all-orient c 0 this bshape@ this xyz. ."  :c 0" cr
+    all-orient d 0 this bshape@ this xyz. ."  :d 0" cr
+    all-orient e 0 this bshape@ this xyz. ."  :e 0" cr
+    all-orient a 25 this bshape@ this xyz. ."  :a 25" cr
+    all-orient b 25 this bshape@ this xyz. ."  :b 25" cr
+    all-orient c 25 this bshape@ this xyz. ."  :c 25" cr
+    all-orient d 25 this bshape@ this xyz. ."  :d 25" cr
+    all-orient e 25 this bshape@ this xyz. ."  :e 25" cr
+    0 0 0 0 this test-voxeltovoxels . ."  <- collision should be true!" cr
+    3 0 1 0 this test-voxeltovoxels . ."  <- collision should be true!" cr
+    3 0 2 0 this test-voxeltovoxels . ."  <- collision should be false!" cr
+  ;m method testcompare
 end-class piece
 
 piece class
@@ -154,5 +201,6 @@ piece class
 end-class board
 
 board heap-new constant btest
-btest testing
+\ btest testing
 btest testing2
+btest testcompare
