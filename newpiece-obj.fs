@@ -41,10 +41,8 @@ object class
     nz naddr z loc% %size nindex * + !
   ;m method bulk!
   m: ( naddr nindex piece -- nx ny nz )
-    { naddr nindex }
-    naddr x loc% %size nindex * + @
-    naddr y loc% %size nindex * + @
-    naddr z loc% %size nindex * + @
+    loc% %size * + dup dup
+    x @ -rot y @ swap z @
   ;m method bulk@
   m: ( nx ny nz nbase-shapes-addr nindex piece -- ) \ to store basic-shape data array
     { nx ny nz nbsa nindex }
@@ -53,10 +51,8 @@ object class
     nz nbsa z nindex blc% %size * + !
   ;m method bshape!
   m: ( nbase-shapes-addr nindex piece -- nx ny nz ) \ get basic-shape x y z data
-    { nbsa nindex }
-    nbsa x nindex blc% %size * + @
-    nbsa y nindex blc% %size * + @
-    nbsa z nindex blc% %size * + @
+    blc% %size * + dup dup
+    x @ -rot y @ swap z @
   ;m method bshape@
   m: ( piece -- )
     bshape-max @ 0 do base-shapes i this bulk@ shapes-x i this bulk! loop
@@ -114,18 +110,25 @@ object class
   ;m overrides construct
 
   m: ( piece -- )
-    base-shapes e 3 this bshape@ . . . cr
-    base-shapes d 2 this bshape@ . . . cr
-    ." XXXXXXXX" cr
-    bshape-max @  0 do base-shapes i this bulk@ rot ." x:" . swap ."  y:" . ."  z:" . ."  #" i . cr loop
-    ." ********" cr
-    sx-max @ 0 do shapes-x i this bulk@ rot ." x:" . swap ."  y:" . ."  z:" . ."  #" i . cr loop
-    ." yyyyyyyyy" cr
-    sxy-max @ 0 do shapes-xy i this bulk@ rot ." x:" . swap ."  y:" . ."  z:" . ."  #" i . cr loop
-    ." zzzzzzzzz" cr
-    sxyz-max @ 0 do shapes-xyz i this bulk@ rot ." x:" . swap ."  y:" . ."  z:" . ."  #" i . cr loop
-    ." all------" cr
-    allorient-max @ 0 do all-orient i this bulk@ rot ." x:" . swap ."  y:" . ."  z:" . ."  #" i . cr loop
+     base-shapes e 3 this bshape@ . . . cr
+     base-shapes d 2 this bshape@ . . . cr
+     ." XXXXXXXX" cr
+     bshape-max @  0 do base-shapes i this bulk@ rot ." x:" . swap ."  y:" . ."  z:" . ."  #" i . cr loop
+     ." ********" cr
+     sx-max @ 0 do shapes-x i this bulk@ rot ." x:" . swap ."  y:" . ."  z:" . ."  #" i . cr loop
+     ." yyyyyyyyy" cr
+     sxy-max @ 0 do shapes-xy i this bulk@ rot ." x:" . swap ."  y:" . ."  z:" . ."  #" i . cr loop
+     ." zzzzzzzzz" cr
+     sxyz-max @ 0 do shapes-xyz i this bulk@ rot ." x:" . swap ."  y:" . ."  z:" . ."  #" i . cr loop
+     ." all------" cr
+     allorient-max @ 0 do all-orient i this bulk@ rot ." x:" . swap ."  y:" . ."  z:" . ."  #" i . cr loop
+    pindex-max @ 0 do
+      all-orient a i this bshape@ rot ." a:" . swap . .
+      all-orient b i this bshape@ rot ." b:" . swap . .
+      all-orient c i this bshape@ rot ." c:" . swap . .
+      all-orient d i this bshape@ rot ." d:" . swap . .
+      all-orient e i this bshape@ rot ." e:" . swap . . ." #" i . cr
+    loop
   ;m method testing
 end-class piece
 
@@ -134,8 +137,7 @@ piece class
     cell% field pieces
   end-struct thepieces%
   25 variable parray-max parray-max !
-  960 variable totalpossiblepieces totalpossiblepieces !
-  create theboard
+    create theboard
   theboard thepieces% %size parray-max @ * dup allot erase \ array of 25 board pieces
   protected
   m: ( npiece nindex board -- )
@@ -156,5 +158,5 @@ piece class
 end-class board
 
 board heap-new constant btest
-\ btest testing
+btest testing
 btest testing2
