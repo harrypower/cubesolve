@@ -35,20 +35,16 @@ object class
 
   protected
   m: ( nx ny nz naddr nindex piece -- )
-    { nx ny nz naddr nindex }
-    nx naddr x loc% %size nindex * + !
-    ny naddr y loc% %size nindex * + !
-    nz naddr z loc% %size nindex * + !
+    loc% %size * + { naddr }
+    naddr z ! naddr y ! naddr x !
   ;m method bulk!
   m: ( naddr nindex piece -- nx ny nz )
     loc% %size * + dup dup
     x @ -rot y @ swap z @
   ;m method bulk@
   m: ( nx ny nz nbase-shapes-addr nindex piece -- ) \ to store basic-shape data array
-    { nx ny nz nbsa nindex }
-    nx nbsa x nindex blc% %size * + !
-    ny nbsa y nindex blc% %size * + !
-    nz nbsa z nindex blc% %size * + !
+    blc% %size * + { nbsa }
+    nbsa z ! nbsa y ! nbsa x !
   ;m method bshape!
   m: ( nbase-shapes-addr nindex piece -- nx ny nz ) \ get basic-shape x y z data
     blc% %size * + dup dup
