@@ -179,8 +179,9 @@ piece class
   struct
     cell% field pieces
   end-struct thepieces%
-  25 variable parray-max parray-max !
-    create theboard
+  25 variable parray-max parray-max ! \ total pieces in static array
+  1000 variable nopiece nopiece ! \ the value that means no piece is present
+  create theboard \ note this is a static board used in all board objects
   theboard thepieces% %size parray-max @ * dup allot erase \ array of 25 board pieces
   protected
   m: ( npiece nindex board -- )
@@ -191,7 +192,11 @@ piece class
   ;m method piece@
   public
   m: ( piece -- )
+    parray-max @ 0 do nopiece @ i this piece! loop \ put no piece in array at start
+  ;m method emptyboard
+  m: ( piece -- )
     this [parent] construct
+    this emptyboard
   ;m overrides construct
   m: ( piece -- )
     499 3 this piece!
