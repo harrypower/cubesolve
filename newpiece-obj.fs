@@ -216,6 +216,12 @@ piece class
     \ nsolution is the pindex solution value and only has meaning if nflag is false
     true true  pindex-max @ 0 do 2drop i this testpiece if i true else i false leave then loop
   ;m method findpiece
+  m: ( nstart board -- nsolution nflag ) \ test all piece combination placements with current pieces in solution for collision
+    \ nflag is false if solution is found
+    \ nflag is true if no solutions is found
+    \ nsolution is the last pindex solution value tested
+    true true rot pindex-max @ swap do 2drop i this testpiece if i true else i false leave then loop
+  ;m method findpiece2
   m: ( nsolution nflag board -- nflag2 )
     if
       drop
@@ -233,6 +239,38 @@ piece class
     0 0 this piece! \ start with piece orientation 0 and go Forth
     pindex-max @ 1 do this findpiece this placepiece if leave then loop
   ;m method solvepuzzle
+  m: ( npindex board -- npindex2 )
+    dup pindex-max @ >= if drop 0 then
+  ;m method pindexrollover
+  m: ( n board -- n2 )
+    dup 0 < if drop 0 then
+  ;m method starttest
+  m: ( board -- )
+    this emptyboard
+    1 current-solution-piece !
+    0 0 this piece!
+    0 \ start the search from the begining of total pieces
+    begin
+      this findpiece2
+      if
+        drop \ throw bad solution away
+        current-solution-piece @ this piece@ 1 + dup pindex-max @ >=
+        if
+          \ if at the end of the possible pieces then backstep current solution piece one amount and step past index value and continue
+          drop current-solution-piece @ 1 - this piece@ 1 + this pindexrollover
+          current-solution-piece @ 1 - this starttest current-solution-piece !
+        then
+      else
+        \ store this found solution
+        current-solution-piece @ this piece! current-solution-piece @ 1 + current-solution-piece !
+        0 \ start a new search from the start of total pieces
+      then
+      current-solution-piece @ . cr 
+      current-solution-piece @ parray-max @ >= \ if true then solution reached if false continue
+    until
+    ." yay found the solution"
+  ;m method solvepuzzle2
+
   m: ( board -- )
     this solvepuzzle
     this findpiece
@@ -246,6 +284,6 @@ board heap-new constant btest
 \ btest testing
 btest testing2
 btest testcompare
-btest solvepuzzle
+btest solvepuzzle2
 \ btest findpiece . .
 \ btest test3 .s
