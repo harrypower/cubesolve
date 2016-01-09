@@ -216,6 +216,12 @@ piece class
     \ nsolution is the last pindex solution value tested
     true true rot pindex-max @ swap do 2drop i this testpiece if i true else i false leave then loop
   ;m method findpiece
+  m: ( n board -- n1 )
+    dup 0 < if drop 0 then
+  ;m method zerotest
+  m: ( n board -- n2 )
+    dup pindex-max @ >= if drop 0 current-solution-piece @ 1 - this zerotest current-solution-piece ! then
+  ;m method pmaxtest
   m: ( board -- )
     this emptyboard
     0 current-solution-piece !
@@ -223,13 +229,17 @@ piece class
     begin
       this findpiece
       if
-        .s ." no more solutions! " cr parray-max @ current-solution-piece !
+        \ .s ." no more solutions! " cr parray-max @ current-solution-piece !
+        \ here because no solutions on this path need to back trace
+        drop \ throw away bad solution
+        current-solution-piece @ dup 1 - this zerotest current-solution-piece ! \ step back current solution pointer
+        this piece@ 1 + this pmaxtest \ get last solved piece and go past that solution
       else
         \ store this found solution
         current-solution-piece @ this piece! current-solution-piece @ 1 + current-solution-piece !
         0 \ start a new search from the start of total pieces
       then
-      current-solution-piece @ . cr
+      current-solution-piece @ dup . ."  " this piece@ . cr
       current-solution-piece @ parray-max @ >= \ if true then solution reached if false continue
     until
     ." yay found the solution"
