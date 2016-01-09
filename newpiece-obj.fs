@@ -232,7 +232,7 @@ piece class
         \ .s ." no more solutions! " cr parray-max @ current-solution-piece !
         \ here because no solutions on this path need to back trace
         drop \ throw away bad solution
-        current-solution-piece @ dup 1 - this zerotest current-solution-piece ! \ step back current solution pointer
+        current-solution-piece @ 1 - dup this zerotest current-solution-piece ! \ step back current solution pointer
         this piece@ 1 + this pmaxtest \ get last solved piece and go past that solution
       else
         \ store this found solution
