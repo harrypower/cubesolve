@@ -179,6 +179,7 @@ piece class
   struct
     cell% field pieces
   end-struct thepieces%
+  0 variable current-solution-piece current-solution-piece !
   25 variable parray-max parray-max ! \ total pieces in static array
   1000 variable nopiece nopiece ! \ the value that means no piece is present
   create theboard \ note this is a static board used in all board objects
@@ -191,21 +192,60 @@ piece class
     thepieces% %size * theboard + @
   ;m method piece@
   public
-  m: ( piece -- )
+  m: ( board -- )
     parray-max @ 0 do nopiece @ i this piece! loop \ put no piece in array at start
   ;m method emptyboard
-  m: ( piece -- )
+  m: ( board -- )
     this [parent] construct
     this emptyboard
   ;m overrides construct
-  m: ( piece -- )
+  m: ( board -- )
     499 3 this piece!
     cr 3 this piece@ . ." this should be 499!" cr
     parray-max @ 0 do i this piece@ . ."  #" i . cr loop
   ;m method testing2
+  m: ( ntestpiece board -- nflag ) \ test ntestpiece with all pieces currently in solution for collision
+    \ nflag is false for no collision
+    \ nflag is true for a collision
+    false { ntestpiece ntc }
+    current-solution-piece @ 0 ?do ntestpiece i this piece@ this test-collision ntc or to ntc loop ntc
+  ;m method testpiece
+  m: ( board -- nsolution nflag ) \ test all piece combination placements with current pieces in solution for collision
+    \ nflag is false if solution is found
+    \ nflag is true if no solutions is found
+    \ nsolution is the pindex solution value and only has meaning if nflag is false
+    true true  pindex-max @ 0 do 2drop i this testpiece if i true else i false leave then loop
+  ;m method findpiece
+  m: ( nsolution nflag board -- nflag2 )
+    if
+      drop
+      current-solution-piece @ . ." the next piece!" cr
+      parray-max @ 0 do i this piece@ . ."  #" i . cr loop
+      true
+    else
+      current-solution-piece @ this piece! current-solution-piece @ 1 + current-solution-piece !
+      false
+    then
+  ;m method placepiece
+  m: ( board -- )
+    this emptyboard \ clear the board
+    1 current-solution-piece ! \ start solution counter
+    0 0 this piece! \ start with piece orientation 0 and go Forth
+    pindex-max @ 1 do this findpiece this placepiece if leave then loop
+  ;m method solvepuzzle
+  m: ( board -- )
+    this solvepuzzle
+    this findpiece
+  ;m method test3
 end-class board
+\ note piece object is a parent to board object
+\ board object and piece object have no instance variables
+\ this means they are to be instantated once and used only this way so they are not normal objects because of this.
 
 board heap-new constant btest
 \ btest testing
 btest testing2
 btest testcompare
+btest solvepuzzle
+\ btest findpiece . .
+\ btest test3 .s
