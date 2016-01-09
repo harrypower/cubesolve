@@ -210,71 +210,46 @@ piece class
     false { ntestpiece ntc }
     current-solution-piece @ 0 ?do ntestpiece i this piece@ this test-collision ntc or to ntc loop ntc
   ;m method testpiece
-  m: ( board -- nsolution nflag ) \ test all piece combination placements with current pieces in solution for collision
-    \ nflag is false if solution is found
-    \ nflag is true if no solutions is found
-    \ nsolution is the pindex solution value and only has meaning if nflag is false
-    true true  pindex-max @ 0 do 2drop i this testpiece if i true else i false leave then loop
-  ;m method findpiece
   m: ( nstart board -- nsolution nflag ) \ test all piece combination placements with current pieces in solution for collision
     \ nflag is false if solution is found
     \ nflag is true if no solutions is found
     \ nsolution is the last pindex solution value tested
     true true rot pindex-max @ swap do 2drop i this testpiece if i true else i false leave then loop
-  ;m method findpiece2
-  m: ( nsolution nflag board -- nflag2 )
-    if
-      drop
-      current-solution-piece @ . ." the next piece!" cr
-      parray-max @ 0 do i this piece@ . ."  #" i . cr loop
-      true
-    else
-      current-solution-piece @ this piece! current-solution-piece @ 1 + current-solution-piece !
-      false
-    then
-  ;m method placepiece
-  m: ( board -- )
-    this emptyboard \ clear the board
-    1 current-solution-piece ! \ start solution counter
-    0 0 this piece! \ start with piece orientation 0 and go Forth
-    pindex-max @ 1 do this findpiece this placepiece if leave then loop
-  ;m method solvepuzzle
-  m: ( npindex board -- npindex2 )
-    dup pindex-max @ >= if drop 0 then
-  ;m method pindexrollover
-  m: ( n board -- n2 )
-    dup 0 < if drop 0 then
-  ;m method starttest
+  ;m method findpiece
   m: ( board -- )
     this emptyboard
-    1 current-solution-piece !
-    0 0 this piece!
+    0 current-solution-piece !
     0 \ start the search from the begining of total pieces
     begin
-      this findpiece2
+      this findpiece
       if
-        drop \ throw bad solution away
-        current-solution-piece @ this piece@ 1 + dup pindex-max @ >=
-        if
-          \ if at the end of the possible pieces then backstep current solution piece one amount and step past index value and continue
-          drop current-solution-piece @ 1 - this piece@ 1 + this pindexrollover
-          current-solution-piece @ 1 - this starttest current-solution-piece !
-        then
+        .s ." no more solutions! " cr parray-max @ current-solution-piece !
       else
         \ store this found solution
         current-solution-piece @ this piece! current-solution-piece @ 1 + current-solution-piece !
         0 \ start a new search from the start of total pieces
       then
-      current-solution-piece @ . cr 
+      current-solution-piece @ . cr
       current-solution-piece @ parray-max @ >= \ if true then solution reached if false continue
     until
     ." yay found the solution"
-  ;m method solvepuzzle2
-
+  ;m method solvepuzzle
   m: ( board -- )
-    this solvepuzzle
-    this findpiece
-  ;m method test3
+    this emptyboard
+    0 current-solution-piece !
+    0 0 this piece!
+    cr ." testpiece " 0 this testpiece . cr
+    ." findpiece " 0 this findpiece . . .s cr
+    1 current-solution-piece !
+    cr ." testpiece " 0 this testpiece . cr
+    ." findpiece " 0 this findpiece . . .s cr
+    cr ." testpiece " 8 this testpiece . cr
+    ." findpiece " 8 this findpiece . . .s cr
+    8 1 this piece!
+    2 current-solution-piece !
+    cr ." testpiece " 8 this testpiece . cr
+    ." findpiece " 8 this findpiece . . .s cr
+  ;m method test4
 end-class board
 \ note piece object is a parent to board object
 \ board object and piece object have no instance variables
@@ -282,8 +257,8 @@ end-class board
 
 board heap-new constant btest
 \ btest testing
-btest testing2
-btest testcompare
-btest solvepuzzle2
+\ btest testing2
+\ btest testcompare
+\ btest solvepuzzle
 \ btest findpiece . .
-\ btest test3 .s
+\ btest test4
