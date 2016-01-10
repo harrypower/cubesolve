@@ -73,22 +73,28 @@ all-orient blc% %size 2 * 5 * 4 * 4 * 6 * dup allot erase \ all pieces list
 \ nflag is false if no collisions
 \ nflag is true for any collision
   { nx ny nz nindex }
-  nx ny nz all-orient a nindex bshape@ test-voxel
-  nx ny nz all-orient b nindex bshape@ test-voxel
-  nx ny nz all-orient c nindex bshape@ test-voxel
-  nx ny nz all-orient d nindex bshape@ test-voxel
-  nx ny nz all-orient e nindex bshape@ test-voxel
-  or or or or ;
+  try
+    nx ny nz all-orient a nindex bshape@ test-voxel throw
+    nx ny nz all-orient b nindex bshape@ test-voxel throw
+    nx ny nz all-orient c nindex bshape@ test-voxel throw
+    nx ny nz all-orient d nindex bshape@ test-voxel throw
+    nx ny nz all-orient e nindex bshape@ test-voxel throw
+    false \ if code gets here then no collisions 
+  restore
+  endtry ;
 : test-collision ( nindex1 nindex2 -- nflag ) \ compare one piece for collision with another piece
   \ nflag is false if no collisions
   \ nflag is true for any collision
   { nindex1 nindex2 }
-  all-orient a nindex1 bshape@ nindex2 test-voxeltovoxels
-  all-orient b nindex1 bshape@ nindex2 test-voxeltovoxels
-  all-orient c nindex1 bshape@ nindex2 test-voxeltovoxels
-  all-orient d nindex1 bshape@ nindex2 test-voxeltovoxels
-  all-orient e nindex1 bshape@ nindex2 test-voxeltovoxels
-  or or or or ;
+  try
+    all-orient a nindex1 bshape@ nindex2 test-voxeltovoxels throw
+    all-orient b nindex1 bshape@ nindex2 test-voxeltovoxels throw
+    all-orient c nindex1 bshape@ nindex2 test-voxeltovoxels throw
+    all-orient d nindex1 bshape@ nindex2 test-voxeltovoxels throw
+    all-orient e nindex1 bshape@ nindex2 test-voxeltovoxels throw
+    false \ no collisions if code gets here without being thrown above
+  restore
+  endtry ;
 : xyz. ( nx ny nz -- )
   rot ." x:" . swap ."  y:" . ."  z:" . ;
 
