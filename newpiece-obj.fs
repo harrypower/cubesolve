@@ -207,8 +207,15 @@ piece class
   m: ( ntestpiece board -- nflag ) \ test ntestpiece with all pieces currently in solution for collision
     \ nflag is false for no collision
     \ nflag is true for a collision
-    false { ntestpiece ntc }
-    current-solution-piece @ 0 ?do ntestpiece i this piece@ this test-collision ntc or to ntc loop ntc
+    { ntestpiece }
+    try
+      current-solution-piece @ 0 ?do
+        ntestpiece i this piece@ this test-collision
+        throw \ if a collision then return true
+      loop
+      false \ if no collision then return false
+    restore
+    endtry
   ;m method testpiece
   m: ( nstart board -- nsolution nflag ) \ test all piece combination placements with current pieces in solution for collision
     \ nflag is false if solution is found
