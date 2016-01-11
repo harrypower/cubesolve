@@ -1,6 +1,11 @@
 require objects.fs
 
+interface
+    selector destruct ( -- ) \ to free allocated memory in objects that use this
+end-interface destruction
+
 object class
+  destruction implementation
   struct
     cell% field x
     cell% field y
@@ -30,14 +35,14 @@ object class
   40 constant sx-max
   200 constant sxy-max
   800 constant sxyz-max
-  4800 constant  allorient-max
+  4800 constant allorient-max
   960 constant pindex-max
   1000 constant nopiece
   false variable piece-table-created piece-table-created ! \ used at construct time to create shape data only once
 
   inst-value thispiece# \ used to hold this piece current number
-  inst-value lastcollisionlist-a \ pointer to the piece collision link list of piece# above
-  inst-value nextlistretrieve-a \ index value used by collist! for retrieveing the linked list values
+  inst-value lastcollisionlist-a \ address of the last collision value stored
+  inst-value nextcollisionlist-a \ address of the next collision value to be retrieved
   struct
     cell% field pcollision#
     cell% field nextcollisionlist
@@ -54,18 +59,18 @@ object class
   \ npcollision# is the piece collision value returned
   \ if nflag is false then the list has reached the end and will start returning values from the begining of list
   \ if nflag is true then the linked list has more stuff to retrieve
-    nextlistretrieve-a 0 = lastcollisionlist-a 0 = and
+    nextcollisionlist-a 0 = lastcollisionlist-a 0 = and
     if 0 false
     else
-      nextlistretrieve-a 0 =
-      if lastcollisionlist-a else nextlistretrieve-a  then
+      nextcollisionlist-a 0 =
+      if lastcollisionlist-a else nextcollisionlist-a  then
         dup pcollision# @ swap nextcollisionlist @ \ get npcollision# and next address
-        dup [to-inst] nextlistretrieve-a \ record next address of list to retrieve
+        dup [to-inst] nextcollisionlist-a \ record next address of list to retrieve
         false = if false else true then \ test if at end of list or not and return nflag
     then ;m method collist@
-  m: ( piece -- ) \ populate the collision link list for thispiece#
-
-  ;m method makecollisionlinklist
+  m: ( piece -- ) \ free the collision list for thispiece# from memory
+    
+  ;m method collistfree
   m: ( nx ny nz naddr nindex piece -- )
     loc% %size * + { naddr }
     naddr z ! naddr y ! naddr x !
@@ -138,6 +143,11 @@ object class
     restore
     endtry
   ;m method test-collision
+  m: ( piece -- ) \ populate the collision link list for thispiece#
+    pindex-max 0 do
+      thispiece# i this test-collision if i this collist! then
+    loop
+  ;m method makecollisionlist
   m: ( nx ny nz piece -- ) \ just displays x y z from stack
     rot ." x:" . swap ."  y:" . ."  z:" .
   ;m method xyz.
@@ -172,7 +182,7 @@ object class
       true piece-table-created !
       nopiece [to-inst] thispiece#  \ start with no piece
       0 [to-inst] lastcollisionlist-a \ start with no collision list
-      0 [to-inst] nextlistretrieve \ start at zero in the current linked list
+      0 [to-inst] nextcollisionlist-a \ start at zero in the current linked list
     then
   ;m overrides construct
 
@@ -229,17 +239,21 @@ object class
     .s cr
     begin this collist@ swap . cr true <> until
     begin this collist@ swap . cr true <> until
+    this collist@ . . cr
+    this collist@ . . cr
+    this collist@ . . cr
+    this collist@ . . cr
+    this collist@ . . cr
   ;m method testcollist
-  m: (  piece -- ) \ store piece collision # in lastcollisionlist-a
-     5 pcll% %size allocate throw .s cr \ make room
-    dup lastcollisionlist-a swap nextcollisionlist ! .s cr \ store last list address in this list
-    dup -rot pcollision# ! .s cr \ store this npcollision# in this list
-    [to-inst] lastcollisionlist-a .s cr \ update the last pointer to this list address
-  ;m method testcol!
+  m: ( piece -- )
+    0 [to-inst] thispiece#
+    this makecollisionlist
+    begin this collist@ swap . cr true <> until
+  ;m method testcolmakelist
 end-class piece
 
 piece heap-new constant ptest
-\ ptest testcol!
- ptest testcollist
+\ ptest testcolmakelist
+\ ptest testcollist
 \ ptest testing
 \ ptest testcompare
