@@ -32,22 +32,40 @@ object class
   800 constant sxyz-max
   4800 constant  allorient-max
   960 constant pindex-max
-  false variable piece-table-created piece-table-created !
+  1000 constant nopiece
+  false variable piece-table-created piece-table-created ! \ used at construct time to create shape data only once
 
   inst-value thispiece# \ used to hold this piece current number
-  inst-value ->pcollision-llist \ pointer to the piece collision link list of piece# above
+  inst-value lastcollisionlist-a \ pointer to the piece collision link list of piece# above
+  inst-value nextlistretrieve-a \ index value used by collist! for retrieveing the linked list values
   struct
     cell% field pcollision#
-    cell% field ->nextlistitem
+    cell% field nextcollisionlist
   end-struct pcll%
 
   protected
-  m: ( npcollision# piece -- )
-    pcll% allocate 
-  ;m method collist@
+  m: ( npcollision# piece -- ) \ store piece collision # in lastcollisionlist-a
+    pcll% %size allocate throw \ make room
+    dup lastcollisionlist-a swap nextcollisionlist ! \ store last list address in this list
+    dup -rot pcollision# ! \ store this npcollision# in this list
+    [to-inst] lastcollisionlist-a \ update the last pointer to this list address
+  ;m method collist!
+  m: ( piece -- npcollision# nflag ) \ retrieve piece collisions from next list item
+  \ npcollision# is the piece collision value returned
+  \ if nflag is false then the list has reached the end and will start returning values from the begining of list
+  \ if nflag is true then the linked list has more stuff to retrieve
+    nextlistretrieve-a 0 = lastcollisionlist-a 0 = and
+    if 0 false
+    else
+      nextlistretrieve-a 0 =
+      if lastcollisionlist-a else nextlistretrieve-a  then
+        dup pcollision# @ swap nextcollisionlist @ \ get npcollision# and next address
+        dup [to-inst] nextlistretrieve-a \ record next address of list to retrieve
+        false = if false else true then \ test if at end of list or not and return nflag
+    then ;m method collist@
   m: ( piece -- ) \ populate the collision link list for thispiece#
 
-  ;m method collision-llist
+  ;m method makecollisionlinklist
   m: ( nx ny nz naddr nindex piece -- )
     loc% %size * + { naddr }
     naddr z ! naddr y ! naddr x !
@@ -152,6 +170,9 @@ object class
       this all6rotations
       \ at this moment the piece data base is populated
       true piece-table-created !
+      nopiece [to-inst] thispiece#  \ start with no piece
+      0 [to-inst] lastcollisionlist-a \ start with no collision list
+      0 [to-inst] nextlistretrieve \ start at zero in the current linked list
     then
   ;m overrides construct
 
@@ -200,8 +221,25 @@ object class
     3 0 1 0 this test-voxeltovoxels . ."  <- collision should be true!" cr
     3 0 2 0 this test-voxeltovoxels . ."  <- collision should be false!" cr
   ;m method testcompare
+  m: ( piece --)
+    5 this collist!
+    0 this collist!
+    100 this collist!
+    759 this collist!
+    .s cr
+    begin this collist@ swap . cr true <> until
+    begin this collist@ swap . cr true <> until
+  ;m method testcollist
+  m: (  piece -- ) \ store piece collision # in lastcollisionlist-a
+     5 pcll% %size allocate throw .s cr \ make room
+    dup lastcollisionlist-a swap nextcollisionlist ! .s cr \ store last list address in this list
+    dup -rot pcollision# ! .s cr \ store this npcollision# in this list
+    [to-inst] lastcollisionlist-a .s cr \ update the last pointer to this list address
+  ;m method testcol!
 end-class piece
 
 piece heap-new constant ptest
-ptest testing
-ptest testcompare
+\ ptest testcol!
+ ptest testcollist
+\ ptest testing
+\ ptest testcompare
