@@ -69,7 +69,15 @@ object class
         false = if false else true then \ test if at end of list or not and return nflag
     then ;m method collist@
   m: ( piece -- ) \ free the collision list for thispiece# from memory
-    
+    lastcollisionlist-a 0 <>
+    if
+      lastcollisionlist-a
+      begin
+        dup nextcollisionlist @ swap
+        free throw
+        dup 0 =
+      until drop
+    then
   ;m method collistfree
   m: ( nx ny nz naddr nindex piece -- )
     loc% %size * + { naddr }
@@ -185,7 +193,17 @@ object class
       0 [to-inst] nextcollisionlist-a \ start at zero in the current linked list
     then
   ;m overrides construct
-
+  m: ( piece -- )
+    this collistfree
+    0 [to-inst] lastcollisionlist-a \ start with no collision list
+    0 [to-inst] nextcollisionlist-a \ start at zero in the current linked list
+  ;m method destruct
+  m: ( npiece# piece -- )
+    dup dup 0 >= -rot pindex-max <= swap -rot and if [to-inst] thispiece# else drop nopiece [to-inst] thispiece# then
+  ;m method piece!
+  m: ( piece -- npiece# )
+    thispiece#
+  ;m method piece@
   m: ( piece -- )
     base-shapes e 3 this bshape@ . . . cr
     base-shapes d 2 this bshape@ . . . cr
@@ -246,9 +264,10 @@ object class
     this collist@ . . cr
   ;m method testcollist
   m: ( piece -- )
-    0 [to-inst] thispiece#
+    0 this piece!
     this makecollisionlist
     begin this collist@ swap . cr true <> until
+    this destruct
   ;m method testcolmakelist
 end-class piece
 
