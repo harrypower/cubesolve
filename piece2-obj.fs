@@ -197,13 +197,19 @@ object class
     this collistfree
     0 [to-inst] lastcollisionlist-a \ start with no collision list
     0 [to-inst] nextcollisionlist-a \ start at zero in the current linked list
-  ;m method destruct
-  m: ( npiece# piece -- )
+  ;m overrides destruct
+  m: ( npiece# piece -- ) \ set the piece# and create the collision list
+    this destruct
     dup dup 0 >= -rot pindex-max <= swap -rot and if [to-inst] thispiece# else drop nopiece [to-inst] thispiece# then
+    this makecollisionlist
   ;m method piece!
-  m: ( piece -- npiece# )
+  m: ( piece -- npiece# ) \ get the current piece#
     thispiece#
   ;m method piece@
+  m: ( piece -- npcollision# nflag ) \ get a collision from collision list
+  \ nflag is false when the list is at the end and will reset next time this method is called
+    this collist@
+  ;m method collisionlist@
   m: ( piece -- )
     base-shapes e 3 this bshape@ . . . cr
     base-shapes d 2 this bshape@ . . . cr
@@ -271,7 +277,27 @@ object class
   ;m method testcolmakelist
 end-class piece
 
-piece heap-new constant ptest
+struct
+  cell% field pieceaddr
+end-struct apiece%
+create allpiecesarray
+allpiecesarray apiece% %size 960 * dup allot erase
+: allpieces ( -- )
+  960 0 do i . cr
+    piece dict-new  dup
+    apiece% %size i * allpiecesarray + pieceaddr !
+    i swap piece!
+  loop
+  ;
+  allpieces
+
+\ piece heap-new constant ptest
+\ piece heap-new constant ptest1
+\ 0 ptest piece!
+\ 10 ptest1 piece!
+\ : testthem ( -- ) begin ptest collisionlist@ drop . ptest1 collisionlist@ swap . cr true <> until ;
+\ testthem
+
 \ ptest testcolmakelist
 \ ptest testcollist
 \ ptest testing
