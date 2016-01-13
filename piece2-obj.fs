@@ -210,6 +210,20 @@ object class
   \ nflag is false when the list is at the end and will reset next time this method is called
     this collist@
   ;m method collisionlist@
+  m: ( npiece# piece -- nflag ) \ test if npiece# is in the collision list
+  \ nflag is true if npiece# is in the collsion list
+  \ nflag is false if npiece# is not in the collision list or the collision list does not exist
+    lastcollisionlist-a 0 <>
+    if
+      lastcollisionlist-a [to-inst] nextcollisionlist-a
+      begin
+        dup this collist@ -rot  .s ." <- should have 4 items on the stack here!" cr
+        = if 2drop true true else 0 = if drop false true else false then then
+      until
+    else
+      drop false
+    then
+  ;m method collisionlist?
   m: ( piece -- )
     base-shapes e 3 this bshape@ . . . cr
     base-shapes d 2 this bshape@ . . . cr
@@ -277,23 +291,24 @@ object class
   ;m method testcolmakelist
 end-class piece
 
-struct
-  cell% field pieceaddr
-end-struct apiece%
-create allpiecesarray
-allpiecesarray apiece% %size 960 * dup allot erase
-: allpieces ( -- )
-  960 0 do i . cr
-    piece dict-new  dup
-    apiece% %size i * allpiecesarray + pieceaddr !
-    i swap piece!
-  loop
-  ;
-  allpieces
 
-\ piece heap-new constant ptest
+\ struct
+\  cell% field pieceaddr
+\ end-struct apiece%
+\ create allpiecesarray
+\ allpiecesarray apiece% %size 960 * dup allot erase
+\ : allpieces ( -- )
+\   960 0 do i . cr
+\     piece dict-new  dup
+\     apiece% %size i * allpiecesarray + pieceaddr !
+\     i swap piece!
+\   loop ;
+\  allpieces
+ piece heap-new constant ptest
 \ piece heap-new constant ptest1
-\ 0 ptest piece!
+ 0 ptest piece! cr
+ 0 ptest collisionlist? . ." <- should be true "
+ 10 ptest collisionlist? . ." <- should be false "
 \ 10 ptest1 piece!
 \ : testthem ( -- ) begin ptest collisionlist@ drop . ptest1 collisionlist@ swap . cr true <> until ;
 \ testthem
