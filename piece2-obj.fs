@@ -304,11 +304,11 @@ end-class piece
 \     i swap piece!
 \   loop ;
 \  allpieces
- piece heap-new constant ptest
+\ piece heap-new constant ptest
 \ piece heap-new constant ptest1
- 0 ptest piece! cr
- 0 ptest collisionlist? . ." <- should be true "
- 10 ptest collisionlist? . ." <- should be false "
+\ 0 ptest piece! cr
+\ 0 ptest collisionlist? . ." <- should be true "
+\ 10 ptest collisionlist? . ." <- should be false "
 \ 10 ptest1 piece!
 \ : testthem ( -- ) begin ptest collisionlist@ drop . ptest1 collisionlist@ swap . cr true <> until ;
 \ testthem
