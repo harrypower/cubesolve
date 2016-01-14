@@ -188,24 +188,32 @@ object class
       this all6rotations
       \ at this moment the piece data base is populated
       true piece-table-created !
-      nopiece [to-inst] thispiece#  \ start with no piece
-      0 [to-inst] lastcollisionlist-a \ start with no collision list
-      0 [to-inst] nextcollisionlist-a \ start at zero in the current linked list
     then
+    nopiece [to-inst] thispiece#  \ start with no piece
+    0 [to-inst] lastcollisionlist-a \ start with no collision list
+    0 [to-inst] nextcollisionlist-a \ start at zero in the current linked list
   ;m overrides construct
   m: ( piece -- )
     this collistfree
     0 [to-inst] lastcollisionlist-a \ start with no collision list
     0 [to-inst] nextcollisionlist-a \ start at zero in the current linked list
+    nopiece [to-inst] thispiece#
   ;m overrides destruct
   m: ( npiece# piece -- ) \ set the piece# and create the collision list
-    this destruct
-    dup dup 0 >= -rot pindex-max <= swap -rot and if [to-inst] thispiece# else drop nopiece [to-inst] thispiece# then
-    this makecollisionlist
+    dup dup 0 >= -rot pindex-max < rot and if [to-inst] thispiece# else drop nopiece [to-inst] thispiece# then
   ;m method piece!
   m: ( piece -- npiece# ) \ get the current piece#
     thispiece#
   ;m method piece@
+  m: ( piece -- ) \ create the collision list for this piece
+    thispiece# nopiece <>
+    if
+      thispiece#
+      this destruct
+      [to-inst] thispiece#
+      this makecollisionlist
+    then
+  ;m method collisionlist!
   m: ( piece -- npcollision# nflag ) \ get a collision from collision list
   \ nflag is false when the list is at the end and will reset next time this method is called
     this collist@
@@ -282,10 +290,11 @@ object class
     this collist@ . . cr
     this collist@ . . cr
     this collist@ . . cr
+    this destruct
   ;m method testcollist
   m: ( piece -- )
-    0 this piece!
-    this makecollisionlist
+    1 this piece!
+    this collisionlist!
     begin this collist@ swap . cr true <> until
     this destruct
   ;m method testcolmakelist
@@ -312,6 +321,7 @@ end-class piece
 \ 10 ptest1 piece!
 \ : testthem ( -- ) begin ptest collisionlist@ drop . ptest1 collisionlist@ swap . cr true <> until ;
 \ testthem
+
 
 \ ptest testcolmakelist
 \ ptest testcollist
