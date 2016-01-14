@@ -41,17 +41,19 @@ object class
   false variable piece-table-created piece-table-created ! \ used at construct time to create shape data only once
 
   inst-value thispiece# \ used to hold this piece current number
+  inst-value collist-a  \ the address to start of collision list
+  inst-value collist-f  \ a flag if true then collision list is valid false means list not calculated yet
+
+  struct
+    char% field piece-flag
+  end-struct collist%
 
   protected
-  m: ( npcollision# piece -- ) \ store piece collision # in lastcollisionlist-a
-  ;m method collist!
   m: ( piece -- npcollision# nflag ) \ retrieve piece collisions from next list item
   \ npcollision# is the piece collision value returned
   \ if nflag is false then the list has reached the end and will start returning values from the begining of list
   \ if nflag is true then the linked list has more stuff to retrieve
   ;m method collist@
-  m: ( piece -- ) \ free the collision list for thispiece# from memory
-  ;m method collistfree
   m: ( nx ny nz naddr nindex piece -- )
     loc% %size * + { naddr }
     naddr z ! naddr y ! naddr x !
@@ -124,8 +126,23 @@ object class
     restore
     endtry
   ;m method test-collision
-  m: ( piece -- ) \ populate the collision link list for thispiece#
+  m: ( piece -- ) \ populate the collision  list for thispiece#
+    pindex-max 0 do
+      thispiece# i this test-collision
+      collist-a piece-flag i collist% %size * + c!
+    loop
+    true [to-inst] collist-f
   ;m method makecollisionlist
+  m: ( piece -- ) \ allocate room for the collision list or clear list if allocated already
+    0 collist-a <>
+    if
+      collist-a collist% %size pindex-max * erase
+    else
+      collist% %size pindex-max * allocate throw [to-inst] collist-a
+      collist-a collist% %size pindex-max * erase
+    then
+    false [to-inst] collist-f
+  ;m method create-collist
   m: ( nx ny nz piece -- ) \ just displays x y z from stack
     rot ." x:" . swap ."  y:" . ."  z:" .
   ;m method xyz.
@@ -159,10 +176,16 @@ object class
       \ at this moment the piece data base is populated
       true piece-table-created !
     then
+    0 [to-inst] collist-a \ at construct time the collsion list is not allocated yet
+    this create-collist
     nopiece [to-inst] thispiece#  \ start with no piece
   ;m overrides construct
-  m: ( piece -- )
-    this collistfree
+  m: ( piece -- ) \ free allocated memory for this piece
+    0 collist-a <> if
+      collist-a free throw
+    then
+    0 [to-inst] collist-a
+    false [to-inst] collist-f
     nopiece [to-inst] thispiece#
   ;m overrides destruct
   m: ( npiece# piece -- ) \ set the piece# and create the collision list
@@ -172,6 +195,7 @@ object class
     thispiece#
   ;m method piece@
   m: ( piece -- ) \ create the collision list for this piece
+    this makecollisionlist
   ;m method collisionlist!
   m: ( piece -- npcollision# nflag ) \ get a collision from collision list
   \ nflag is false when the list is at the end and will reset next time this method is called
@@ -180,6 +204,13 @@ object class
   m: ( npiece# piece -- nflag ) \ test if npiece# is in the collision list
   \ nflag is true if npiece# is in the collsion list
   \ nflag is false if npiece# is not in the collision list or the collision list does not exist
+    collist-f true =
+    if
+      collist-a swap collist% %size * + c@
+      if true else false then
+    else
+      drop false
+    then
   ;m method collisionlist?
   m: ( piece -- )
     base-shapes e 3 this bshape@ . . . cr
@@ -226,4 +257,16 @@ object class
     3 0 1 0 this test-voxeltovoxels . ."  <- collision should be true!" cr
     3 0 2 0 this test-voxeltovoxels . ."  <- collision should be false!" cr
   ;m method testcompare
+  m: ( piece -- )
+    0 this piece!
+    this collisionlist!
+    cr
+    0 this collisionlist? . ." < this should be true!" cr
+    3 this collisionlist? . ." < this should be true!" cr
+    10 this collisionlist? . ." < this should be false!" cr
+  ;m method testcollistionlist
+
 end-class piece
+
+piece heap-new constant ptest
+ptest testcollistionlist
