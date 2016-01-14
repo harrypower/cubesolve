@@ -1,6 +1,11 @@
 require objects.fs
 
+interface
+    selector destruct ( -- ) \ to free allocated memory in objects that use this
+end-interface destruction
+
 object class
+  destruction implementation
   struct
     cell% field x
     cell% field y
@@ -26,14 +31,27 @@ object class
   all-orient blc% %size 2 * 5 * 4 * 4 * 6 * dup allot erase \ all pieces list
   \ 6 transformations from basic piece orientation
 
-  20 variable bshape-max bshape-max !
-  40 variable sx-max sx-max !
-  200 variable sxy-max sxy-max !
-  800 variable sxyz-max sxyz-max !
-  4800 variable  allorient-max allorient-max !
-  960 variable pindex-max pindex-max !
+  20 constant bshape-max
+  40 constant sx-max
+  200 constant sxy-max
+  800 constant sxyz-max
+  4800 constant allorient-max
+  960 constant pindex-max
+  1000 constant nopiece
+  false variable piece-table-created piece-table-created ! \ used at construct time to create shape data only once
+
+  inst-value thispiece# \ used to hold this piece current number
 
   protected
+  m: ( npcollision# piece -- ) \ store piece collision # in lastcollisionlist-a
+  ;m method collist!
+  m: ( piece -- npcollision# nflag ) \ retrieve piece collisions from next list item
+  \ npcollision# is the piece collision value returned
+  \ if nflag is false then the list has reached the end and will start returning values from the begining of list
+  \ if nflag is true then the linked list has more stuff to retrieve
+  ;m method collist@
+  m: ( piece -- ) \ free the collision list for thispiece# from memory
+  ;m method collistfree
   m: ( nx ny nz naddr nindex piece -- )
     loc% %size * + { naddr }
     naddr z ! naddr y ! naddr x !
@@ -51,97 +69,132 @@ object class
     x @ -rot y @ swap z @
   ;m method bshape@
   m: ( piece -- )
-    bshape-max @ 0 do base-shapes i this bulk@ shapes-x i this bulk! loop
-    bshape-max @ 0 do base-shapes i this bulk@ rot 1 + -rot shapes-x i bshape-max @ + this bulk! loop
+    bshape-max 0 do base-shapes i this bulk@ shapes-x i this bulk! loop
+    bshape-max 0 do base-shapes i this bulk@ rot 1 + -rot shapes-x i bshape-max + this bulk! loop
   ;m method creatextrans
   m: ( piece -- )
-    sx-max @ 0 do shapes-x i this bulk@ shapes-xy i this bulk! loop
-    sx-max @ 0 do shapes-x i this bulk@ swap 1 + swap shapes-xy i sx-max @ + this bulk! loop
-    sx-max @ 0 do shapes-x i this bulk@ swap 2 + swap shapes-xy i sx-max @ 2 * + this bulk! loop
-    sx-max @ 0 do shapes-x i this bulk@ swap 3 + swap shapes-xy i sx-max @ 3 * + this bulk! loop
-    sx-max @ 0 do shapes-x i this bulk@ swap 4 + swap shapes-xy i sx-max @ 4 * + this bulk! loop
+    sx-max 0 do shapes-x i this bulk@ shapes-xy i this bulk! loop
+    sx-max 0 do shapes-x i this bulk@ swap 1 + swap shapes-xy i sx-max + this bulk! loop
+    sx-max 0 do shapes-x i this bulk@ swap 2 + swap shapes-xy i sx-max 2 * + this bulk! loop
+    sx-max 0 do shapes-x i this bulk@ swap 3 + swap shapes-xy i sx-max 3 * + this bulk! loop
+    sx-max 0 do shapes-x i this bulk@ swap 4 + swap shapes-xy i sx-max 4 * + this bulk! loop
   ;m method createxytrans
   m: ( piece -- )
-    sxy-max @ 0 do shapes-xy i this bulk@ shapes-xyz i this bulk! loop
-    sxy-max @ 0 do shapes-xy i this bulk@ 1 + shapes-xyz i sxy-max @ + this bulk! loop
-    sxy-max @ 0 do shapes-xy i this bulk@ 2 + shapes-xyz i sxy-max @ 2 * + this bulk! loop
-    sxy-max @ 0 do shapes-xy i this bulk@ 3 + shapes-xyz i sxy-max @ 3 * + this bulk! loop
+    sxy-max 0 do shapes-xy i this bulk@ shapes-xyz i this bulk! loop
+    sxy-max 0 do shapes-xy i this bulk@ 1 + shapes-xyz i sxy-max + this bulk! loop
+    sxy-max 0 do shapes-xy i this bulk@ 2 + shapes-xyz i sxy-max 2 * + this bulk! loop
+    sxy-max 0 do shapes-xy i this bulk@ 3 + shapes-xyz i sxy-max 3 * + this bulk! loop
   ;m method createxyztrans
   m: ( piece -- )
-    sxyz-max @ 0 do shapes-xyz i this bulk@ all-orient i this bulk! loop
-    sxyz-max @ 0 do shapes-xyz i this bulk@ rot swap all-orient i sxyz-max @ + this bulk! loop
-    sxyz-max @ 0 do shapes-xyz i this bulk@ rot swap -rot all-orient i sxyz-max @ 2 * + this bulk! loop
-    sxyz-max @ 0 do shapes-xyz i this bulk@ swap all-orient i sxyz-max @ 3 * + this bulk! loop
-    sxyz-max @ 0 do shapes-xyz i this bulk@ rot all-orient i sxyz-max @ 4 * + this bulk! loop
-    sxyz-max @ 0 do shapes-xyz i this bulk@ -rot all-orient i sxyz-max @ 5 * + this bulk! loop
+    sxyz-max 0 do shapes-xyz i this bulk@ all-orient i this bulk! loop
+    sxyz-max 0 do shapes-xyz i this bulk@ rot swap all-orient i sxyz-max + this bulk! loop
+    sxyz-max 0 do shapes-xyz i this bulk@ rot swap -rot all-orient i sxyz-max 2 * + this bulk! loop
+    sxyz-max 0 do shapes-xyz i this bulk@ swap all-orient i sxyz-max 3 * + this bulk! loop
+    sxyz-max 0 do shapes-xyz i this bulk@ rot all-orient i sxyz-max 4 * + this bulk! loop
+    sxyz-max 0 do shapes-xyz i this bulk@ -rot all-orient i sxyz-max 5 * + this bulk! loop
   ;m method all6rotations
   m: ( nx1 ny1 nz1 nx2 ny2 nz2 piece -- nflag ) \ compare nx1 ny1 nz1 to nx2 ny2 nz2
     >r >r >r rot r> = rot r> = rot r> = and and
   ;m method test-voxel
   m: ( nx ny nz nindex piece -- nflag ) \ compare nx ny nz voxel to nindex piece all voxels
+  \ nflag is false if no collisions
+  \ nflag is true for any collision
     { nx ny nz nindex }
-    nx ny nz all-orient a nindex this bshape@ this test-voxel
-    nx ny nz all-orient b nindex this bshape@ this test-voxel
-    nx ny nz all-orient c nindex this bshape@ this test-voxel
-    nx ny nz all-orient d nindex this bshape@ this test-voxel
-    nx ny nz all-orient e nindex this bshape@ this test-voxel
-    or or or or
+    try
+      nx ny nz all-orient a nindex this bshape@ this test-voxel throw
+      nx ny nz all-orient b nindex this bshape@ this test-voxel throw
+      nx ny nz all-orient c nindex this bshape@ this test-voxel throw
+      nx ny nz all-orient d nindex this bshape@ this test-voxel throw
+      nx ny nz all-orient e nindex this bshape@ this test-voxel throw
+      false
+    restore
+    endtry
   ;m method test-voxeltovoxels
   m: ( nindex1 nindex2 piece -- nflag ) \ compare one piece for collision with another piece
+  \ nflag is false if no collisions
+  \ nflag is true for any collision
     { nindex1 nindex2 }
-    all-orient a nindex1 this bshape@ nindex2 this test-voxeltovoxels
-    all-orient b nindex1 this bshape@ nindex2 this test-voxeltovoxels
-    all-orient c nindex1 this bshape@ nindex2 this test-voxeltovoxels
-    all-orient d nindex1 this bshape@ nindex2 this test-voxeltovoxels
-    all-orient e nindex1 this bshape@ nindex2 this test-voxeltovoxels
-    or or or or
+    try
+      all-orient a nindex1 this bshape@ nindex2 this test-voxeltovoxels throw
+      all-orient b nindex1 this bshape@ nindex2 this test-voxeltovoxels throw
+      all-orient c nindex1 this bshape@ nindex2 this test-voxeltovoxels throw
+      all-orient d nindex1 this bshape@ nindex2 this test-voxeltovoxels throw
+      all-orient e nindex1 this bshape@ nindex2 this test-voxeltovoxels throw
+      false
+    restore
+    endtry
   ;m method test-collision
-  public
-  m: ( piece -- )
-    0 0 0 base-shapes a 0 this bshape! \ first shape
-    1 0 0 base-shapes b 0 this bshape!
-    2 0 0 base-shapes c 0 this bshape!
-    2 0 1 base-shapes d 0 this bshape!
-    3 0 1 base-shapes e 0 this bshape!
-    0 0 1 base-shapes a 1 this bshape! \ second shape
-    1 0 1 base-shapes b 1 this bshape!
-    2 0 1 base-shapes c 1 this bshape!
-    2 0 0 base-shapes d 1 this bshape!
-    3 0 0 base-shapes e 1 this bshape!
-    0 0 0 base-shapes a 2 this bshape! \ third shape
-    1 0 0 base-shapes b 2 this bshape!
-    1 0 1 base-shapes c 2 this bshape!
-    2 0 1 base-shapes d 2 this bshape!
-    3 0 1 base-shapes e 2 this bshape!
-    0 0 1 base-shapes a 3 this bshape! \ fourth shape
-    1 0 1 base-shapes b 3 this bshape!
-    1 0 0 base-shapes c 3 this bshape!
-    2 0 0 base-shapes d 3 this bshape!
-    3 0 0 base-shapes e 3 this bshape!
-    this creatextrans
-    this createxytrans
-    this createxyztrans
-    this all6rotations
-    \ at this moment the piece data base is populated
-  ;m overrides construct
-
-  m: ( nx ny nz piece -- )
+  m: ( piece -- ) \ populate the collision link list for thispiece#
+  ;m method makecollisionlist
+  m: ( nx ny nz piece -- ) \ just displays x y z from stack
     rot ." x:" . swap ."  y:" . ."  z:" .
   ;m method xyz.
+  public
+  m: ( piece -- )
+    piece-table-created @ false = if \ to create piece table only once for all piece objects
+      0 0 0 base-shapes a 0 this bshape! \ first shape
+      1 0 0 base-shapes b 0 this bshape!
+      2 0 0 base-shapes c 0 this bshape!
+      2 0 1 base-shapes d 0 this bshape!
+      3 0 1 base-shapes e 0 this bshape!
+      0 0 1 base-shapes a 1 this bshape! \ second shape
+      1 0 1 base-shapes b 1 this bshape!
+      2 0 1 base-shapes c 1 this bshape!
+      2 0 0 base-shapes d 1 this bshape!
+      3 0 0 base-shapes e 1 this bshape!
+      0 0 0 base-shapes a 2 this bshape! \ third shape
+      1 0 0 base-shapes b 2 this bshape!
+      1 0 1 base-shapes c 2 this bshape!
+      2 0 1 base-shapes d 2 this bshape!
+      3 0 1 base-shapes e 2 this bshape!
+      0 0 1 base-shapes a 3 this bshape! \ fourth shape
+      1 0 1 base-shapes b 3 this bshape!
+      1 0 0 base-shapes c 3 this bshape!
+      2 0 0 base-shapes d 3 this bshape!
+      3 0 0 base-shapes e 3 this bshape!
+      this creatextrans
+      this createxytrans
+      this createxyztrans
+      this all6rotations
+      \ at this moment the piece data base is populated
+      true piece-table-created !
+    then
+    nopiece [to-inst] thispiece#  \ start with no piece
+  ;m overrides construct
+  m: ( piece -- )
+    this collistfree
+    nopiece [to-inst] thispiece#
+  ;m overrides destruct
+  m: ( npiece# piece -- ) \ set the piece# and create the collision list
+    dup dup 0 >= -rot pindex-max < rot and if [to-inst] thispiece# else drop nopiece [to-inst] thispiece# then
+  ;m method piece!
+  m: ( piece -- npiece# ) \ get the current piece#
+    thispiece#
+  ;m method piece@
+  m: ( piece -- ) \ create the collision list for this piece
+  ;m method collisionlist!
+  m: ( piece -- npcollision# nflag ) \ get a collision from collision list
+  \ nflag is false when the list is at the end and will reset next time this method is called
+    this collist@
+  ;m method collisionlist@
+  m: ( npiece# piece -- nflag ) \ test if npiece# is in the collision list
+  \ nflag is true if npiece# is in the collsion list
+  \ nflag is false if npiece# is not in the collision list or the collision list does not exist
+  ;m method collisionlist?
   m: ( piece -- )
     base-shapes e 3 this bshape@ . . . cr
     base-shapes d 2 this bshape@ . . . cr
     ." XXXXXXXX" cr
-    bshape-max @  0 do base-shapes i this bulk@ this xyz. ."  #" i . cr loop
+    bshape-max  0 do base-shapes i this bulk@ this xyz. ."  #" i . cr loop
     ." ********" cr
-    sx-max @ 0 do shapes-x i this bulk@ this xyz. ."  #" i . cr loop
+    sx-max 0 do shapes-x i this bulk@ this xyz. ."  #" i . cr loop
     ." yyyyyyyyy" cr
-    sxy-max @ 0 do shapes-xy i this bulk@ this xyz. ."  #" i . cr loop
+    sxy-max 0 do shapes-xy i this bulk@ this xyz. ."  #" i . cr loop
     ." zzzzzzzzz" cr
-    sxyz-max @ 0 do shapes-xyz i this bulk@ this xyz. ."  #" i . cr loop
+    sxyz-max 0 do shapes-xyz i this bulk@ this xyz. ."  #" i . cr loop
     ." all------" cr
-    allorient-max @ 0 do all-orient i this bulk@ this xyz. ."  #" i . cr loop
-    pindex-max @ 0 do
+    allorient-max 0 do all-orient i this bulk@ this xyz. ."  #" i . cr loop
+    pindex-max 0 do
       all-orient a i this bshape@ rot ." a:" . swap . .
       all-orient b i this bshape@ rot ." b:" . swap . .
       all-orient c i this bshape@ rot ." c:" . swap . .
@@ -174,108 +227,3 @@ object class
     3 0 2 0 this test-voxeltovoxels . ."  <- collision should be false!" cr
   ;m method testcompare
 end-class piece
-
-piece class
-  struct
-    cell% field pieces
-  end-struct thepieces%
-  0 variable current-solution-piece current-solution-piece !
-  25 variable parray-max parray-max ! \ total pieces in static array
-  1000 variable nopiece nopiece ! \ the value that means no piece is present
-  create theboard \ note this is a static board used in all board objects
-  theboard thepieces% %size parray-max @ * dup allot erase \ array of 25 board pieces
-  protected
-  m: ( npiece nindex board -- )
-    thepieces% %size * theboard + !
-  ;m method piece!
-  m: ( nindex board -- npiece )
-    thepieces% %size * theboard + @
-  ;m method piece@
-  public
-  m: ( board -- )
-    parray-max @ 0 do nopiece @ i this piece! loop \ put no piece in array at start
-  ;m method emptyboard
-  m: ( board -- )
-    this [parent] construct
-    this emptyboard
-  ;m overrides construct
-  m: ( board -- )
-    499 3 this piece!
-    cr 3 this piece@ . ." this should be 499!" cr
-    parray-max @ 0 do i this piece@ . ."  #" i . cr loop
-  ;m method testing2
-  m: ( ntestpiece board -- nflag ) \ test ntestpiece with all pieces currently in solution for collision
-    \ nflag is false for no collision
-    \ nflag is true for a collision
-    { ntestpiece }
-    try
-      current-solution-piece @ 0 ?do
-        ntestpiece i this piece@ this test-collision
-        throw \ if a collision then return true
-      loop
-      false \ if no collision then return false
-    restore
-    endtry
-  ;m method testpiece
-  m: ( nstart board -- nsolution nflag ) \ test all piece combination placements with current pieces in solution for collision
-    \ nflag is false if solution is found
-    \ nflag is true if no solutions is found
-    \ nsolution is the last pindex solution value tested
-    true true rot pindex-max @ swap do 2drop i this testpiece if i true else i false leave then loop
-  ;m method findpiece
-  m: ( n board -- n1 )
-    dup 0 < if drop 0 then
-  ;m method zerotest
-  m: ( n board -- n2 )
-    dup pindex-max @ >= if drop 0 current-solution-piece @ 1 - this zerotest current-solution-piece ! then
-  ;m method pmaxtest
-  m: ( board -- )
-    this emptyboard
-    0 current-solution-piece !
-    0 \ start the search from the begining of total pieces
-    begin
-      this findpiece
-      if
-        \ .s ." no more solutions! " cr parray-max @ current-solution-piece !
-        \ here because no solutions on this path need to back trace
-        drop \ throw away bad solution
-        current-solution-piece @ 1 - dup this zerotest current-solution-piece ! \ step back current solution pointer
-        this piece@ 1 + this pmaxtest \ get last solved piece and go past that solution
-      else
-        \ store this found solution
-        current-solution-piece @ this piece! current-solution-piece @ 1 + current-solution-piece !
-        0 \ start a new search from the start of total pieces
-      then
-      current-solution-piece @ dup . ."  " this piece@ . cr
-      current-solution-piece @ parray-max @ >= \ if true then solution reached if false continue
-    until
-    ." yay found the solution"
-  ;m method solvepuzzle
-  m: ( board -- )
-    this emptyboard
-    0 current-solution-piece !
-    0 0 this piece!
-    cr ." testpiece " 0 this testpiece . cr
-    ." findpiece " 0 this findpiece . . .s cr
-    1 current-solution-piece !
-    cr ." testpiece " 0 this testpiece . cr
-    ." findpiece " 0 this findpiece . . .s cr
-    cr ." testpiece " 8 this testpiece . cr
-    ." findpiece " 8 this findpiece . . .s cr
-    8 1 this piece!
-    2 current-solution-piece !
-    cr ." testpiece " 8 this testpiece . cr
-    ." findpiece " 8 this findpiece . . .s cr
-  ;m method test4
-end-class board
-\ note piece object is a parent to board object
-\ board object and piece object have no instance variables
-\ this means they are to be instantated once and used only this way so they are not normal objects because of this.
-
-board heap-new constant btest
-\ btest testing
-\ btest testing2
-\ btest testcompare
-\ btest solvepuzzle
-\ btest findpiece . .
-\ btest test4
