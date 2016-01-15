@@ -49,11 +49,6 @@ object class
   end-struct collist%
 
   protected
-  m: ( piece -- npcollision# nflag ) \ retrieve piece collisions from next list item
-  \ npcollision# is the piece collision value returned
-  \ if nflag is false then the list has reached the end and will start returning values from the begining of list
-  \ if nflag is true then the linked list has more stuff to retrieve
-  ;m method collist@
   m: ( nx ny nz naddr nindex piece -- )
     loc% %size * + { naddr }
     naddr z ! naddr y ! naddr x !
@@ -127,11 +122,14 @@ object class
     endtry
   ;m method test-collision
   m: ( piece -- ) \ populate the collision  list for thispiece#
-    pindex-max 0 do
-      thispiece# i this test-collision
-      collist-a piece-flag i collist% %size * + c!
-    loop
-    true [to-inst] collist-f
+    0 collist-a <> thispiece# nopiece <> collist-f false = and and
+    if
+      pindex-max 0 do
+        thispiece# i this test-collision
+        collist-a piece-flag i collist% %size * + c!
+      loop
+      true [to-inst] collist-f
+    then
   ;m method makecollisionlist
   m: ( piece -- ) \ allocate room for the collision list or clear list if allocated already
     0 collist-a <>
@@ -197,13 +195,9 @@ object class
   m: ( piece -- ) \ create the collision list for this piece
     this makecollisionlist
   ;m method collisionlist!
-  m: ( piece -- npcollision# nflag ) \ get a collision from collision list
-  \ nflag is false when the list is at the end and will reset next time this method is called
-    this collist@
-  ;m method collisionlist@
-  m: ( npiece# piece -- nflag ) \ test if npiece# is in the collision list
-  \ nflag is true if npiece# is in the collsion list
-  \ nflag is false if npiece# is not in the collision list or the collision list does not exist
+  m: ( npiece# piece -- nflag ) \ test the npiece# collistion value from collision list
+  \ nflag is true if npiece# has collided with thispiece# from the collision list
+  \ nflag is false if npiece# has not collided with thispiece# in the collision list or the collision list does not exist
     collist-f true =
     if
       collist-a swap collist% %size * + c@
@@ -212,7 +206,7 @@ object class
       drop false
     then
   ;m method collisionlist?
-  m: ( piece -- )
+  m: ( piece -- ) \ testing basic data set creation
     base-shapes e 3 this bshape@ . . . cr
     base-shapes d 2 this bshape@ . . . cr
     ." XXXXXXXX" cr
@@ -233,7 +227,8 @@ object class
       all-orient e i this bshape@ rot ." e:" . swap . . ." #" i . cr
     loop
   ;m method testing
-  m: ( piece -- )
+  m: ( piece -- ) \ esting collision detection words
+    cr
     1 2 3 1 2 3 this test-voxel . ."  <- should be true!" cr
     1 2 3 1 2 5 this test-voxel . ."  <- should be false!" cr
     4 0 0 4 0 0 this test-voxel . ."  <- should be true!" cr
@@ -257,7 +252,20 @@ object class
     3 0 1 0 this test-voxeltovoxels . ."  <- collision should be true!" cr
     3 0 2 0 this test-voxeltovoxels . ."  <- collision should be false!" cr
   ;m method testcompare
-  m: ( piece -- )
+  m: ( piece -- ) \ testing collision detection list processes of this object
+    this destruct
+    this construct
+    500 this piece!
+    this collisionlist!
+    cr
+    500 this collisionlist? . ." < this should be true!" cr
+    501 this collisionlist? . ." < this should be true!" cr
+    510 this collisionlist? . ." < this should be false!" cr
+    520 this collisionlist? . ." < this should be false!" cr
+    540 this collisionlist? . ." < this should be true!" cr
+
+    this destruct
+    this construct
     0 this piece!
     this collisionlist!
     cr
@@ -269,4 +277,8 @@ object class
 end-class piece
 
 piece heap-new constant ptest
+ptest testcompare
+." .........."
+ptest testing
+." .........."
 ptest testcollistionlist
