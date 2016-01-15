@@ -291,18 +291,41 @@ end-class piece
 \ ptest testcollistionlist
 \ ptest testcollsionlistfull
 
-struct
-  cell% field pieceaddr
-end-struct apiece%
-create allpiecesarray
-allpiecesarray apiece% %size 960 * dup allot erase
-: createallpieces ( -- )
- 960 0 do i . cr
-   piece heap-new  dup
-   apiece% %size i * allpiecesarray pieceaddr + !
-   i swap piece!
- loop ;
- createallpieces
- cr ." At this moment all pieces are created with all the collisions calculated!"
+object class
+  destruction implementation
+  960 constant piece-max
+  false variable boardconstruct  \ test is the board has been constructed once
+  struct      
+    cell% field pieceaddr
+  end-struct apiece%
+  create allpiecesarray
+  allpiecesarray apiece% %size 960 * dup allot erase
+  protected
+  m: ( npieceaddr nindex board -- )
+    apiece% %size * allpiecesarray pieceaddr + !
+  ;m method collisionpiece!
+  m: ( nindex board -- npieceaddr )
+    apiece% %size * allpiecesarray pieceaddr + @
+  ;m method collisionpiece@
+  public
+  m: ( board -- )
+    boardconstruct @ false = if
+     piece-max 0 do
+       piece heap-new
+       dup i this collisionpiece!
+       dup i swap piece!
+       collisionlist!
+     loop
+     true boardconstruct ! \ board has been constructed so shared data is now setup
+   then
+  ;m overrides construct
+  m: ( board -- )
+    piece-max 0 do
+      i this collisionpiece@ piece@ . \ just display the collision list piece value
+      i i this collisionpiece@ collisionlist? . cr \ this should be true all the time
+    loop
+  ;m method testpiececollarray
+end-class board
 
- 
+board heap-new constant btest
+btest testpiececollarray
