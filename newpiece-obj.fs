@@ -292,40 +292,68 @@ end-class piece
 \ ptest testcollsionlistfull
 
 object class
-  destruction implementation
-  960 constant piece-max
-  false variable boardconstruct  \ test is the board has been constructed once
-  struct      
-    cell% field pieceaddr
-  end-struct apiece%
-  create allpiecesarray
-  allpiecesarray apiece% %size 960 * dup allot erase
-  protected
-  m: ( npieceaddr nindex board -- )
-    apiece% %size * allpiecesarray pieceaddr + !
-  ;m method collisionpiece!
-  m: ( nindex board -- npieceaddr )
-    apiece% %size * allpiecesarray pieceaddr + @
-  ;m method collisionpiece@
-  public
-  m: ( board -- )
-    boardconstruct @ false = if
-     piece-max 0 do
-       piece heap-new
-       dup i this collisionpiece!
-       dup i swap piece!
-       collisionlist!
-     loop
-     true boardconstruct ! \ board has been constructed so shared data is now setup
-   then
-  ;m overrides construct
-  m: ( board -- )
-    piece-max 0 do
-      i this collisionpiece@ piece@ . \ just display the collision list piece value
-      i i this collisionpiece@ collisionlist? . cr \ this should be true all the time
-    loop
-  ;m method testpiececollarray
+ destruction implementation
+ struct
+   cell% field pieceaddr
+ end-struct apiece%
+ create allpiecesarray
+ allpiecesarray apiece% %size 960 * dup allot erase
+ struct
+   cell% field pieceindex
+ end-struct aboardpiece%
+ inst-value boardpiecearray
+ cell% inst-var boardtest \ test if construct has been run for this instance
+ 25 constant bpieces
+ 960 constant piece-max
+ false variable boardconstruct boardconstruct ! \ test if the board has been constructed once
+
+
+protected
+m: ( npieceaddr nindex board -- ) \ store collision list piece
+  apiece% %size * allpiecesarray pieceaddr + !
+;m method collisionpiece!
+m: ( nindex board -- npieceaddr ) \ retrieve collision list piece
+  apiece% %size * allpiecesarray pieceaddr + @
+;m method collisionpiece@
+m: ( npieceaddr nindex board -- ) \ store a piece on the board
+  aboardpiece% %size * boardpiecearray pieceindex + !
+;m method ponboard!
+m: ( nindex board -- ) \ retreave a piece on the board
+  aboardpiece% %size * boardpiecearray pieceindex + @
+;m method ponboard@
+public
+m: ( board -- ) \ free allocated memory for the board pieces
+  boardpiecearray free throw
+;m overrides destruct
+m: ( board -- )
+  boardconstruct @ false =
+  if
+   piece-max 0 do
+     piece heap-new
+     dup i this collisionpiece!
+     dup i swap piece!
+     collisionlist!
+   loop
+   true boardconstruct ! \ board has been constructed so shared data is now setup
+  then
+  boardtest @ boardtest = if this destruct then \ deallocate past board to allow new board to be constructed
+  aboardpiece% %size bpieces * allocate throw  [to-inst] boardpiecearray \ make dynamic board pieces array
+  boardpiecearray aboardpiece% %size bpieces * true fill \ start board empty
+  boardtest boardtest ! \ set up destruct test now that stuff has been allocated
+;m overrides construct
+m: ( board -- )
+  cr
+  piece-max 0 do
+    i this collisionpiece@ piece@ . \ just display the collision list piece value
+    i i this collisionpiece@ collisionlist? . cr \ this should be true all the time
+  loop
+;m method testpiececollarray
+m: ( board -- )
+  cr
+  bpieces 0 do i this ponboard@ . i . cr loop
+;m method testboardpieces
 end-class board
 
 board heap-new constant btest
-btest testpiececollarray
+ btest testpiececollarray
+ btest testboardpieces
