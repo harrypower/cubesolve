@@ -283,7 +283,7 @@ object class
   ;m method testcollsionlistfull
 end-class piece
 
- piece heap-new constant ptest
+\ piece heap-new constant ptest
 \ ptest testcompare
 \ ." .........." cr
 \ ptest testing
@@ -296,23 +296,13 @@ struct
 end-struct apiece%
 create allpiecesarray
 allpiecesarray apiece% %size 960 * dup allot erase
-: allpieces ( -- )
+: createallpieces ( -- )
  960 0 do i . cr
    piece heap-new  dup
    apiece% %size i * allpiecesarray pieceaddr + !
    i swap piece!
  loop ;
-\ allpieces
+ createallpieces
+ cr ." At this moment all pieces are created with all the collisions calculated!"
 
- piece heap-new constant ptest2
- piece heap-new constant ptest1
- 959 ptest2 piece!
- 957 ptest1 piece!
- ptest2 collisionlist!
- ptest1 collisionlist!
- : testthem ( -- )
- 960 0 do
-   i ptest2 collisionlist? i . . ." : " i ptest1 collisionlist? i . . cr
- loop ;
-
- testthem
+ 
