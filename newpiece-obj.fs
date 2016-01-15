@@ -273,12 +273,46 @@ object class
     3 this collisionlist? . ." < this should be true!" cr
     10 this collisionlist? . ." < this should be false!" cr
   ;m method testcollistionlist
-
+  m: ( piece -- ) \ test collision list full
+    cr
+    this destruct
+    this construct
+    959 this piece!
+    this collisionlist!
+    pindex-max 0 do i this collisionlist? i . . cr loop
+  ;m method testcollsionlistfull
 end-class piece
 
-piece heap-new constant ptest
-ptest testcompare
-." .........."
-ptest testing
-." .........."
-ptest testcollistionlist
+ piece heap-new constant ptest
+\ ptest testcompare
+\ ." .........." cr
+\ ptest testing
+\ ." .........." cr
+\ ptest testcollistionlist
+\ ptest testcollsionlistfull
+
+struct
+  cell% field pieceaddr
+end-struct apiece%
+create allpiecesarray
+allpiecesarray apiece% %size 960 * dup allot erase
+: allpieces ( -- )
+ 960 0 do i . cr
+   piece heap-new  dup
+   apiece% %size i * allpiecesarray pieceaddr + !
+   i swap piece!
+ loop ;
+\ allpieces
+
+ piece heap-new constant ptest2
+ piece heap-new constant ptest1
+ 959 ptest2 piece!
+ 957 ptest1 piece!
+ ptest2 collisionlist!
+ ptest1 collisionlist!
+ : testthem ( -- )
+ 960 0 do
+   i ptest2 collisionlist? i . . ." : " i ptest1 collisionlist? i . . cr
+ loop ;
+
+ testthem
