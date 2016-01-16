@@ -318,12 +318,16 @@ m: ( nindex board -- npieceaddr ) \ retrieve collision list piece
 m: ( npieceaddr nindex board -- ) \ store a piece on the board
   aboardpiece% %size * boardpiecearray pieceindex + !
 ;m method ponboard!
-m: ( nindex board -- ) \ retreave a piece on the board
+m: ( nindex board -- npieceaddr ) \ retreave a piece on the board
   aboardpiece% %size * boardpiecearray pieceindex + @
 ;m method ponboard@
 public
 m: ( board -- ) \ free allocated memory for the board pieces
-  boardpiecearray free throw
+  boardtest @ boardtest = boardpiecearray 0 <> and
+  if
+    boardpiecearray free throw
+    0 [to-inst] boardpiecearray
+  then
 ;m overrides destruct
 m: ( board -- )
   boardconstruct @ false =
@@ -339,8 +343,22 @@ m: ( board -- )
   boardtest @ boardtest = if this destruct then \ deallocate past board to allow new board to be constructed
   aboardpiece% %size bpieces * allocate throw  [to-inst] boardpiecearray \ make dynamic board pieces array
   boardpiecearray aboardpiece% %size bpieces * true fill \ start board empty
-  boardtest boardtest ! \ set up destruct test now that stuff has been allocated
+  boardtest boardtest ! \ set up construct test now that stuff has been allocated
 ;m overrides construct
+m: ( npiece# nboard# board -- )
+  swap dup rot rot dup 0 >= swap piece-max < and
+  if this ponboard! else 2drop then
+;m method board!
+m: ( nboard# board -- )
+  this ponboard@
+;m method board@
+m: ( board -- )
+  this destruct
+  this construct
+;m method clearboard
+m: ( board -- )
+
+;m method solveit
 m: ( board -- )
   cr
   piece-max 0 do
@@ -348,12 +366,23 @@ m: ( board -- )
     i i this collisionpiece@ collisionlist? . cr \ this should be true all the time
   loop
 ;m method testpiececollarray
-m: ( board -- )
+m: ( board -- ) \ print out list of pieces for each board location
   cr
-  bpieces 0 do i this ponboard@ . i . cr loop
-;m method testboardpieces
+  bpieces 0 do i this board@ . ." :" i . cr loop
+;m method seeboardpieces
 end-class board
 
-board heap-new constant btest
+ ( board heap-new constant btest
+ 5 0 btest board!
+ 20 15 btest board!
+ -20 6 btest board!
+ 1000 8 btest board!
+ btest seeboardpieces )
+ ( btest testpiececollarray
+ btest seeboardpieces
+ btest destruct
+ btest construct
  btest testpiececollarray
- btest testboardpieces
+ btest seeboardpieces
+ btest destruct
+ btest construct )
