@@ -79,7 +79,7 @@ all-orient blc% %size 2 * 5 * 4 * 4 * 6 * dup allot erase \ all pieces list
     nx ny nz all-orient c nindex bshape@ test-voxel throw
     nx ny nz all-orient d nindex bshape@ test-voxel throw
     nx ny nz all-orient e nindex bshape@ test-voxel throw
-    false \ if code gets here then no collisions 
+    false \ if code gets here then no collisions
   restore
   endtry ;
 : test-collision ( nindex1 nindex2 -- nflag ) \ compare one piece for collision with another piece
