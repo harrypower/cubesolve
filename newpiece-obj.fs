@@ -411,7 +411,7 @@ m: ( board -- )
       1 + this pmaxtest \ get last solved piece and go past that solution
       \ .s ." next testable solution!" cr
     else \ found solution store it and step forward
-      current-solution-index this ponboard! 
+      current-solution-index this ponboard!
       current-solution-index 1 + [to-inst] current-solution-index
       0 \ start a new search from the start of total pieces
     then
@@ -421,7 +421,7 @@ m: ( board -- )
     then
     view# 1 + [to-inst] view#
     view# 1000 > if
-      page 10 10 at-xy
+      page 1 1 at-xy
       oneshot false = if true [to-inst] oneshot then
       current-solution-index 1 - dup . this ponboard@ .
       nowlow# ."  low:" .  nowlow# this ponboard@ . cr
