@@ -307,7 +307,9 @@ object class
  25 constant bpieces
  960 constant piece-max
  false variable boardconstruct boardconstruct ! \ test if the board has been constructed once
-
+ inst-value view#
+ inst-value nowlow#
+ inst-value oneshot
 
 protected
 m: ( npieceaddr nindex board -- ) \ store collision list piece
@@ -376,6 +378,9 @@ m: ( board -- )
   boardpiecearray aboardpiece% %size bpieces * true fill \ start board empty
   boardtest boardtest ! \ set up construct test now that stuff has been allocated
   0 [to-inst] current-solution-index \ start with no solution started
+  0 [to-inst] view#
+  25 [to-inst] nowlow#
+  false [to-inst] oneshot
 ;m overrides construct
 m: ( npiece# nboard# board -- )
   swap dup rot rot dup 0 >= swap piece-max < and
@@ -406,11 +411,22 @@ m: ( board -- )
       1 + this pmaxtest \ get last solved piece and go past that solution
       \ .s ." next testable solution!" cr
     else \ found solution store it and step forward
-      current-solution-index 2dup this ponboard! . . cr
+      current-solution-index this ponboard! 
       current-solution-index 1 + [to-inst] current-solution-index
       0 \ start a new search from the start of total pieces
     then
     \ current-solution-index 1 - dup . this ponboard@ . cr
+    oneshot true = if
+      current-solution-index nowlow# < if current-solution-index [to-inst] nowlow# then
+    then
+    view# 1 + [to-inst] view#
+    view# 1000 > if
+      page 10 10 at-xy
+      oneshot false = if true [to-inst] oneshot then
+      current-solution-index 1 - dup . this ponboard@ .
+      nowlow# ."  low:" .  nowlow# this ponboard@ . cr
+      0 [to-inst] view#
+    then
     current-solution-index piece-max >= \ if true then solution reached if false continue
   until
 ;m method solveit
