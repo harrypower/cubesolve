@@ -353,7 +353,7 @@ m: ( n board -- n1 )
 ;m method zerotest
 m:  ( n board -- n2 )
   dup piece-max >= if drop 0 current-solution-index 1 - this zerotest [to-inst] current-solution-index then
-;m method pmaxtest
+;m method piecemaxtest
 public
 m: ( board -- ) \ free allocated memory for the board pieces
   boardtest @ boardtest = boardpiecearray 0 <> and
@@ -408,7 +408,7 @@ m: ( board -- )
       current-solution-index this pieceonboard@  \ .s ." should be 0 to 959" cr
       this collisionpiece@ \ .s ." should be some address" cr
       piece@ \ .s ." should be 0 to 959" cr
-      1 + this pmaxtest \ get last solved piece and go past that solution
+      1 + this piecemaxtest  \ get last solved piece and go past that solution
       \ .s ." next testable solution!" cr
     else \ found solution store it and step forward
       current-solution-index this pieceonboard!
@@ -459,7 +459,7 @@ m: ( board -- ) \ print out list of pieces for each board location
   cr
   boardpieces  0 do i this board@ . ." :" i . cr loop
 ;m method seeboardpieces
-m: ( ncolltest ncolindex board -- )
+m: ( ncolltest ncollindex board -- )
   cr
   dup this collisionpiece@ piece@ .
   this collisionpiece@ collisionlist? . cr
