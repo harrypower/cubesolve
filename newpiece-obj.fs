@@ -140,7 +140,7 @@ object class
       collisionlist-addr collisionlist% %size pindex-max * erase
     then
     false [to-inst] collisionlist-flag
-  ;m method create-collist
+  ;m method create-collisionlist
   m: ( nx ny nz piece -- ) \ just displays x y z from stack
     rot ." x:" . swap ."  y:" . ."  z:" .
   ;m method xyz.
@@ -175,7 +175,7 @@ object class
       true piece-table-created !
     then
     0 [to-inst] collisionlist-addr \ at construct time the collsion list is not allocated yet
-    this create-collist
+    this create-collisionlist
     nopiece [to-inst] thispiece#  \ start with no piece
   ;m overrides construct
   m: ( piece -- ) \ free allocated memory for this piece
@@ -193,7 +193,7 @@ object class
     thispiece#
   ;m method piece@
   m: ( piece -- ) \ create the collision list for this piece
-    this populatecollisionlist 
+    this populatecollisionlist
   ;m method collisionlist!
   m: ( npiece# piece -- nflag ) \ test the npiece# collistion value from collision list
   \ nflag is true if npiece# has collided with thispiece# from the collision list
@@ -226,7 +226,7 @@ object class
       all-orient d i this basicshape@ rot ." d:" . swap . .
       all-orient e i this basicshape@ rot ." e:" . swap . . ." #" i . cr
     loop
-  ;m method testing
+  ;m method testDataSet
   m: ( piece -- ) \ esting collision detection words
     cr
     1 2 3 1 2 3 this test-voxel? . ."  <- should be true!" cr
@@ -286,7 +286,7 @@ end-class piece
 \ piece heap-new constant ptest
 \ ptest testcompare
 \ ." .........." cr
-\ ptest testing
+\ ptest testDataSet
 \ ." .........." cr
 \ ptest testcollistionlist
 \ ptest testcollsionlistfull
@@ -303,8 +303,8 @@ object class
  end-struct aboardpiece%
  inst-value boardpiecearray
  cell% inst-var boardtest \ test if construct has been run for this instance
- inst-value current-solution-index \ will be used in solution to index through the bpieces
- 25 constant bpieces
+ inst-value current-solution-index \ will be used in solution to index through the board pieces
+ 25 constant boardpieces
  960 constant piece-max
  false variable boardconstruct boardconstruct ! \ test if the board has been constructed once
  inst-value view#
@@ -320,10 +320,10 @@ m: ( nindex board -- npieceaddr ) \ retrieve collision list piece
 ;m method collisionpiece@
 m: ( npieceaddr nindex board -- ) \ store a piece on the board
   aboardpiece% %size * boardpiecearray pieceindex + !
-;m method ponboard!
+;m method pieceonboard!
 m: ( nindex board -- npieceaddr ) \ retreave a piece on the board
   aboardpiece% %size * boardpiecearray pieceindex + @
-;m method ponboard@
+;m method pieceonboard@
 m: ( ntestpiece board -- nflag ) \ test ntestpiece with all pieces currently in solution for collision
   \ nflag is false for no collision
   \ nflag is true for a collision
@@ -331,7 +331,7 @@ m: ( ntestpiece board -- nflag ) \ test ntestpiece with all pieces currently in 
   try
     current-solution-index 0
     ?do
-      ntestpiece i this ponboard@ this collisionpiece@ collisionlist?
+      ntestpiece i this pieceonboard@  this collisionpiece@ collisionlist?
       throw \ if a collision then return true
     loop
     false \ if no collision then return false
@@ -374,8 +374,8 @@ m: ( board -- )
    true boardconstruct ! \ board has been constructed so shared data is now setup
   then
   boardtest @ boardtest = if this destruct then \ deallocate past board to allow new board to be constructed
-  aboardpiece% %size bpieces * allocate throw  [to-inst] boardpiecearray \ make dynamic board pieces array
-  boardpiecearray aboardpiece% %size bpieces * true fill \ start board empty
+  aboardpiece% %size boardpieces  * allocate throw  [to-inst] boardpiecearray \ make dynamic board pieces array
+  boardpiecearray aboardpiece% %size boardpieces  * true fill \ start board empty
   boardtest boardtest ! \ set up construct test now that stuff has been allocated
   0 [to-inst] current-solution-index \ start with no solution started
   0 [to-inst] view#
@@ -384,10 +384,10 @@ m: ( board -- )
 ;m overrides construct
 m: ( npiece# nboard# board -- )
   swap dup rot rot dup 0 >= swap piece-max < and
-  if this ponboard! else 2drop then
+  if this pieceonboard!  else 2drop then
 ;m method board!
 m: ( nboard# board -- )
-  this ponboard@
+  this pieceonboard@
 ;m method board@
 m: ( board -- )
   this destruct
@@ -405,17 +405,17 @@ m: ( board -- )
       drop \ throw away bad solution
       current-solution-index 1 - this zerotest [to-inst] current-solution-index \ step back current solution pointer
       \ current-solution-index . ." next index!" cr
-      current-solution-index this ponboard@ \ .s ." should be 0 to 959" cr
+      current-solution-index this pieceonboard@  \ .s ." should be 0 to 959" cr
       this collisionpiece@ \ .s ." should be some address" cr
       piece@ \ .s ." should be 0 to 959" cr
       1 + this pmaxtest \ get last solved piece and go past that solution
       \ .s ." next testable solution!" cr
     else \ found solution store it and step forward
-      current-solution-index this ponboard!
+      current-solution-index this pieceonboard!
       current-solution-index 1 + [to-inst] current-solution-index
       0 \ start a new search from the start of total pieces
     then
-    \ current-solution-index 1 - dup . this ponboard@ . cr
+    \ current-solution-index 1 - dup . this pieceonboard@  . cr
     oneshot true = if
       current-solution-index nowlow# < if current-solution-index [to-inst] nowlow# then
     then
@@ -423,8 +423,8 @@ m: ( board -- )
     view# 1000 > if
       page 1 1 at-xy
       oneshot false = if true [to-inst] oneshot then
-      current-solution-index 1 - dup . this ponboard@ .
-      nowlow# ."  low:" .  nowlow# this ponboard@ . cr
+      current-solution-index 1 - dup . this pieceonboard@  .
+      nowlow# ."  low:" .  nowlow# this pieceonboard@  . cr
       0 [to-inst] view#
     then
     current-solution-index piece-max >= \ if true then solution reached if false continue
@@ -457,7 +457,7 @@ m: ( board -- )
 ;m method testingsolutionwords
 m: ( board -- ) \ print out list of pieces for each board location
   cr
-  bpieces 0 do i this board@ . ." :" i . cr loop
+  boardpieces  0 do i this board@ . ." :" i . cr loop
 ;m method seeboardpieces
 m: ( ncolltest ncolindex board -- )
   cr
