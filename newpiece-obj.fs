@@ -466,9 +466,9 @@ m: ( ncolltest ncollindex board -- )
 ;m method seeacollision
 end-class board
 
- board heap-new constant btest
+( board heap-new constant btest
  btest solveit
- btest seeboardpieces
+ btest seeboardpieces )
 ( btest testingsolutionwords
  7 0 btest seeacollision
  8 0 btest seeacollision
