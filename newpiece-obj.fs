@@ -41,12 +41,12 @@ object class
   false variable piece-table-created piece-table-created ! \ used at construct time to create shape data only once
 
   inst-value thispiece# \ used to hold this piece current number
-  inst-value collist-a  \ the address to start of collision list
-  inst-value collist-f  \ a flag if true then collision list is valid false means list not calculated yet
+  inst-value collisionlist-addr  \ the address to start of collision list
+  inst-value collisionlist-flag  \ a flag if true then collision list is valid false means list not calculated yet
 
   struct
     char% field piece-flag
-  end-struct collist%
+  end-struct collisionlist%
 
   protected
   m: ( nx ny nz naddr nindex piece -- )
@@ -60,11 +60,11 @@ object class
   m: ( nx ny nz nbase-shapes-addr nindex piece -- ) \ to store basic-shape data array
     blc% %size * + { nbsa }
     nbsa z ! nbsa y ! nbsa x !
-  ;m method bshape!
+  ;m method basicshape!
   m: ( nbase-shapes-addr nindex piece -- nx ny nz ) \ get basic-shape x y z data
     blc% %size * + dup dup
     x @ -rot y @ swap z @
-  ;m method bshape@
+  ;m method basicshape@
   m: ( piece -- )
     bshape-max 0 do base-shapes i this bulk@ shapes-x i this bulk! loop
     bshape-max 0 do base-shapes i this bulk@ rot 1 + -rot shapes-x i bshape-max + this bulk! loop
@@ -92,54 +92,54 @@ object class
   ;m method all6rotations
   m: ( nx1 ny1 nz1 nx2 ny2 nz2 piece -- nflag ) \ compare nx1 ny1 nz1 to nx2 ny2 nz2
     >r >r >r rot r> = rot r> = rot r> = and and
-  ;m method test-voxel
+  ;m method test-voxel?
   m: ( nx ny nz nindex piece -- nflag ) \ compare nx ny nz voxel to nindex piece all voxels
   \ nflag is false if no collisions
   \ nflag is true for any collision
     { nx ny nz nindex }
     try
-      nx ny nz all-orient a nindex this bshape@ this test-voxel throw
-      nx ny nz all-orient b nindex this bshape@ this test-voxel throw
-      nx ny nz all-orient c nindex this bshape@ this test-voxel throw
-      nx ny nz all-orient d nindex this bshape@ this test-voxel throw
-      nx ny nz all-orient e nindex this bshape@ this test-voxel throw
+      nx ny nz all-orient a nindex this basicshape@ this test-voxel? throw
+      nx ny nz all-orient b nindex this basicshape@ this test-voxel? throw
+      nx ny nz all-orient c nindex this basicshape@ this test-voxel? throw
+      nx ny nz all-orient d nindex this basicshape@ this test-voxel? throw
+      nx ny nz all-orient e nindex this basicshape@ this test-voxel? throw
       false
     restore
     endtry
-  ;m method test-voxeltovoxels
+  ;m method test-voxeltovoxels?
   m: ( nindex1 nindex2 piece -- nflag ) \ compare one piece for collision with another piece
   \ nflag is false if no collisions
   \ nflag is true for any collision
     { nindex1 nindex2 }
     try
-      all-orient a nindex1 this bshape@ nindex2 this test-voxeltovoxels throw
-      all-orient b nindex1 this bshape@ nindex2 this test-voxeltovoxels throw
-      all-orient c nindex1 this bshape@ nindex2 this test-voxeltovoxels throw
-      all-orient d nindex1 this bshape@ nindex2 this test-voxeltovoxels throw
-      all-orient e nindex1 this bshape@ nindex2 this test-voxeltovoxels throw
+      all-orient a nindex1 this basicshape@ nindex2 this test-voxeltovoxels? throw
+      all-orient b nindex1 this basicshape@ nindex2 this test-voxeltovoxels? throw
+      all-orient c nindex1 this basicshape@ nindex2 this test-voxeltovoxels? throw
+      all-orient d nindex1 this basicshape@ nindex2 this test-voxeltovoxels? throw
+      all-orient e nindex1 this basicshape@ nindex2 this test-voxeltovoxels? throw
       false
     restore
     endtry
-  ;m method test-collision
+  ;m method test-collision?
   m: ( piece -- ) \ populate the collision  list for thispiece#
-    0 collist-a <> thispiece# nopiece <> collist-f false = and and
+    0 collisionlist-addr <> thispiece# nopiece <> collisionlist-flag false = and and
     if
       pindex-max 0 do
-        thispiece# i this test-collision
-        collist-a piece-flag i collist% %size * + c!
+        thispiece# i this test-collision?
+        collisionlist-addr piece-flag i collisionlist% %size * + c!
       loop
-      true [to-inst] collist-f
+      true [to-inst] collisionlist-flag
     then
-  ;m method makecollisionlist
+  ;m method populatecollisionlist
   m: ( piece -- ) \ allocate room for the collision list or clear list if allocated already
-    0 collist-a <>
+    0 collisionlist-addr <>
     if
-      collist-a collist% %size pindex-max * erase
+      collisionlist-addr collisionlist% %size pindex-max * erase
     else
-      collist% %size pindex-max * allocate throw [to-inst] collist-a
-      collist-a collist% %size pindex-max * erase
+      collisionlist% %size pindex-max * allocate throw [to-inst] collisionlist-addr
+      collisionlist-addr collisionlist% %size pindex-max * erase
     then
-    false [to-inst] collist-f
+    false [to-inst] collisionlist-flag
   ;m method create-collist
   m: ( nx ny nz piece -- ) \ just displays x y z from stack
     rot ." x:" . swap ."  y:" . ."  z:" .
@@ -147,26 +147,26 @@ object class
   public
   m: ( piece -- )
     piece-table-created @ false = if \ to create piece table only once for all piece objects
-      0 0 0 base-shapes a 0 this bshape! \ first shape
-      1 0 0 base-shapes b 0 this bshape!
-      2 0 0 base-shapes c 0 this bshape!
-      2 0 1 base-shapes d 0 this bshape!
-      3 0 1 base-shapes e 0 this bshape!
-      0 0 1 base-shapes a 1 this bshape! \ second shape
-      1 0 1 base-shapes b 1 this bshape!
-      2 0 1 base-shapes c 1 this bshape!
-      2 0 0 base-shapes d 1 this bshape!
-      3 0 0 base-shapes e 1 this bshape!
-      0 0 0 base-shapes a 2 this bshape! \ third shape
-      1 0 0 base-shapes b 2 this bshape!
-      1 0 1 base-shapes c 2 this bshape!
-      2 0 1 base-shapes d 2 this bshape!
-      3 0 1 base-shapes e 2 this bshape!
-      0 0 1 base-shapes a 3 this bshape! \ fourth shape
-      1 0 1 base-shapes b 3 this bshape!
-      1 0 0 base-shapes c 3 this bshape!
-      2 0 0 base-shapes d 3 this bshape!
-      3 0 0 base-shapes e 3 this bshape!
+      0 0 0 base-shapes a 0 this basicshape! \ first shape
+      1 0 0 base-shapes b 0 this basicshape!
+      2 0 0 base-shapes c 0 this basicshape!
+      2 0 1 base-shapes d 0 this basicshape!
+      3 0 1 base-shapes e 0 this basicshape!
+      0 0 1 base-shapes a 1 this basicshape! \ second shape
+      1 0 1 base-shapes b 1 this basicshape!
+      2 0 1 base-shapes c 1 this basicshape!
+      2 0 0 base-shapes d 1 this basicshape!
+      3 0 0 base-shapes e 1 this basicshape!
+      0 0 0 base-shapes a 2 this basicshape! \ third shape
+      1 0 0 base-shapes b 2 this basicshape!
+      1 0 1 base-shapes c 2 this basicshape!
+      2 0 1 base-shapes d 2 this basicshape!
+      3 0 1 base-shapes e 2 this basicshape!
+      0 0 1 base-shapes a 3 this basicshape! \ fourth shape
+      1 0 1 base-shapes b 3 this basicshape!
+      1 0 0 base-shapes c 3 this basicshape!
+      2 0 0 base-shapes d 3 this basicshape!
+      3 0 0 base-shapes e 3 this basicshape!
       this creatextrans
       this createxytrans
       this createxyztrans
@@ -174,16 +174,16 @@ object class
       \ at this moment the piece data base is populated
       true piece-table-created !
     then
-    0 [to-inst] collist-a \ at construct time the collsion list is not allocated yet
+    0 [to-inst] collisionlist-addr \ at construct time the collsion list is not allocated yet
     this create-collist
     nopiece [to-inst] thispiece#  \ start with no piece
   ;m overrides construct
   m: ( piece -- ) \ free allocated memory for this piece
-    0 collist-a <> if
-      collist-a free throw
+    0 collisionlist-addr <> if
+      collisionlist-addr free throw
     then
-    0 [to-inst] collist-a
-    false [to-inst] collist-f
+    0 [to-inst] collisionlist-addr
+    false [to-inst] collisionlist-flag
     nopiece [to-inst] thispiece#
   ;m overrides destruct
   m: ( npiece# piece -- ) \ set the piece# and create the collision list
@@ -193,22 +193,22 @@ object class
     thispiece#
   ;m method piece@
   m: ( piece -- ) \ create the collision list for this piece
-    this makecollisionlist
+    this populatecollisionlist 
   ;m method collisionlist!
   m: ( npiece# piece -- nflag ) \ test the npiece# collistion value from collision list
   \ nflag is true if npiece# has collided with thispiece# from the collision list
   \ nflag is false if npiece# has not collided with thispiece# in the collision list or the collision list does not exist
-    collist-f true =
+    collisionlist-flag true =
     if
-      collist-a swap collist% %size * + c@
+      collisionlist-addr swap collisionlist% %size * + c@
       if true else false then
     else
       drop false
     then
   ;m method collisionlist?
   m: ( piece -- ) \ testing basic data set creation
-    base-shapes e 3 this bshape@ . . . cr
-    base-shapes d 2 this bshape@ . . . cr
+    base-shapes e 3 this basicshape@ . . . cr
+    base-shapes d 2 this basicshape@ . . . cr
     ." XXXXXXXX" cr
     bshape-max  0 do base-shapes i this bulk@ this xyz. ."  #" i . cr loop
     ." ********" cr
@@ -220,37 +220,37 @@ object class
     ." all------" cr
     allorient-max 0 do all-orient i this bulk@ this xyz. ."  #" i . cr loop
     pindex-max 0 do
-      all-orient a i this bshape@ rot ." a:" . swap . .
-      all-orient b i this bshape@ rot ." b:" . swap . .
-      all-orient c i this bshape@ rot ." c:" . swap . .
-      all-orient d i this bshape@ rot ." d:" . swap . .
-      all-orient e i this bshape@ rot ." e:" . swap . . ." #" i . cr
+      all-orient a i this basicshape@ rot ." a:" . swap . .
+      all-orient b i this basicshape@ rot ." b:" . swap . .
+      all-orient c i this basicshape@ rot ." c:" . swap . .
+      all-orient d i this basicshape@ rot ." d:" . swap . .
+      all-orient e i this basicshape@ rot ." e:" . swap . . ." #" i . cr
     loop
   ;m method testing
   m: ( piece -- ) \ esting collision detection words
     cr
-    1 2 3 1 2 3 this test-voxel . ."  <- should be true!" cr
-    1 2 3 1 2 5 this test-voxel . ."  <- should be false!" cr
-    4 0 0 4 0 0 this test-voxel . ."  <- should be true!" cr
-    0 0 0 0 0 0 this test-voxel . ."  <- should be true!" cr
-    4 4 4 4 4 4 this test-voxel . ."  <- should be true!" cr
-    4 0 4 4 4 0 this test-voxel . ."  <- should be false!" cr
-    0 0 this test-collision . ."  <- collision should be true!" cr
-    0 1 this test-collision . ."  <- collision should be true!" cr
-    0 25 this test-collision . ."  <- collision should be false!" cr
-    all-orient a 0 this bshape@ this xyz. ."  :a 0" cr
-    all-orient b 0 this bshape@ this xyz. ."  :b 0" cr
-    all-orient c 0 this bshape@ this xyz. ."  :c 0" cr
-    all-orient d 0 this bshape@ this xyz. ."  :d 0" cr
-    all-orient e 0 this bshape@ this xyz. ."  :e 0" cr
-    all-orient a 25 this bshape@ this xyz. ."  :a 25" cr
-    all-orient b 25 this bshape@ this xyz. ."  :b 25" cr
-    all-orient c 25 this bshape@ this xyz. ."  :c 25" cr
-    all-orient d 25 this bshape@ this xyz. ."  :d 25" cr
-    all-orient e 25 this bshape@ this xyz. ."  :e 25" cr
-    0 0 0 0 this test-voxeltovoxels . ."  <- collision should be true!" cr
-    3 0 1 0 this test-voxeltovoxels . ."  <- collision should be true!" cr
-    3 0 2 0 this test-voxeltovoxels . ."  <- collision should be false!" cr
+    1 2 3 1 2 3 this test-voxel? . ."  <- should be true!" cr
+    1 2 3 1 2 5 this test-voxel? . ."  <- should be false!" cr
+    4 0 0 4 0 0 this test-voxel? . ."  <- should be true!" cr
+    0 0 0 0 0 0 this test-voxel? . ."  <- should be true!" cr
+    4 4 4 4 4 4 this test-voxel? . ."  <- should be true!" cr
+    4 0 4 4 4 0 this test-voxel? . ."  <- should be false!" cr
+    0 0 this test-collision?  . ."  <- collision should be true!" cr
+    0 1 this test-collision?  . ."  <- collision should be true!" cr
+    0 25 this test-collision?  . ."  <- collision should be false!" cr
+    all-orient a 0 this basicshape@ this xyz. ."  :a 0" cr
+    all-orient b 0 this basicshape@ this xyz. ."  :b 0" cr
+    all-orient c 0 this basicshape@ this xyz. ."  :c 0" cr
+    all-orient d 0 this basicshape@ this xyz. ."  :d 0" cr
+    all-orient e 0 this basicshape@ this xyz. ."  :e 0" cr
+    all-orient a 25 this basicshape@ this xyz. ."  :a 25" cr
+    all-orient b 25 this basicshape@ this xyz. ."  :b 25" cr
+    all-orient c 25 this basicshape@ this xyz. ."  :c 25" cr
+    all-orient d 25 this basicshape@ this xyz. ."  :d 25" cr
+    all-orient e 25 this basicshape@ this xyz. ."  :e 25" cr
+    0 0 0 0 this test-voxeltovoxels? . ."  <- collision should be true!" cr
+    3 0 1 0 this test-voxeltovoxels? . ."  <- collision should be true!" cr
+    3 0 2 0 this test-voxeltovoxels? . ."  <- collision should be false!" cr
   ;m method testcompare
   m: ( piece -- ) \ testing collision detection list processes of this object
     this destruct
