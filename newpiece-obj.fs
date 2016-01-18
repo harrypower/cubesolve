@@ -292,6 +292,51 @@ end-class piece
 \ ptest testcollsionlistfull
 
 object class
+  destruction implementation
+  5 constant xyz-size
+  struct
+    cell% field piecedisplay#
+  end-struct thepiece%
+  inst-value displaydata-addr
+  cell% inst-var displaypiecesetup
+
+  m: ( displaypieces -- )
+    displaypiecesetup displaypiecesetup @ =
+    if
+      displaydata-addr free throw
+      0 [to-inst] displaydata-addr
+      0 displaypiecesetup !
+    then
+  ;m overrides destruct
+  m: ( displaypieces -- )
+    displaypiecesetup displaypiecesetup @ <>
+    if \ not setup yet
+      thepiece% %size xyz-size * xyz-size * xyz-size * allocate throw [to-inst] displaydata-addr
+      displaypiecesetup displaypiecesetup ! \ now this instance has been setup once
+    then
+    displaydata-addr thepiece% %size xyz-size * xyz-size * xyz-size * true fill \ place no pices in display data
+  ;m overrides construct
+  m: ( nx ny nz npiece# displaypieces -- )
+    displaypiecesetup displaypiecesetup @ =
+    if
+      >r thepiece% %size * * * displaydata-addr piecedisplay# + r> swap !
+    else
+      2drop 2drop \ no display setup just drop input
+    then
+  ;m method displaypiece!
+  m: ( nx ny nz displaypieces -- npiece# )
+  displaypiecesetup displaypiecesetup @ =
+  if
+    thepiece% %size * * * displaydata-addr piecedisplay# + @
+  else
+    2drop drop true  \ no display setup just drop input and output no piece
+  then
+  ;m method displaypiece@
+  m: ( displaypices -- )
+  ;m method dodisplay
+end-class displaypieces
+
+object class
  destruction implementation
  struct
    cell% field pieceaddr
@@ -465,6 +510,8 @@ m: ( ncolltest ncollindex board -- )
   this collisionpiece@ collisionlist? . cr
 ;m method seeacollision
 end-class board
+
+displaypieces heap-new constant dtest
 
 ( board heap-new constant btest
  btest solveit
