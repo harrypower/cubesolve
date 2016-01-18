@@ -1,5 +1,10 @@
 require objects.fs
 
+: #to$ ( n -- c-addr u1 ) \ convert n to string
+    s>d
+    swap over dabs
+    <<# #s rot sign #> #>> ;
+
 interface
     selector destruct ( -- ) \ to free allocated memory in objects that use this
 end-interface destruction
@@ -293,6 +298,9 @@ end-class piece
 
 object class
   destruction implementation
+  4 constant displaycellsize
+	1 constant topoffset
+	1 constant zplane-spacing
   5 constant xyz-size
   struct
     cell% field piecedisplay#
@@ -319,7 +327,12 @@ object class
   m: ( nx ny nz npiece# displaypieces -- )
     displaypiecesetup displaypiecesetup @ =
     if
-      >r thepiece% %size * * * displaydata-addr piecedisplay# + r> swap !
+      >r
+      xyz-size dup * * swap \ z offset
+      xyz-size * +          \ y offset
+      +                     \ x offset
+      thepiece% %size * displaydata-addr piecedisplay# + \ final address
+      r> swap !
     else
       2drop 2drop \ no display setup just drop input
     then
@@ -327,13 +340,30 @@ object class
   m: ( nx ny nz displaypieces -- npiece# )
   displaypiecesetup displaypiecesetup @ =
   if
-    thepiece% %size * * * displaydata-addr piecedisplay# + @
+    xyz-size dup * * swap \ z offset
+    xyz-size * +          \ y offset
+    +                     \ x offset
+    thepiece% %size * displaydata-addr piecedisplay# + \ final address
+    @
   else
     2drop drop true  \ no display setup just drop input and output no piece
   then
   ;m method displaypiece@
   m: ( displaypices -- )
-  ;m method dodisplay
+    page
+    xyz-size 0 ?do    	\ x
+      xyz-size 0 ?do		\ y
+        xyz-size 0 ?do	\ z
+          k j i this displaypiece@ \ retrieve piece value to display
+          dup true = if 99 then  \ if no piece then show 99
+          k displaycellsize * \ x for at-xy
+          xyz-size zplane-spacing + i * j + topoffset + \ y for at-xy
+          at-xy
+          ." :" #to$ type
+        loop
+      loop
+    loop
+  ;m method showdisplay
 end-class displaypieces
 
 object class
@@ -512,7 +542,7 @@ m: ( ncolltest ncollindex board -- )
 end-class board
 
 displaypieces heap-new constant dtest
-
+dtest showdisplay
 ( board heap-new constant btest
  btest solveit
  btest seeboardpieces )
