@@ -384,6 +384,7 @@ object class
  false variable boardconstruct boardconstruct ! \ test if the board has been constructed once
  inst-value view#
  inst-value nowlow#
+ inst-value nowhigh#
  inst-value oneshot
 
 protected
@@ -455,6 +456,7 @@ m: ( board -- )
   0 [to-inst] current-solution-index \ start with no solution started
   0 [to-inst] view#
   25 [to-inst] nowlow#
+  0 [to-inst] nowhigh#
   false [to-inst] oneshot
 ;m overrides construct
 m: ( npiece# nboard# board -- )
@@ -468,10 +470,10 @@ m: ( board -- )
   this destruct
   this construct
 ;m method clearboard
-m: ( board -- )
+m: ( nstart board -- )
   this clearboard
   0 [to-inst] current-solution-index
-  0 \ start at beginning
+  \ 0 \ start at beginning
   begin
     this findpiece \ .s cr
     if \ here because no solution so must back trace once
@@ -493,13 +495,16 @@ m: ( board -- )
     \ current-solution-index 1 - dup . this pieceonboard@  . cr
     oneshot true = if
       current-solution-index nowlow# < if current-solution-index [to-inst] nowlow# then
+      current-solution-index nowhigh# > if current-solution-index 1 - [to-inst] nowhigh# then
+      nowhigh# 0 < if 0 [to-inst] nowhigh# then
     then
     view# 1 + [to-inst] view#
     view# 1000 > if
       page 1 1 at-xy
       oneshot false = if true [to-inst] oneshot then
       current-solution-index 1 - dup . this pieceonboard@  .
-      nowlow# ."  low:" .  nowlow# this pieceonboard@  . cr
+      nowlow# ."  low:" .  nowlow# this pieceonboard@  .
+      nowhigh# ." high:" . nowhigh# this pieceonboard@ .
       0 [to-inst] view#
     then
     current-solution-index piece-max >= \ if true then solution reached if false continue
@@ -541,11 +546,11 @@ m: ( ncolltest ncollindex board -- )
 ;m method seeacollision
 end-class board
 
-displaypieces heap-new constant dtest
-dtest showdisplay
-( board heap-new constant btest
- btest solveit
- btest seeboardpieces )
+( displaypieces heap-new constant dtest
+dtest showdisplay )
+board heap-new constant btest
+ 1 btest solveit
+ btest seeboardpieces
 ( btest testingsolutionwords
  7 0 btest seeacollision
  8 0 btest seeacollision
