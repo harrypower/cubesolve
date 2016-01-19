@@ -511,6 +511,16 @@ m: ( nstart board -- )
     key? or
   until
 ;m method solveit
+m: ( board -- ) \ print out list of pieces for each board location
+  cr
+  boardpieces  0 do i this board@ . ." :" i . cr loop
+;m method seeboardpieces
+m: ( ncolltest ncollindex board -- ) \ will display the piece in collison piece list for ncollindex then display if it collides with ncolltest piece
+  \ essentialy see if two pieces collide and does this test from the collision list data created in this board object
+  cr
+  dup this collisionpiece@ piece@ .
+  this collisionpiece@ collisionlist? . cr
+;m method seeacollision
 m: ( board -- )
   cr
   piece-max 0
@@ -536,22 +546,13 @@ m: ( board -- )
   0 this findpiece . . ." <- this should be false 16!" cr
   this clearboard cr
 ;m method testingsolutionwords
-m: ( board -- ) \ print out list of pieces for each board location
-  cr
-  boardpieces  0 do i this board@ . ." :" i . cr loop
-;m method seeboardpieces
-m: ( ncolltest ncollindex board -- )
-  cr
-  dup this collisionpiece@ piece@ .
-  this collisionpiece@ collisionlist? . cr
-;m method seeacollision
 end-class board
 
 ( displaypieces heap-new constant dtest
 dtest showdisplay )
 board heap-new constant btest
- 1 btest solveit
- btest seeboardpieces
+( 1 btest solveit
+ btest seeboardpieces )
 ( btest testingsolutionwords
  7 0 btest seeacollision
  8 0 btest seeacollision
