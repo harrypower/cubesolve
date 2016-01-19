@@ -508,6 +508,7 @@ m: ( nstart board -- )
       0 [to-inst] view#
     then
     current-solution-index piece-max >= \ if true then solution reached if false continue
+    key? or
   until
 ;m method solveit
 m: ( board -- )
