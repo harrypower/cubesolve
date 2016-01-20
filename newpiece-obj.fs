@@ -217,13 +217,13 @@ object class
     { nsubpiece# npiece# }
     nsubpiece#
     CASE
-      0 OF base-shapes a npiece# this basicshape@ ENDOF
-      1 OF base-shapes b npiece# this basicshape@ ENDOF
-      2 OF base-shapes c npiece# this basicshape@ ENDOF
-      3 OF base-shapes d npiece# this basicshape@ ENDOF
-      4 OF base-shapes e npiece# this basicshape@ ENDOF
+      0 OF all-orient a npiece# this basicshape@ ENDOF
+      1 OF all-orient b npiece# this basicshape@ ENDOF
+      2 OF all-orient c npiece# this basicshape@ ENDOF
+      3 OF all-orient d npiece# this basicshape@ ENDOF
+      4 OF all-orient e npiece# this basicshape@ ENDOF
       \ default simply return a data
-      base-shapes a npiece# this basicshape@ 3 roll
+      all-orient a npiece# this basicshape@ 3 roll
     ENDCASE
   ;m method subpiece@
   m: ( piece -- ) \ testing basic data set creation
@@ -547,7 +547,39 @@ object class
       then
     loop
     thedisplay showdisplay
-  ;m method seeboard
+  ;m method showboard
+  m: ( npiece# board -- )
+    0 0 { np# p c  }
+    np# this pieceonboard@ to p
+    p true <>
+    if
+      p this collisionpiece@ to c
+      0 p c subpiece@ np# thedisplay displaypiece!
+      1 p c subpiece@ np# thedisplay displaypiece!
+      2 p c subpiece@ np# thedisplay displaypiece!
+      3 p c subpiece@ np# thedisplay displaypiece!
+      4 p c subpiece@ np# thedisplay displaypiece!
+    then
+    thedisplay showdisplay
+  ;m method showapieceonboard
+  m: ( board -- )
+    thedisplay destruct
+    thedisplay construct
+  ;m method cleardisplay
+  m: ( npiece# board -- )
+    0 0 { np# p c }
+    np# this pieceonboard@ to p
+    p true <>
+    if
+      cr
+      p this collisionpiece@ to c
+      0 p c subpiece@ rot ." x:" . swap ."  y:" . ."  z:" . np# . ." a" cr
+      1 p c subpiece@ rot ." x:" . swap ."  y:" . ."  z:" . np# . ." b" cr
+      2 p c subpiece@ rot ." x:" . swap ."  y:" . ."  z:" . np# . ." c" cr
+      3 p c subpiece@ rot ." x:" . swap ."  y:" . ."  z:" . np# . ." d" cr
+      4 p c subpiece@ rot ." x:" . swap ."  y:" . ."  z:" . np# . ." e" cr
+    then
+  ;m method testpiecesubs
   m: ( board -- ) \ print out list of pieces for each board location
     cr boardpieces  0 do i this board@ . ." :" i . cr loop
   ;m method seeboardpieces
@@ -586,8 +618,10 @@ end-class board
 dtest showdisplay )
 board heap-new constant btest
 0 btest solveit
- btest seeboardpieces
- btest seeboard
+ btest seeboardpieces page
+ btest showboard page
+\ 0 btest showapieceonboard page
+\ 0 btest testpiecesubs
 ( btest testingsolutionwords
  7 0 btest seeacollision
  8 0 btest seeacollision
