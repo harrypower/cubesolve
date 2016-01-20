@@ -536,15 +536,14 @@ object class
     \ populate the display with the current board
     0 0 { p c }
     boardpieces 0 do
-      i this pieceonboard@ true <>
+      i this pieceonboard@ dup to p true <>
       if
-        i this pieceonboard@ to p
         p this collisionpiece@ to c  \ have piece object now just get piece data with it and place in display
-        p c swap 0 swap rot subpiece@ i thedisplay displaypiece!
-        p c swap 1 swap rot subpiece@ i thedisplay displaypiece!
-        p c swap 2 swap rot subpiece@ i thedisplay displaypiece!
-        p c swap 3 swap rot subpiece@ i thedisplay displaypiece!
-        p c swap 4 swap rot subpiece@ i thedisplay displaypiece!
+        0 p c subpiece@ i thedisplay displaypiece!
+        1 p c subpiece@ i thedisplay displaypiece!
+        2 p c subpiece@ i thedisplay displaypiece!
+        3 p c subpiece@ i thedisplay displaypiece!
+        4 p c subpiece@ i thedisplay displaypiece!
       then
     loop
     thedisplay showdisplay
