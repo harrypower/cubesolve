@@ -211,6 +211,21 @@ object class
       drop false
     then
   ;m method collisionlist?
+  m: ( nsubpiece# npiece# piece -- nx ny nz ) \ will return sub block xyz values for a given npiece# and a given nsubpiece#
+    \ nsubpiece# is 0 to 4
+    \ npiece# is 0 to pindex-max -1
+    { nsubpiece# npiece# }
+    nsubpiece#
+    CASE
+      0 OF base-shapes a npiece# this basicshape@ ENDOF
+      1 OF base-shapes b npiece# this basicshape@ ENDOF
+      2 OF base-shapes c npiece# this basicshape@ ENDOF
+      3 OF base-shapes d npiece# this basicshape@ ENDOF
+      4 OF base-shapes e npiece# this basicshape@ ENDOF
+      \ default simply return a data
+      base-shapes a npiece# this basicshape@ 3 roll
+    ENDCASE
+  ;m method subpiece@
   m: ( piece -- ) \ testing basic data set creation
     base-shapes e 3 this basicshape@ . . . cr
     base-shapes d 2 this basicshape@ . . . cr
@@ -232,7 +247,7 @@ object class
       all-orient e i this basicshape@ rot ." e:" . swap . . ." #" i . cr
     loop
   ;m method testDataSet
-  m: ( piece -- ) \ esting collision detection words
+  m: ( piece -- ) \ testing collision detection words
     cr
     1 2 3 1 2 3 this test-voxel? . ."  <- should be true!" cr
     1 2 3 1 2 5 this test-voxel? . ."  <- should be false!" cr
@@ -386,6 +401,7 @@ object class
   inst-value nowlow#
   inst-value nowhigh#
   inst-value oneshot
+  inst-value thedisplay
 
   protected
   m: ( npieceaddr nindex board -- ) \ store collision list piece
@@ -437,6 +453,12 @@ object class
       boardpiecearray free throw
       0 [to-inst] boardpiecearray
     then
+    boardtest @ boardtest =
+    if
+      0 boardtest !
+      thedisplay destruct
+      0 [to-inst] thedisplay
+    then
   ;m overrides destruct
   m: ( board -- )
     boardconstruct @ false =
@@ -452,12 +474,13 @@ object class
     boardtest @ boardtest = if this destruct then \ deallocate past board to allow new board to be constructed
     aboardpiece% %size boardpieces  * allocate throw  [to-inst] boardpiecearray \ make dynamic board pieces array
     boardpiecearray aboardpiece% %size boardpieces  * true fill \ start board empty
-    boardtest boardtest ! \ set up construct test now that stuff has been allocated
     0 [to-inst] current-solution-index \ start with no solution started
     0 [to-inst] view#
     25 [to-inst] nowlow#
     0 [to-inst] nowhigh#
     false [to-inst] oneshot
+    displaypieces heap-new [to-inst] thedisplay \ start and setup display of board
+    boardtest boardtest ! \ set up construct test now that stuff has been allocated
   ;m overrides construct
   m: ( npiece# nboard# board -- )
     swap dup rot rot dup 0 >= swap piece-max < and
@@ -477,7 +500,6 @@ object class
       this findpiece \ .s cr
       if \ here because no solution so must back trace once
         \ .s ." no solution place" cr
-        \ current-solution-index . ." current index!" cr
         drop \ throw away bad solution
         current-solution-index 1 - this zerotest [to-inst] current-solution-index \ step back current solution pointer
         \ current-solution-index . ." next index!" cr
@@ -501,15 +523,32 @@ object class
       view# 1000 > if
         page 1 1 at-xy
         oneshot false = if true [to-inst] oneshot then
-        current-solution-index 1 - dup . this pieceonboard@  .
-        nowlow# ."  low:" .  nowlow# this pieceonboard@  .
+        current-solution-index 1 - dup . this pieceonboard@ .
+        nowlow# ."  low:" . nowlow# this pieceonboard@ .
         nowhigh# ." high:" . nowhigh# this pieceonboard@ .
         0 [to-inst] view#
       then
       current-solution-index piece-max >= \ if true then solution reached if false continue
       key? or
-    until
+    until drop
   ;m method solveit
+  m: ( board -- ) \ to view the current board solution
+    \ populate the display with the current board
+    0 0 { p c }
+    boardpieces 0 do
+      i this pieceonboard@ true <>
+      if
+        i this pieceonboard@ to p
+        p this collisionpiece@ to c  \ have piece object now just get piece data with it and place in display
+        p c swap 0 swap rot subpiece@ i thedisplay displaypiece!
+        p c swap 1 swap rot subpiece@ i thedisplay displaypiece!
+        p c swap 2 swap rot subpiece@ i thedisplay displaypiece!
+        p c swap 3 swap rot subpiece@ i thedisplay displaypiece!
+        p c swap 4 swap rot subpiece@ i thedisplay displaypiece!
+      then
+    loop
+    thedisplay showdisplay
+  ;m method seeboard
   m: ( board -- ) \ print out list of pieces for each board location
     cr boardpieces  0 do i this board@ . ." :" i . cr loop
   ;m method seeboardpieces
@@ -547,8 +586,9 @@ end-class board
 ( displaypieces heap-new constant dtest
 dtest showdisplay )
 board heap-new constant btest
-1 btest solveit
- btest seeboardpieces 
+0 btest solveit
+ btest seeboardpieces
+ btest seeboard
 ( btest testingsolutionwords
  7 0 btest seeacollision
  8 0 btest seeacollision
