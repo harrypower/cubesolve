@@ -11,6 +11,7 @@ end-interface destruction
 
 object class
   destruction implementation
+  protected
   struct
     cell% field x
     cell% field y
@@ -313,6 +314,7 @@ end-class piece
 
 object class
   destruction implementation
+  protected
   4 constant displaycellsize
 	1 constant topoffset
 	1 constant zplane-spacing
@@ -322,7 +324,7 @@ object class
   end-struct thepiece%
   inst-value displaydata-addr
   cell% inst-var displaypiecesetup
-
+  public
   m: ( displaypieces -- )
     displaypiecesetup displaypiecesetup @ =
     if
@@ -383,6 +385,7 @@ end-class displaypieces
 
 object class
   destruction implementation
+  protected
   struct
    cell% field pieceaddr
   end-struct apiece%
