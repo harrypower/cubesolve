@@ -549,7 +549,7 @@ object class
         4 p c [bind] piece subpiece@ i thedisplay [bind] displaypieces displaypiece!
       then
     loop
-    thedisplay showdisplay
+    thedisplay  [bind] displaypieces showdisplay
   ;m method showboard
   m: ( npiece# board -- )
     0 0 { np# p c  }
@@ -563,7 +563,7 @@ object class
       3 p c [bind] piece subpiece@ np# thedisplay [bind] displaypieces displaypiece!
       4 p c [bind] piece subpiece@ np# thedisplay [bind] displaypieces displaypiece!
     then
-    thedisplay showdisplay
+    thedisplay [bind] displaypieces showdisplay
   ;m method showapieceonboard
   m: ( board -- )
     thedisplay [bind] displaypieces destruct
