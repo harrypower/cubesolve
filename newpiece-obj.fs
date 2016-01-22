@@ -370,7 +370,7 @@ object class
       xyz-size 0 ?do		\ y
         xyz-size 0 ?do	\ z
           k j i this displaypiece@ \ retrieve piece value to display
-          dup true = if 99 then  \ if no piece then show 99
+          dup true = if drop 99 then  \ if no piece then show 99
           k displaycellsize * \ x for at-xy
           xyz-size zplane-spacing + i * j + topoffset + \ y for at-xy
           at-xy
@@ -493,27 +493,22 @@ object class
     this destruct
     this construct
   ;m method clearboard
-  m: ( nstart board -- )
-    this clearboard
-    0 [to-inst] current-solution-index
+  m: ( nstart ncurrentlevel board -- nnextindex )
+    [to-inst] current-solution-index
     begin
       this findpiece \ .s cr
       if \ here because no solution so must back trace once
-        \ .s ." no solution place" cr
         drop \ throw away bad solution
         current-solution-index 1 - this zerotest [to-inst] current-solution-index \ step back current solution pointer
-        \ current-solution-index . ." next index!" cr
         current-solution-index this pieceonboard@  \ .s ." should be 0 to 959" cr
         this collisionpiece@ \ .s ." should be some address" cr
         piece@ \ .s ." should be 0 to 959" cr
         1 + this piecemaxtest  \ get last solved piece and go past that solution
-        \ .s ." next testable solution!" cr
       else \ found solution store it and step forward
         current-solution-index this pieceonboard!
         current-solution-index 1 + [to-inst] current-solution-index
         0 \ start a new search from the start of total pieces
       then
-      \ current-solution-index 1 - dup . this pieceonboard@  . cr
       oneshot true = if
         current-solution-index nowlow# < if current-solution-index [to-inst] nowlow# then
         current-solution-index nowhigh# > if current-solution-index 1 - [to-inst] nowhigh# then
@@ -530,8 +525,20 @@ object class
       then
       current-solution-index piece-max >= \ if true then solution reached if false continue
       key? or
-    until drop
+    until
   ;m method solveit
+  m: ( nstart ncurrentlevel board -- nnextindex ncurrentlevel )
+    0 [to-inst] view#
+    25 [to-inst] nowlow#
+    0 [to-inst] nowhigh#
+    false [to-inst] oneshot
+    this solveit
+    current-solution-index
+  ;m method solvecontinue
+  m: ( board -- nnextindex ncurrentlevel )
+    this clearboard
+    0 0 this solveit current-solution-index
+  ;m method solvestart
   m: ( board -- ) \ to view the current board solution
     \ populate the display with the current board
     0 0 { p c }
@@ -579,7 +586,7 @@ object class
       3 p c subpiece@ rot ." x:" . swap ."  y:" . ."  z:" . np# . ." d" cr
       4 p c subpiece@ rot ." x:" . swap ."  y:" . ."  z:" . np# . ." e" cr
     then
-  ;m method testpiecesubs
+  ;m method showpiecesubs
   m: ( board -- ) \ print out list of pieces for each board location
     cr boardpieces  0 do i this board@ . ." :" i . cr loop
   ;m method seeboardpieces
@@ -614,30 +621,7 @@ object class
   ;m method testingsolutionwords
 end-class board
 
-( displaypieces heap-new constant dtest
-dtest showdisplay )
 board heap-new constant btest
-0 btest solveit
- btest seeboardpieces page
- btest showboard page
-\ 0 btest showapieceonboard page
-\ 0 btest testpiecesubs
-( btest testingsolutionwords
- 7 0 btest seeacollision
- 8 0 btest seeacollision
- 15 8 btest seeacollision
- 16 8 btest seeacollision )
-
- ( 5 0 btest board!
- 20 15 btest board!
- -20 6 btest board!
- 1000 8 btest board!
- btest seeboardpieces )
- ( btest testpiececollarray
- btest seeboardpieces
- btest destruct
- btest construct
- btest testpiececollarray
- btest seeboardpieces
- btest destruct
- btest construct )
+btest solvestart
+btest seeboardpieces page
+btest showboard
