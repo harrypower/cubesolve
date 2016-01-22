@@ -304,14 +304,6 @@ object class
   ;m method testcollsionlistfull
 end-class piece
 
-\ piece heap-new constant ptest
-\ ptest testcompare
-\ ." .........." cr
-\ ptest testDataSet
-\ ." .........." cr
-\ ptest testcollistionlist
-\ ptest testcollsionlistfull
-
 object class
   destruction implementation
   protected
