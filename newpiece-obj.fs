@@ -72,29 +72,29 @@ object class
     x @ -rot y @ swap z @
   ;m method basicshape@
   m: ( piece -- )
-    bshape-max 0 do base-shapes i this bulk@ shapes-x i this bulk! loop
-    bshape-max 0 do base-shapes i this bulk@ rot 1 + -rot shapes-x i bshape-max + this bulk! loop
+    bshape-max 0 do base-shapes i this [current] bulk@ shapes-x i this [current] bulk! loop
+    bshape-max 0 do base-shapes i this [current] bulk@ rot 1 + -rot shapes-x i bshape-max + this [current] bulk! loop
   ;m method creatextrans
   m: ( piece -- )
-    sx-max 0 do shapes-x i this bulk@ shapes-xy i this bulk! loop
-    sx-max 0 do shapes-x i this bulk@ swap 1 + swap shapes-xy i sx-max + this bulk! loop
-    sx-max 0 do shapes-x i this bulk@ swap 2 + swap shapes-xy i sx-max 2 * + this bulk! loop
-    sx-max 0 do shapes-x i this bulk@ swap 3 + swap shapes-xy i sx-max 3 * + this bulk! loop
-    sx-max 0 do shapes-x i this bulk@ swap 4 + swap shapes-xy i sx-max 4 * + this bulk! loop
+    sx-max 0 do shapes-x i this [current] bulk@ shapes-xy i this [current] bulk! loop
+    sx-max 0 do shapes-x i this [current] bulk@ swap 1 + swap shapes-xy i sx-max + this [current] bulk! loop
+    sx-max 0 do shapes-x i this [current] bulk@ swap 2 + swap shapes-xy i sx-max 2 * + this [current] bulk! loop
+    sx-max 0 do shapes-x i this [current] bulk@ swap 3 + swap shapes-xy i sx-max 3 * + this [current] bulk! loop
+    sx-max 0 do shapes-x i this [current] bulk@ swap 4 + swap shapes-xy i sx-max 4 * + this [current] bulk! loop
   ;m method createxytrans
   m: ( piece -- )
-    sxy-max 0 do shapes-xy i this bulk@ shapes-xyz i this bulk! loop
-    sxy-max 0 do shapes-xy i this bulk@ 1 + shapes-xyz i sxy-max + this bulk! loop
-    sxy-max 0 do shapes-xy i this bulk@ 2 + shapes-xyz i sxy-max 2 * + this bulk! loop
-    sxy-max 0 do shapes-xy i this bulk@ 3 + shapes-xyz i sxy-max 3 * + this bulk! loop
+    sxy-max 0 do shapes-xy i this [current] bulk@ shapes-xyz i this [current] bulk! loop
+    sxy-max 0 do shapes-xy i this [current] bulk@ 1 + shapes-xyz i sxy-max + this [current] bulk! loop
+    sxy-max 0 do shapes-xy i this [current] bulk@ 2 + shapes-xyz i sxy-max 2 * + this [current] bulk! loop
+    sxy-max 0 do shapes-xy i this [current] bulk@ 3 + shapes-xyz i sxy-max 3 * + this [current] bulk! loop
   ;m method createxyztrans
   m: ( piece -- )
-    sxyz-max 0 do shapes-xyz i this bulk@ all-orient i this bulk! loop
-    sxyz-max 0 do shapes-xyz i this bulk@ rot swap all-orient i sxyz-max + this bulk! loop
-    sxyz-max 0 do shapes-xyz i this bulk@ rot swap -rot all-orient i sxyz-max 2 * + this bulk! loop
-    sxyz-max 0 do shapes-xyz i this bulk@ swap all-orient i sxyz-max 3 * + this bulk! loop
-    sxyz-max 0 do shapes-xyz i this bulk@ rot all-orient i sxyz-max 4 * + this bulk! loop
-    sxyz-max 0 do shapes-xyz i this bulk@ -rot all-orient i sxyz-max 5 * + this bulk! loop
+    sxyz-max 0 do shapes-xyz i this [current] bulk@ all-orient i this [current] bulk! loop
+    sxyz-max 0 do shapes-xyz i this [current] bulk@ rot swap all-orient i sxyz-max + this [current] bulk! loop
+    sxyz-max 0 do shapes-xyz i this [current] bulk@ rot swap -rot all-orient i sxyz-max 2 * + this [current] bulk! loop
+    sxyz-max 0 do shapes-xyz i this [current] bulk@ swap all-orient i sxyz-max 3 * + this [current] bulk! loop
+    sxyz-max 0 do shapes-xyz i this [current] bulk@ rot all-orient i sxyz-max 4 * + this [current] bulk! loop
+    sxyz-max 0 do shapes-xyz i this [current] bulk@ -rot all-orient i sxyz-max 5 * + this [current] bulk! loop
   ;m method all6rotations
   m: ( nx1 ny1 nz1 nx2 ny2 nz2 piece -- nflag ) \ compare nx1 ny1 nz1 to nx2 ny2 nz2
     >r >r >r rot r> = rot r> = rot r> = and and
@@ -104,11 +104,11 @@ object class
   \ nflag is true for any collision
     { nx ny nz nindex }
     try
-      nx ny nz all-orient a nindex this basicshape@ this test-voxel? throw
-      nx ny nz all-orient b nindex this basicshape@ this test-voxel? throw
-      nx ny nz all-orient c nindex this basicshape@ this test-voxel? throw
-      nx ny nz all-orient d nindex this basicshape@ this test-voxel? throw
-      nx ny nz all-orient e nindex this basicshape@ this test-voxel? throw
+      nx ny nz all-orient a nindex this [current] basicshape@ this [current] test-voxel? throw
+      nx ny nz all-orient b nindex this [current] basicshape@ this [current] test-voxel? throw
+      nx ny nz all-orient c nindex this [current] basicshape@ this [current] test-voxel? throw
+      nx ny nz all-orient d nindex this [current] basicshape@ this [current] test-voxel? throw
+      nx ny nz all-orient e nindex this [current] basicshape@ this [current] test-voxel? throw
       false
     restore
     endtry
@@ -118,11 +118,11 @@ object class
   \ nflag is true for any collision
     { nindex1 nindex2 }
     try
-      all-orient a nindex1 this basicshape@ nindex2 this test-voxeltovoxels? throw
-      all-orient b nindex1 this basicshape@ nindex2 this test-voxeltovoxels? throw
-      all-orient c nindex1 this basicshape@ nindex2 this test-voxeltovoxels? throw
-      all-orient d nindex1 this basicshape@ nindex2 this test-voxeltovoxels? throw
-      all-orient e nindex1 this basicshape@ nindex2 this test-voxeltovoxels? throw
+      all-orient a nindex1 this [current] basicshape@ nindex2 this [current] test-voxeltovoxels? throw
+      all-orient b nindex1 this [current] basicshape@ nindex2 this [current] test-voxeltovoxels? throw
+      all-orient c nindex1 this [current] basicshape@ nindex2 this [current] test-voxeltovoxels? throw
+      all-orient d nindex1 this [current] basicshape@ nindex2 this [current] test-voxeltovoxels? throw
+      all-orient e nindex1 this [current] basicshape@ nindex2 this [current] test-voxeltovoxels? throw
       false
     restore
     endtry
@@ -131,7 +131,7 @@ object class
     0 collisionlist-addr <> thispiece# nopiece <> collisionlist-flag false = and and
     if
       pindex-max 0 do
-        thispiece# i this test-collision?
+        thispiece# i this [current] test-collision?
         collisionlist-addr piece-flag i collisionlist% %size * + c!
       loop
       true [to-inst] collisionlist-flag
@@ -153,35 +153,35 @@ object class
   public
   m: ( piece -- )
     piece-table-created @ false = if \ to create piece table only once for all piece objects
-      0 0 0 base-shapes a 0 this basicshape! \ first shape
-      1 0 0 base-shapes b 0 this basicshape!
-      2 0 0 base-shapes c 0 this basicshape!
-      2 0 1 base-shapes d 0 this basicshape!
-      3 0 1 base-shapes e 0 this basicshape!
-      0 0 1 base-shapes a 1 this basicshape! \ second shape
-      1 0 1 base-shapes b 1 this basicshape!
-      2 0 1 base-shapes c 1 this basicshape!
-      2 0 0 base-shapes d 1 this basicshape!
-      3 0 0 base-shapes e 1 this basicshape!
-      0 0 0 base-shapes a 2 this basicshape! \ third shape
-      1 0 0 base-shapes b 2 this basicshape!
-      1 0 1 base-shapes c 2 this basicshape!
-      2 0 1 base-shapes d 2 this basicshape!
-      3 0 1 base-shapes e 2 this basicshape!
-      0 0 1 base-shapes a 3 this basicshape! \ fourth shape
-      1 0 1 base-shapes b 3 this basicshape!
-      1 0 0 base-shapes c 3 this basicshape!
-      2 0 0 base-shapes d 3 this basicshape!
-      3 0 0 base-shapes e 3 this basicshape!
-      this creatextrans
-      this createxytrans
-      this createxyztrans
-      this all6rotations
+      0 0 0 base-shapes a 0 this [current] basicshape! \ first shape
+      1 0 0 base-shapes b 0 this [current] basicshape!
+      2 0 0 base-shapes c 0 this [current] basicshape!
+      2 0 1 base-shapes d 0 this [current] basicshape!
+      3 0 1 base-shapes e 0 this [current] basicshape!
+      0 0 1 base-shapes a 1 this [current] basicshape! \ second shape
+      1 0 1 base-shapes b 1 this [current] basicshape!
+      2 0 1 base-shapes c 1 this [current] basicshape!
+      2 0 0 base-shapes d 1 this [current] basicshape!
+      3 0 0 base-shapes e 1 this [current] basicshape!
+      0 0 0 base-shapes a 2 this [current] basicshape! \ third shape
+      1 0 0 base-shapes b 2 this [current] basicshape!
+      1 0 1 base-shapes c 2 this [current] basicshape!
+      2 0 1 base-shapes d 2 this [current] basicshape!
+      3 0 1 base-shapes e 2 this [current] basicshape!
+      0 0 1 base-shapes a 3 this [current] basicshape! \ fourth shape
+      1 0 1 base-shapes b 3 this [current] basicshape!
+      1 0 0 base-shapes c 3 this [current] basicshape!
+      2 0 0 base-shapes d 3 this [current] basicshape!
+      3 0 0 base-shapes e 3 this [current] basicshape!
+      this [current] creatextrans
+      this [current] createxytrans
+      this [current] createxyztrans
+      this [current] all6rotations
       \ at this moment the piece data base is populated
       true piece-table-created !
     then
     0 [to-inst] collisionlist-addr \ at construct time the collsion list is not allocated yet
-    this create-collisionlist
+    this [current] create-collisionlist
     nopiece [to-inst] thispiece#  \ start with no piece
   ;m overrides construct
   m: ( piece -- ) \ free allocated memory for this piece
@@ -199,7 +199,7 @@ object class
     thispiece#
   ;m method piece@
   m: ( piece -- ) \ create the collision list for this piece
-    this populatecollisionlist
+    this [current] populatecollisionlist
   ;m method collisionlist!
   m: ( npiece# piece -- nflag ) \ test the npiece# collistion value from collision list
   \ nflag is true if npiece# has collided with thispiece# from the collision list
@@ -218,89 +218,89 @@ object class
     { nsubpiece# npiece# }
     nsubpiece#
     CASE
-      0 OF all-orient a npiece# this basicshape@ ENDOF
-      1 OF all-orient b npiece# this basicshape@ ENDOF
-      2 OF all-orient c npiece# this basicshape@ ENDOF
-      3 OF all-orient d npiece# this basicshape@ ENDOF
-      4 OF all-orient e npiece# this basicshape@ ENDOF
+      0 OF all-orient a npiece# this [current] basicshape@ ENDOF
+      1 OF all-orient b npiece# this [current] basicshape@ ENDOF
+      2 OF all-orient c npiece# this [current] basicshape@ ENDOF
+      3 OF all-orient d npiece# this [current] basicshape@ ENDOF
+      4 OF all-orient e npiece# this [current] basicshape@ ENDOF
       \ default simply return a data
-      all-orient a npiece# this basicshape@ 3 roll
+      all-orient a npiece# this [current] basicshape@ 3 roll
     ENDCASE
   ;m method subpiece@
   m: ( piece -- ) \ testing basic data set creation
-    base-shapes e 3 this basicshape@ . . . cr
-    base-shapes d 2 this basicshape@ . . . cr
+    base-shapes e 3 this [current] basicshape@ . . . cr
+    base-shapes d 2 this [current] basicshape@ . . . cr
     ." XXXXXXXX" cr
-    bshape-max  0 do base-shapes i this bulk@ this xyz. ."  #" i . cr loop
+    bshape-max  0 do base-shapes i this [current] bulk@ this [current] xyz. ."  #" i . cr loop
     ." ********" cr
-    sx-max 0 do shapes-x i this bulk@ this xyz. ."  #" i . cr loop
+    sx-max 0 do shapes-x i this [current] bulk@ this [current] xyz. ."  #" i . cr loop
     ." yyyyyyyyy" cr
-    sxy-max 0 do shapes-xy i this bulk@ this xyz. ."  #" i . cr loop
+    sxy-max 0 do shapes-xy i this [current] bulk@ this [current] xyz. ."  #" i . cr loop
     ." zzzzzzzzz" cr
-    sxyz-max 0 do shapes-xyz i this bulk@ this xyz. ."  #" i . cr loop
+    sxyz-max 0 do shapes-xyz i this [current] bulk@ this [current] xyz. ."  #" i . cr loop
     ." all------" cr
-    allorient-max 0 do all-orient i this bulk@ this xyz. ."  #" i . cr loop
+    allorient-max 0 do all-orient i this [current] bulk@ this [current] xyz. ."  #" i . cr loop
     pindex-max 0 do
-      all-orient a i this basicshape@ rot ." a:" . swap . .
-      all-orient b i this basicshape@ rot ." b:" . swap . .
-      all-orient c i this basicshape@ rot ." c:" . swap . .
-      all-orient d i this basicshape@ rot ." d:" . swap . .
-      all-orient e i this basicshape@ rot ." e:" . swap . . ." #" i . cr
+      all-orient a i this [current] basicshape@ rot ." a:" . swap . .
+      all-orient b i this [current] basicshape@ rot ." b:" . swap . .
+      all-orient c i this [current] basicshape@ rot ." c:" . swap . .
+      all-orient d i this [current] basicshape@ rot ." d:" . swap . .
+      all-orient e i this [current] basicshape@ rot ." e:" . swap . . ." #" i . cr
     loop
   ;m method testDataSet
   m: ( piece -- ) \ testing collision detection words
     cr
-    1 2 3 1 2 3 this test-voxel? . ."  <- should be true!" cr
-    1 2 3 1 2 5 this test-voxel? . ."  <- should be false!" cr
-    4 0 0 4 0 0 this test-voxel? . ."  <- should be true!" cr
-    0 0 0 0 0 0 this test-voxel? . ."  <- should be true!" cr
-    4 4 4 4 4 4 this test-voxel? . ."  <- should be true!" cr
-    4 0 4 4 4 0 this test-voxel? . ."  <- should be false!" cr
-    0 0 this test-collision?  . ."  <- collision should be true!" cr
-    0 1 this test-collision?  . ."  <- collision should be true!" cr
-    0 25 this test-collision?  . ."  <- collision should be false!" cr
-    all-orient a 0 this basicshape@ this xyz. ."  :a 0" cr
-    all-orient b 0 this basicshape@ this xyz. ."  :b 0" cr
-    all-orient c 0 this basicshape@ this xyz. ."  :c 0" cr
-    all-orient d 0 this basicshape@ this xyz. ."  :d 0" cr
-    all-orient e 0 this basicshape@ this xyz. ."  :e 0" cr
-    all-orient a 25 this basicshape@ this xyz. ."  :a 25" cr
-    all-orient b 25 this basicshape@ this xyz. ."  :b 25" cr
-    all-orient c 25 this basicshape@ this xyz. ."  :c 25" cr
-    all-orient d 25 this basicshape@ this xyz. ."  :d 25" cr
-    all-orient e 25 this basicshape@ this xyz. ."  :e 25" cr
-    0 0 0 0 this test-voxeltovoxels? . ."  <- collision should be true!" cr
-    3 0 1 0 this test-voxeltovoxels? . ."  <- collision should be true!" cr
-    3 0 2 0 this test-voxeltovoxels? . ."  <- collision should be false!" cr
+    1 2 3 1 2 3 this [current] test-voxel? . ."  <- should be true!" cr
+    1 2 3 1 2 5 this [current] test-voxel? . ."  <- should be false!" cr
+    4 0 0 4 0 0 this [current] test-voxel? . ."  <- should be true!" cr
+    0 0 0 0 0 0 this [current] test-voxel? . ."  <- should be true!" cr
+    4 4 4 4 4 4 this [current] test-voxel? . ."  <- should be true!" cr
+    4 0 4 4 4 0 this [current] test-voxel? . ."  <- should be false!" cr
+    0 0 this [current] test-collision?  . ."  <- collision should be true!" cr
+    0 1 this [current] test-collision?  . ."  <- collision should be true!" cr
+    0 25 this [current] test-collision?  . ."  <- collision should be false!" cr
+    all-orient a 0 this [current] basicshape@ this [current] xyz. ."  :a 0" cr
+    all-orient b 0 this [current] basicshape@ this [current] xyz. ."  :b 0" cr
+    all-orient c 0 this [current] basicshape@ this [current] xyz. ."  :c 0" cr
+    all-orient d 0 this [current] basicshape@ this [current] xyz. ."  :d 0" cr
+    all-orient e 0 this [current] basicshape@ this [current] xyz. ."  :e 0" cr
+    all-orient a 25 this [current] basicshape@ this [current] xyz. ."  :a 25" cr
+    all-orient b 25 this [current] basicshape@ this [current] xyz. ."  :b 25" cr
+    all-orient c 25 this [current] basicshape@ this [current] xyz. ."  :c 25" cr
+    all-orient d 25 this [current] basicshape@ this [current] xyz. ."  :d 25" cr
+    all-orient e 25 this [current] basicshape@ this [current] xyz. ."  :e 25" cr
+    0 0 0 0 this [current] test-voxeltovoxels? . ."  <- collision should be true!" cr
+    3 0 1 0 this [current] test-voxeltovoxels? . ."  <- collision should be true!" cr
+    3 0 2 0 this [current] test-voxeltovoxels? . ."  <- collision should be false!" cr
   ;m method testcompare
   m: ( piece -- ) \ testing collision detection list processes of this object
-    this destruct
-    this construct
-    500 this piece!
-    this collisionlist!
+    this [current] destruct
+    this [current] construct
+    500 this [current] piece!
+    this [current] collisionlist!
     cr
-    500 this collisionlist? . ." < this should be true!" cr
-    501 this collisionlist? . ." < this should be true!" cr
-    510 this collisionlist? . ." < this should be false!" cr
-    520 this collisionlist? . ." < this should be false!" cr
-    540 this collisionlist? . ." < this should be true!" cr
+    500 this [current] collisionlist? . ." < this should be true!" cr
+    501 this [current] collisionlist? . ." < this should be true!" cr
+    510 this [current] collisionlist? . ." < this should be false!" cr
+    520 this [current] collisionlist? . ." < this should be false!" cr
+    540 this [current] collisionlist? . ." < this should be true!" cr
 
-    this destruct
-    this construct
-    0 this piece!
-    this collisionlist!
+    this [current] destruct
+    this [current] construct
+    0 this [current] piece!
+    this [current] collisionlist!
     cr
-    0 this collisionlist? . ." < this should be true!" cr
-    3 this collisionlist? . ." < this should be true!" cr
-    10 this collisionlist? . ." < this should be false!" cr
+    0 this [current] collisionlist? . ." < this should be true!" cr
+    3 this [current] collisionlist? . ." < this should be true!" cr
+    10 this [current] collisionlist? . ." < this should be false!" cr
   ;m method testcollistionlist
   m: ( piece -- ) \ test collision list full
     cr
-    this destruct
-    this construct
-    959 this piece!
-    this collisionlist!
-    pindex-max 0 do i this collisionlist? i . . cr loop
+    this [current] destruct
+    this [current] construct
+    959 this [current] piece!
+    this [current] collisionlist!
+    pindex-max 0 do i this [current] collisionlist? i . . cr loop
   ;m method testcollsionlistfull
 end-class piece
 
@@ -371,7 +371,7 @@ object class
     xyz-size 0 ?do    	\ x
       xyz-size 0 ?do		\ y
         xyz-size 0 ?do	\ z
-          k j i this displaypiece@ \ retrieve piece value to display
+          k j i this [current] displaypiece@ \ retrieve piece value to display
           dup true = if drop 99 then  \ if no piece then show 99
           k displaycellsize * \ x for at-xy
           xyz-size zplane-spacing + i * j + topoffset + \ y for at-xy
@@ -426,7 +426,7 @@ object class
     try
       current-solution-index 0
       ?do
-        ntestpiece i this pieceonboard@  this collisionpiece@ collisionlist?
+        ntestpiece i this [current] pieceonboard@  this [current] collisionpiece@ collisionlist?
         throw \ if a collision then return true
       loop
       false \ if no collision then return false
@@ -440,28 +440,28 @@ object class
     true true rot
     piece-max swap
     do
-      2drop i this testallpieces if i true else i false leave then
+      2drop i this [current] testallpieces if i true else i false leave then
     loop
   ;m method findpiece
     m: ( n board -- n1 )
     dup 0 < if drop 0 then
   ;m method zerotest
   m:  ( n board -- n2 )
-    dup piece-max >= if drop 0 current-solution-index 1 - this zerotest [to-inst] current-solution-index then
+    dup piece-max >= if drop 0 current-solution-index 1 - this [current] zerotest [to-inst] current-solution-index then
   ;m method piecemaxtest
   m: ( nstart ncurrentlevel board -- nnextindex )
     [to-inst] current-solution-index
     begin
-      this findpiece \ .s cr
+      this [current] findpiece \ .s cr
       if \ here because no solution so must back trace once
         drop \ throw away bad solution
-        current-solution-index 1 - this zerotest [to-inst] current-solution-index \ step back current solution pointer
-        current-solution-index this pieceonboard@  \ .s ." should be 0 to 959" cr
-        this collisionpiece@ \ .s ." should be some address" cr
+        current-solution-index 1 - this [current] zerotest [to-inst] current-solution-index \ step back current solution pointer
+        current-solution-index this [current] pieceonboard@  \ .s ." should be 0 to 959" cr
+        this [current] collisionpiece@ \ .s ." should be some address" cr
         piece@ \ .s ." should be 0 to 959" cr
-        1 + this piecemaxtest  \ get last solved piece and go past that solution
+        1 + this [current] piecemaxtest  \ get last solved piece and go past that solution
       else \ found solution store it and step forward
-        current-solution-index this pieceonboard!
+        current-solution-index this [current] pieceonboard!
         current-solution-index 1 + [to-inst] current-solution-index
         0 \ start a new search from the start of total pieces
       then
@@ -474,9 +474,9 @@ object class
       view# 1000 > if
         page 1 1 at-xy
         oneshot false = if true [to-inst] oneshot then
-        current-solution-index 1 - dup . this pieceonboard@ .
-        nowlow# ."  low:" . nowlow# this pieceonboard@ .
-        nowhigh# ." high:" . nowhigh# this pieceonboard@ .
+        current-solution-index 1 - dup . this [current] pieceonboard@ .
+        nowlow# ."  low:" . nowlow# this [current] pieceonboard@ .
+        nowhigh# ." high:" . nowhigh# this [current] pieceonboard@ .
         0 [to-inst] view#
       then
       current-solution-index piece-max >= \ if true then solution reached if false continue
@@ -502,13 +502,13 @@ object class
     if
      piece-max 0 do
        piece heap-new
-       dup i this collisionpiece!
+       dup i this [current] collisionpiece!
        dup i swap piece!
        collisionlist!
      loop
      true boardconstruct ! \ board has been constructed so shared data is now setup
     then
-    boardtest @ boardtest = if this destruct then \ deallocate past board to allow new board to be constructed
+    boardtest @ boardtest = if this [current] destruct then \ deallocate past board to allow new board to be constructed
     aboardpiece% %size boardpieces  * allocate throw  [to-inst] boardpiecearray \ make dynamic board pieces array
     boardpiecearray aboardpiece% %size boardpieces  * true fill \ start board empty
     0 [to-inst] current-solution-index \ start with no solution started
@@ -521,14 +521,14 @@ object class
   ;m overrides construct
   m: ( npiece# nboard# board -- )
     swap dup rot rot dup 0 >= swap piece-max < and
-    if this pieceonboard!  else 2drop then
+    if this [current] pieceonboard!  else 2drop then
   ;m method board!
   m: ( nboard# board -- )
-    this pieceonboard@
+    this [current] pieceonboard@
   ;m method board@
   m: ( board -- )
-    this destruct
-    this construct
+    this [current] destruct
+    this [current] construct
   ;m method clearboard
 
   m: ( nstart ncurrentlevel board -- nnextindex ncurrentlevel )
@@ -536,20 +536,20 @@ object class
     25 [to-inst] nowlow#
     0 [to-inst] nowhigh#
     false [to-inst] oneshot
-    this solveit
+    this [current] solveit
     current-solution-index
   ;m method solvecontinue
   m: ( board -- nnextindex ncurrentlevel )
-    this clearboard
-    0 0 this solveit current-solution-index
+    this [current] clearboard
+    0 0 this [current] solveit current-solution-index
   ;m method solvestart
   m: ( board -- ) \ to view the current board solution
     \ populate the display with the current board
     0 0 { p c }
     boardpieces 0 do
-      i this pieceonboard@ dup to p true <>
+      i this [current] pieceonboard@ dup to p true <>
       if
-        p this collisionpiece@ to c  \ have piece object now just get piece data with it and place in display
+        p this [current] collisionpiece@ to c  \ have piece object now just get piece data with it and place in display
         0 p c subpiece@ i thedisplay displaypiece!
         1 p c subpiece@ i thedisplay displaypiece!
         2 p c subpiece@ i thedisplay displaypiece!
@@ -561,10 +561,10 @@ object class
   ;m method showboard
   m: ( npiece# board -- )
     0 0 { np# p c  }
-    np# this pieceonboard@ to p
+    np# this [current] pieceonboard@ to p
     p true <>
     if
-      p this collisionpiece@ to c
+      p this [current] collisionpiece@ to c
       0 p c subpiece@ np# thedisplay displaypiece!
       1 p c subpiece@ np# thedisplay displaypiece!
       2 p c subpiece@ np# thedisplay displaypiece!
@@ -574,16 +574,16 @@ object class
     thedisplay showdisplay
   ;m method showapieceonboard
   m: ( board -- )
-    thedisplay destruct
-    thedisplay construct
+    thedisplay [bind] displaypieces destruct
+    thedisplay [bind] displaypieces construct
   ;m method cleardisplay
   m: ( npiece# board -- )
     0 0 { np# p c }
-    np# this pieceonboard@ to p
+    np# this [current] pieceonboard@ to p
     p true <>
     if
       cr
-      p this collisionpiece@ to c
+      p this [current] collisionpiece@ to c
       0 p c subpiece@ rot ." x:" . swap ."  y:" . ."  z:" . np# . ." a" cr
       1 p c subpiece@ rot ." x:" . swap ."  y:" . ."  z:" . np# . ." b" cr
       2 p c subpiece@ rot ." x:" . swap ."  y:" . ."  z:" . np# . ." c" cr
@@ -592,36 +592,36 @@ object class
     then
   ;m method showpiecesubs
   m: ( board -- ) \ print out list of pieces for each board location
-    cr boardpieces  0 do i this board@ . ." :" i . cr loop
+    cr boardpieces  0 do i this [current] board@ . ." :" i . cr loop
   ;m method seeboardpieces
   m: ( ncolltest ncollindex board -- ) \ will display the piece in collison piece list for ncollindex then display if it collides with ncolltest piece
   \ essentialy see if two pieces collide and does this test from the collision list data created in this board object
-    cr dup this collisionpiece@ piece@ .
-    this collisionpiece@ collisionlist? . cr
+    cr dup this [current] collisionpiece@ piece@ .
+    this [current] collisionpiece@ collisionlist? . cr
   ;m method seeacollision
   m: ( board -- )
     cr piece-max 0
     do
-      i this collisionpiece@ piece@ . \ just display the collision list piece value
-      i i this collisionpiece@ collisionlist? . cr \ this should be true all the time because a piece will collide with itself!
+      i this [current] collisionpiece@ piece@ . \ just display the collision list piece value
+      i i this [current] collisionpiece@ collisionlist? . cr \ this should be true all the time because a piece will collide with itself!
     loop
   ;m method testpiececollarray
   m: ( board -- )
-    this construct cr
-    10 this testallpieces . ." <- this should be false!" cr
+    this [current] construct cr
+    10 this [current] testallpieces . ." <- this should be false!" cr
     1 [to-inst] current-solution-index
-    0 0 this board!
-    0 this testallpieces . ." <- this should be true!" cr
-    10 this testallpieces . ." <- this should be false!" cr
-    this clearboard cr
-    0 this findpiece . . ." <- this should be false 0!" cr
-    0 0 this board!
+    0 0 this [current] board!
+    0 this [current] testallpieces . ." <- this should be true!" cr
+    10 this [current] testallpieces . ." <- this should be false!" cr
+    this [current] clearboard cr
+    0 this [current] findpiece . . ." <- this should be false 0!" cr
+    0 0 this [current] board!
     1 [to-inst] current-solution-index
-    0 this findpiece . . ." <- this should be false 8!" cr
-    8 1 this board!
+    0 this [current] findpiece . . ." <- this should be false 8!" cr
+    8 1 this [current] board!
     2 [to-inst] current-solution-index
-    0 this findpiece . . ." <- this should be false 16!" cr
-    this clearboard cr
+    0 this [current] findpiece . . ." <- this should be false 16!" cr
+    this [current] clearboard cr
   ;m method testingsolutionwords
 end-class board
 
