@@ -441,7 +441,7 @@ object class
   m:  ( n board -- n2 )
     dup piece-max >= if drop 0 current-solution-index 1 - this [current] zerotest [to-inst] current-solution-index then
   ;m method piecemaxtest
-  m: ( nstart ncurrentlevel board -- nnextindex )
+  m: ( nstart ncurrentlevel board -- nnextindex ) \ simply start solution with next test starting at nstart with ncurrentlevel being next board piece
     [to-inst] current-solution-index
     begin
       this [current] findpiece \ .s cr
@@ -511,19 +511,21 @@ object class
     displaypieces heap-new [to-inst] thedisplay \ start and setup display of board
     boardtest boardtest ! \ set up construct test now that stuff has been allocated
   ;m overrides construct
-  m: ( npiece# nboard# board -- )
+  m: ( npiece# nboard# board -- ) \ store npiece# (0 to 959) into the board at nboard# (0 to 24) location
     swap dup rot rot dup 0 >= swap piece-max < and
     if this [current] pieceonboard!  else 2drop then
   ;m method board!
-  m: ( nboard# board -- )
+  m: ( nboard# board -- npieceaddr ) \ retrieve the current piece# stored in board at nboard# location ( 0 to 24 )
+    \ npieceaddr will be in range of 0 to 959 and
     this [current] pieceonboard@
   ;m method board@
-  m: ( board -- )
+  m: ( board -- ) \ to clear this current class solution and wipe the board clean
     this [current] destruct
     this [current] construct
   ;m method clearboard
-
-  m: ( nstart ncurrentlevel board -- nnextindex ncurrentlevel )
+  m: ( nstart ncurrentlevel board -- nnextindex ncurrentlevel ) \ continue a solution from where the solution left offset
+    \ nstart is the piece # to start testing with ( 0 to 959 )
+    \ ncurrentlevel is the index number of the current board pieces to restart with ( 0 to 24 )
     0 [to-inst] view#
     25 [to-inst] nowlow#
     0 [to-inst] nowhigh#
@@ -531,7 +533,7 @@ object class
     this [current] solveit
     current-solution-index
   ;m method solvecontinue
-  m: ( board -- nnextindex ncurrentlevel )
+  m: ( board -- nnextindex ncurrentlevel )  \ start the solving from the first combination
     this [current] clearboard
     0 0 this [current] solveit current-solution-index
   ;m method solvestart
@@ -551,7 +553,7 @@ object class
     loop
     thedisplay  [bind] displaypieces showdisplay
   ;m method showboard
-  m: ( npiece# board -- )
+  m: ( npiece# board -- ) \ to show the current board but add npiece# onto that board.
     0 0 { np# p c  }
     np# this [current] pieceonboard@ to p
     p true <>
@@ -565,11 +567,11 @@ object class
     then
     thedisplay [bind] displaypieces showdisplay
   ;m method showapieceonboard
-  m: ( board -- )
+  m: ( board -- ) \ to clear the display that this class uses
     thedisplay [bind] displaypieces destruct
     thedisplay [bind] displaypieces construct
   ;m method cleardisplay
-  m: ( npiece# board -- )
+  m: ( npiece# board -- ) \ shows a list of x y z values for the piece# ( 0 to 959 ) of all parts of the piece
     0 0 { np# p c }
     np# this [current] pieceonboard@ to p
     p true <>
@@ -591,14 +593,14 @@ object class
     cr dup this [current] collisionpiece@ [bind] piece piece@ .
     this [current] collisionpiece@ [bind] piece collisionlist? . cr
   ;m method seeacollision
-  m: ( board -- )
+  m: ( board -- ) \ this class testing word
     cr piece-max 0
     do
       i this [current] collisionpiece@ [bind] piece piece@ . \ just display the collision list piece value
       i i this [current] collisionpiece@ [bind] piece collisionlist? . cr \ this should be true all the time because a piece will collide with itself!
     loop
   ;m method testpiececollarray
-  m: ( board -- )
+  m: ( board -- ) \ this class testing word
     this [current] construct cr
     10 this [current] testallpieces . ." <- this should be false!" cr
     1 [to-inst] current-solution-index
@@ -617,7 +619,9 @@ object class
   ;m method testingsolutionwords
 end-class board
 
-board heap-new constant btest
-btest solvestart
-btest seeboardpieces page
-btest showboard
+\ this simply starts solving  after making the board (aboard) then show combination piece numbers in board list
+\ then display the board
+board heap-new constant aboard
+aboard  solvestart
+aboard  seeboardpieces page
+aboard  showboard
