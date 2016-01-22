@@ -449,6 +449,40 @@ object class
   m:  ( n board -- n2 )
     dup piece-max >= if drop 0 current-solution-index 1 - this zerotest [to-inst] current-solution-index then
   ;m method piecemaxtest
+  m: ( nstart ncurrentlevel board -- nnextindex )
+    [to-inst] current-solution-index
+    begin
+      this findpiece \ .s cr
+      if \ here because no solution so must back trace once
+        drop \ throw away bad solution
+        current-solution-index 1 - this zerotest [to-inst] current-solution-index \ step back current solution pointer
+        current-solution-index this pieceonboard@  \ .s ." should be 0 to 959" cr
+        this collisionpiece@ \ .s ." should be some address" cr
+        piece@ \ .s ." should be 0 to 959" cr
+        1 + this piecemaxtest  \ get last solved piece and go past that solution
+      else \ found solution store it and step forward
+        current-solution-index this pieceonboard!
+        current-solution-index 1 + [to-inst] current-solution-index
+        0 \ start a new search from the start of total pieces
+      then
+      oneshot true = if
+        current-solution-index nowlow# < if current-solution-index [to-inst] nowlow# then
+        current-solution-index nowhigh# > if current-solution-index 1 - [to-inst] nowhigh# then
+        nowhigh# 0 < if 0 [to-inst] nowhigh# then
+      then
+      view# 1 + [to-inst] view#
+      view# 1000 > if
+        page 1 1 at-xy
+        oneshot false = if true [to-inst] oneshot then
+        current-solution-index 1 - dup . this pieceonboard@ .
+        nowlow# ."  low:" . nowlow# this pieceonboard@ .
+        nowhigh# ." high:" . nowhigh# this pieceonboard@ .
+        0 [to-inst] view#
+      then
+      current-solution-index piece-max >= \ if true then solution reached if false continue
+      key? or
+    until
+  ;m method solveit
   public
   m: ( board -- ) \ free allocated memory for the board pieces
     boardtest @ boardtest = boardpiecearray 0 <> and
@@ -496,40 +530,7 @@ object class
     this destruct
     this construct
   ;m method clearboard
-  m: ( nstart ncurrentlevel board -- nnextindex )
-    [to-inst] current-solution-index
-    begin
-      this findpiece \ .s cr
-      if \ here because no solution so must back trace once
-        drop \ throw away bad solution
-        current-solution-index 1 - this zerotest [to-inst] current-solution-index \ step back current solution pointer
-        current-solution-index this pieceonboard@  \ .s ." should be 0 to 959" cr
-        this collisionpiece@ \ .s ." should be some address" cr
-        piece@ \ .s ." should be 0 to 959" cr
-        1 + this piecemaxtest  \ get last solved piece and go past that solution
-      else \ found solution store it and step forward
-        current-solution-index this pieceonboard!
-        current-solution-index 1 + [to-inst] current-solution-index
-        0 \ start a new search from the start of total pieces
-      then
-      oneshot true = if
-        current-solution-index nowlow# < if current-solution-index [to-inst] nowlow# then
-        current-solution-index nowhigh# > if current-solution-index 1 - [to-inst] nowhigh# then
-        nowhigh# 0 < if 0 [to-inst] nowhigh# then
-      then
-      view# 1 + [to-inst] view#
-      view# 1000 > if
-        page 1 1 at-xy
-        oneshot false = if true [to-inst] oneshot then
-        current-solution-index 1 - dup . this pieceonboard@ .
-        nowlow# ."  low:" . nowlow# this pieceonboard@ .
-        nowhigh# ." high:" . nowhigh# this pieceonboard@ .
-        0 [to-inst] view#
-      then
-      current-solution-index piece-max >= \ if true then solution reached if false continue
-      key? or
-    until
-  ;m method solveit
+
   m: ( nstart ncurrentlevel board -- nnextindex ncurrentlevel )
     0 [to-inst] view#
     25 [to-inst] nowlow#
