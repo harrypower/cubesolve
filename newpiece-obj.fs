@@ -493,7 +493,7 @@ object class
     boardtest @ boardtest =
     if
       0 boardtest !
-      thedisplay destruct
+      thedisplay [bind] displaypieces destruct
       0 [to-inst] thedisplay
     then
   ;m overrides destruct
