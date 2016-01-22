@@ -542,11 +542,11 @@ object class
       i this [current] pieceonboard@ dup to p true <>
       if
         p this [current] collisionpiece@ to c  \ have piece object now just get piece data with it and place in display
-        0 p c [bind] piece subpiece@ i thedisplay displaypiece!
-        1 p c [bind] piece subpiece@ i thedisplay displaypiece!
-        2 p c [bind] piece subpiece@ i thedisplay displaypiece!
-        3 p c [bind] piece subpiece@ i thedisplay displaypiece!
-        4 p c [bind] piece subpiece@ i thedisplay displaypiece!
+        0 p c [bind] piece subpiece@ i thedisplay [bind] displaypieces displaypiece!
+        1 p c [bind] piece subpiece@ i thedisplay [bind] displaypieces displaypiece!
+        2 p c [bind] piece subpiece@ i thedisplay [bind] displaypieces displaypiece!
+        3 p c [bind] piece subpiece@ i thedisplay [bind] displaypieces displaypiece!
+        4 p c [bind] piece subpiece@ i thedisplay [bind] displaypieces displaypiece!
       then
     loop
     thedisplay showdisplay
@@ -557,11 +557,11 @@ object class
     p true <>
     if
       p this [current] collisionpiece@ to c
-      0 p c [bind] piece subpiece@ np# thedisplay displaypiece!
-      1 p c [bind] piece subpiece@ np# thedisplay displaypiece!
-      2 p c [bind] piece subpiece@ np# thedisplay displaypiece!
-      3 p c [bind] piece subpiece@ np# thedisplay displaypiece!
-      4 p c [bind] piece subpiece@ np# thedisplay displaypiece!
+      0 p c [bind] piece subpiece@ np# thedisplay [bind] displaypieces displaypiece!
+      1 p c [bind] piece subpiece@ np# thedisplay [bind] displaypieces displaypiece!
+      2 p c [bind] piece subpiece@ np# thedisplay [bind] displaypieces displaypiece!
+      3 p c [bind] piece subpiece@ np# thedisplay [bind] displaypieces displaypiece!
+      4 p c [bind] piece subpiece@ np# thedisplay [bind] displaypieces displaypiece!
     then
     thedisplay showdisplay
   ;m method showapieceonboard
