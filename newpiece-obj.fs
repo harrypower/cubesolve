@@ -550,11 +550,11 @@ object class
       i this [current] pieceonboard@ dup to p true <>
       if
         p this [current] collisionpiece@ to c  \ have piece object now just get piece data with it and place in display
-        0 p c subpiece@ i thedisplay displaypiece!
-        1 p c subpiece@ i thedisplay displaypiece!
-        2 p c subpiece@ i thedisplay displaypiece!
-        3 p c subpiece@ i thedisplay displaypiece!
-        4 p c subpiece@ i thedisplay displaypiece!
+        0 p c [bind] piece subpiece@ i thedisplay displaypiece!
+        1 p c [bind] piece subpiece@ i thedisplay displaypiece!
+        2 p c [bind] piece subpiece@ i thedisplay displaypiece!
+        3 p c [bind] piece subpiece@ i thedisplay displaypiece!
+        4 p c [bind] piece subpiece@ i thedisplay displaypiece!
       then
     loop
     thedisplay showdisplay
@@ -565,11 +565,11 @@ object class
     p true <>
     if
       p this [current] collisionpiece@ to c
-      0 p c subpiece@ np# thedisplay displaypiece!
-      1 p c subpiece@ np# thedisplay displaypiece!
-      2 p c subpiece@ np# thedisplay displaypiece!
-      3 p c subpiece@ np# thedisplay displaypiece!
-      4 p c subpiece@ np# thedisplay displaypiece!
+      0 p c [bind] piece subpiece@ np# thedisplay displaypiece!
+      1 p c [bind] piece subpiece@ np# thedisplay displaypiece!
+      2 p c [bind] piece subpiece@ np# thedisplay displaypiece!
+      3 p c [bind] piece subpiece@ np# thedisplay displaypiece!
+      4 p c [bind] piece subpiece@ np# thedisplay displaypiece!
     then
     thedisplay showdisplay
   ;m method showapieceonboard
@@ -584,11 +584,11 @@ object class
     if
       cr
       p this [current] collisionpiece@ to c
-      0 p c subpiece@ rot ." x:" . swap ."  y:" . ."  z:" . np# . ." a" cr
-      1 p c subpiece@ rot ." x:" . swap ."  y:" . ."  z:" . np# . ." b" cr
-      2 p c subpiece@ rot ." x:" . swap ."  y:" . ."  z:" . np# . ." c" cr
-      3 p c subpiece@ rot ." x:" . swap ."  y:" . ."  z:" . np# . ." d" cr
-      4 p c subpiece@ rot ." x:" . swap ."  y:" . ."  z:" . np# . ." e" cr
+      0 p c [bind] piece subpiece@ rot ." x:" . swap ."  y:" . ."  z:" . np# . ." a" cr
+      1 p c [bind] piece subpiece@ rot ." x:" . swap ."  y:" . ."  z:" . np# . ." b" cr
+      2 p c [bind] piece subpiece@ rot ." x:" . swap ."  y:" . ."  z:" . np# . ." c" cr
+      3 p c [bind] piece subpiece@ rot ." x:" . swap ."  y:" . ."  z:" . np# . ." d" cr
+      4 p c [bind] piece subpiece@ rot ." x:" . swap ."  y:" . ."  z:" . np# . ." e" cr
     then
   ;m method showpiecesubs
   m: ( board -- ) \ print out list of pieces for each board location
