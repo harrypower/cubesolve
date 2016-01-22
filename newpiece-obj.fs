@@ -426,7 +426,7 @@ object class
     try
       current-solution-index 0
       ?do
-        ntestpiece i this [current] pieceonboard@  this [current] collisionpiece@ collisionlist?
+        ntestpiece i this [current] pieceonboard@  this [current] collisionpiece@ [bind] piece collisionlist?
         throw \ if a collision then return true
       loop
       false \ if no collision then return false
@@ -458,7 +458,7 @@ object class
         current-solution-index 1 - this [current] zerotest [to-inst] current-solution-index \ step back current solution pointer
         current-solution-index this [current] pieceonboard@  \ .s ." should be 0 to 959" cr
         this [current] collisionpiece@ \ .s ." should be some address" cr
-        piece@ \ .s ." should be 0 to 959" cr
+        [bind] piece piece@ \ .s ." should be 0 to 959" cr
         1 + this [current] piecemaxtest  \ get last solved piece and go past that solution
       else \ found solution store it and step forward
         current-solution-index this [current] pieceonboard!
@@ -503,8 +503,8 @@ object class
      piece-max 0 do
        piece heap-new
        dup i this [current] collisionpiece!
-       dup i swap piece!
-       collisionlist!
+       dup i swap [bind] piece piece!
+       [bind] piece collisionlist!
      loop
      true boardconstruct ! \ board has been constructed so shared data is now setup
     then
@@ -596,14 +596,14 @@ object class
   ;m method seeboardpieces
   m: ( ncolltest ncollindex board -- ) \ will display the piece in collison piece list for ncollindex then display if it collides with ncolltest piece
   \ essentialy see if two pieces collide and does this test from the collision list data created in this board object
-    cr dup this [current] collisionpiece@ piece@ .
-    this [current] collisionpiece@ collisionlist? . cr
+    cr dup this [current] collisionpiece@ [bind] piece piece@ .
+    this [current] collisionpiece@ [bind] piece collisionlist? . cr
   ;m method seeacollision
   m: ( board -- )
     cr piece-max 0
     do
-      i this [current] collisionpiece@ piece@ . \ just display the collision list piece value
-      i i this [current] collisionpiece@ collisionlist? . cr \ this should be true all the time because a piece will collide with itself!
+      i this [current] collisionpiece@ [bind] piece piece@ . \ just display the collision list piece value
+      i i this [current] collisionpiece@ [bind] piece collisionlist? . cr \ this should be true all the time because a piece will collide with itself!
     loop
   ;m method testpiececollarray
   m: ( board -- )
