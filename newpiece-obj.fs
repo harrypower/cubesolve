@@ -397,6 +397,8 @@ object class
   inst-value nowhigh#
   inst-value oneshot
   inst-value thedisplay
+  cell% inst-var save$
+  cell% inst-var tempwork$
 
   protected
   m: ( npieceaddr nindex board -- ) \ store collision list piece
@@ -516,7 +518,7 @@ object class
     if this [current] pieceonboard!  else 2drop then
   ;m method board!
   m: ( nboard# board -- npieceaddr ) \ retrieve the current piece# stored in board at nboard# location ( 0 to 24 )
-    \ npieceaddr will be in range of 0 to 959 and
+    \ npieceaddr will be in range of 0 to 959
     this [current] pieceonboard@
   ;m method board@
   m: ( board -- ) \ to clear this current class solution and wipe the board clean
@@ -586,13 +588,22 @@ object class
     then
   ;m method showpiecesubs
   m: ( board -- ) \ print out list of pieces for each board location
-    cr boardpieces  0 do i this [current] board@ . ." :" i . cr loop
+    cr boardpieces  0 ?do i this [current] board@ . ." :" i . cr loop
   ;m method seeboardpieces
   m: ( ncolltest ncollindex board -- ) \ will display the piece in collison piece list for ncollindex then display if it collides with ncolltest piece
   \ essentialy see if two pieces collide and does this test from the collision list data created in this board object
     cr dup this [current] collisionpiece@ [bind] piece piece@ .
     this [current] collisionpiece@ [bind] piece collisionlist? . cr
   ;m method seeacollision
+  m: ( board -- )
+    \ current-solution-index #to$ save$ \ $!
+    \ s\" \n" save$ $+!
+    \ current-solution-index 0 ?do
+    \ i this [current] board@ #to$ save$ $+!
+    \ s\" \n" save$ $+!
+   \ loop
+   \ save$ $@ type cr
+  ;m method makesavestring
   m: ( board -- ) \ this class testing word
     cr piece-max 0
     do
