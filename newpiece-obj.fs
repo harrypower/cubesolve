@@ -398,7 +398,6 @@ object class
   inst-value oneshot
   inst-value thedisplay
   cell% inst-var save$
-  cell% inst-var tempwork$
 
   protected
   m: ( npieceaddr nindex board -- ) \ store collision list piece
@@ -479,17 +478,15 @@ object class
   ;m method solveit
   public
   m: ( board -- ) \ free allocated memory for the board pieces
-    boardtest @ boardtest = boardpiecearray 0 <> and
+    boardpiecearray 0 <>
     if
       boardpiecearray free throw
       0 [to-inst] boardpiecearray
     then
-    boardtest @ boardtest =
-    if
-      0 boardtest !
-      thedisplay [bind] displaypieces destruct
-      0 [to-inst] thedisplay
-    then
+    0 boardtest !
+    thedisplay [bind] displaypieces destruct
+    0 [to-inst] thedisplay
+    0 save$ @ <> if save$ $off then \ release string allocated memory
   ;m overrides destruct
   m: ( board -- )
     boardconstruct @ false =
@@ -510,6 +507,7 @@ object class
     25 [to-inst] nowlow#
     0 [to-inst] nowhigh#
     false [to-inst] oneshot
+    0 save$ !  \ needed to use $! and family words for string handeling
     displaypieces heap-new [to-inst] thedisplay \ start and setup display of board
     boardtest boardtest ! \ set up construct test now that stuff has been allocated
   ;m overrides construct
@@ -596,8 +594,8 @@ object class
     this [current] collisionpiece@ [bind] piece collisionlist? . cr
   ;m method seeacollision
   m: ( board -- )
-    \ current-solution-index #to$ save$ \ $!
-    \ s\" \n" save$ $+!
+     current-solution-index #to$ save$ $!
+     s\" \n" save$ $+!
     \ current-solution-index 0 ?do
     \ i this [current] board@ #to$ save$ $+!
     \ s\" \n" save$ $+!
