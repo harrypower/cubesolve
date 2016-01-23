@@ -593,14 +593,13 @@ object class
     cr dup this [current] collisionpiece@ [bind] piece piece@ .
     this [current] collisionpiece@ [bind] piece collisionlist? . cr
   ;m method seeacollision
-  m: ( board -- )
+  m: ( board -- ) \ saves the data from this class in a string for saving
      current-solution-index #to$ save$ $!
      s\" \n" save$ $+!
-    \ current-solution-index 0 ?do
-    \ i this [current] board@ #to$ save$ $+!
-    \ s\" \n" save$ $+!
-   \ loop
-   \ save$ $@ type cr
+     current-solution-index 0 ?do
+     i this [current] board@ #to$ save$ $+!
+     s\" \n" save$ $+!
+    loop
   ;m method makesavestring
   m: ( board -- ) \ this class testing word
     cr piece-max 0
