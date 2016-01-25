@@ -476,25 +476,7 @@ object class
       key? or
     until
   ;m method solveit
-  m: ( caddr u board -- nflag )
-    \ nflag is false for non valid save data
-    \ nflag is true for valid save data
-    try
-      13 $split 2swap s>unumber? true =
-      if
-        d>s 0 ?do 13 $split 2swap s>unumber? -rot 2drop true <> throw loop
-        swap drop 0 > throw
-      else
-        true throw \ data is not valid
-      then
-      false
-    restore if 2drop false else true then
-    endtry
-  ;m method validsave
   public
-  m: ( caddr u board -- nflag )
-    this [current] validsave
-  ;m method testvalid
   m: ( board -- ) \ free allocated memory for the board pieces
     boardpiecearray 0 <>
     if
@@ -615,14 +597,38 @@ object class
      current-solution-index #to$ save$ $!
      s\" \r" save$ $+!
      current-solution-index 0 ?do
-     i this [current] board@ #to$ save$ $+!
-     s\" \r" save$ $+!
+       i this [current] board@ #to$ save$ $+!
+       s\" \r" save$ $+!
     loop save$ $@
   ;m method makesavestring
+  m: ( caddr u board -- nflag )
+    \ nflag is false for non valid save data
+    \ nflag is true for valid save data
+    try
+      13 $split 2swap s>unumber? true =
+      if
+        d>s 0 ?do 13 $split 2swap s>unumber? -rot 2drop true <> throw loop
+        swap drop 0 > throw
+      else
+        true throw \ data is not valid
+      then
+      false
+    restore if 2drop false else true then
+    endtry
+  ;m method validsave?
   m: (  caddr u board -- )
     this [current] clearboard
     this [current] cleardisplay
-    this [current] validsave
+    2dup this [current] validsave?
+    if
+      13 $split 2swap s>unumber? drop d>s dup [to-inst] current-solution-index
+      0 ?do
+        13 $split 2swap s>unumber? drop
+        d>s i this [current] board!
+      loop 2drop
+    else
+      2drop
+    then
   ;m method SolveContinueFromFile
   m: ( board -- ) \ this class testing word
     cr piece-max 0
@@ -657,7 +663,8 @@ aboard  solvestart
 aboard  seeboardpieces page
 aboard  showboard
 aboard makesavestring
-variable temp$
-temp$ $!
-temp$ $@
-\ aboard SolveContinueFromFile
+variable test$
+test$ $!
+test$ $@
+aboard SolveContinueFromFile
+aboard seeboardpieces
