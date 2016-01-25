@@ -636,6 +636,15 @@ object class
     then
     this [current] solvecontinue
   ;m method SolveContinueFromFile
+  m: ( caddr u board -- nfid nflag )
+    0 { caddr u fid }
+    caddr u w/o open-file swap to fid false <>
+    if
+      caddr u w/o create-file throw to fid
+    else
+      
+    then
+  ;m method getfileid
   m: ( caddr u board -- ) \ save puzzle data into file of name caddr u string
     0 { caddr u fid }
     caddr u w/o open-file swap to fid	0 <>
