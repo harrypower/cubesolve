@@ -398,6 +398,7 @@ object class
   inst-value oneshot
   inst-value thedisplay
   cell% inst-var save$
+  cell% inst-var file$
 
   protected
   m: ( npieceaddr nindex board -- ) \ store collision list piece
@@ -487,6 +488,7 @@ object class
     thedisplay [bind] displaypieces destruct
     0 [to-inst] thedisplay
     0 save$ @ <> if save$ $off then \ release string allocated memory
+    0 file$ @ <> if file$ $off then \ release string allocated memory
   ;m overrides destruct
   m: ( board -- )
     boardconstruct @ false =
@@ -508,6 +510,7 @@ object class
     0 [to-inst] nowhigh#
     false [to-inst] oneshot
     0 save$ !  \ needed to use $! and family words for string handeling
+    0 file$ !
     displaypieces heap-new [to-inst] thedisplay \ start and setup display of board
     boardtest boardtest ! \ set up construct test now that stuff has been allocated
   ;m overrides construct
@@ -593,15 +596,15 @@ object class
     cr dup this [current] collisionpiece@ [bind] piece piece@ .
     this [current] collisionpiece@ [bind] piece collisionlist? . cr
   ;m method seeacollision
-  m: ( board -- ) \ saves the data from this class in a string for saving
+  m: ( board -- ) \ makes a string of the data for saving into a file
      current-solution-index #to$ save$ $!
      s\" \r" save$ $+!
      current-solution-index 0 ?do
        i this [current] board@ #to$ save$ $+!
        s\" \r" save$ $+!
-    loop save$ $@
+    loop \ save$ $@
   ;m method makesavestring
-  m: ( caddr u board -- nflag )
+  m: ( caddr u board -- nflag ) \ caddr u is a string containing data from a past solution. Test this data.
     \ nflag is false for non valid save data
     \ nflag is true for valid save data
     try
@@ -616,7 +619,7 @@ object class
     restore if 2drop false else true then
     endtry
   ;m method validsave?
-  m: (  caddr u board -- )
+  m: (  caddr u board -- ) \ caddr u is a string of the saved data from past solution.  Validate data and continue the solution!
     this [current] clearboard
     this [current] cleardisplay
     2dup this [current] validsave?
@@ -626,18 +629,41 @@ object class
         13 $split 2swap s>unumber? drop
         d>s i this [current] board!
       loop 2drop
+      0 current-solution-index
     else
       2drop
+      0 0
     then
+    this [current] solvecontinue
   ;m method SolveContinueFromFile
-  m: ( board -- ) \ this class testing word
+  m: ( caddr u board -- ) \ save puzzle data into file of name caddr u string
+    0 { caddr u fid }
+    caddr u w/o open-file swap to fid	0 <>
+    if
+      caddr u w/o create-file throw to fid
+    else
+      caddr u delete-file throw
+      caddr u w/o open-file throw to fid
+    then
+    this [current] makesavestring
+    save$ $@ fid write-file throw
+    fid flush-file throw
+    fid close-file throw
+  ;m method savepuzzle
+  m: ( caddr u board -- ) \ open caddr u string file and check valid data then continue to solve puzzle from that data
+    r/o open-file throw { fid }
+  	fid slurp-fid
+    fid close-file throw
+    this [current] SolveContinueFromFile
+  ;m method loadpuzzle
+  m: ( board -- ) \ a class testing word
     cr piece-max 0
     do
       i this [current] collisionpiece@ [bind] piece piece@ . \ just display the collision list piece value
       i i this [current] collisionpiece@ [bind] piece collisionlist? . cr \ this should be true all the time because a piece will collide with itself!
     loop
   ;m method testpiececollarray
-  m: ( board -- ) \ this class testing word
+  m: ( board -- ) \ a class testing word
     this [current] construct cr
     10 this [current] testallpieces . ." <- this should be false!" cr
     1 [to-inst] current-solution-index
@@ -662,9 +688,12 @@ board heap-new constant aboard
 aboard  solvestart
 aboard  seeboardpieces page
 aboard  showboard
-aboard makesavestring
-variable test$
-test$ $!
-test$ $@
-aboard SolveContinueFromFile
-aboard seeboardpieces
+\ aboard makesavestring
+\ variable test$
+\ test$ $!
+\ test$ $@
+\ aboard SolveContinueFromFile
+\ aboard seeboardpieces
+: savename ( -- caddr u ) s" c:\Users\Philip\Documents\github\cubesolve\mysolution.puz" ;
+savename aboard savepuzzle
+savename aboard loadpuzzle
