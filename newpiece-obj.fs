@@ -638,26 +638,20 @@ object class
   ;m method SolveContinueFromFile
   m: ( caddr u board -- nfid nflag )
     0 { caddr u fid }
-    caddr u w/o open-file swap to fid false <>
+    caddr u file-status swap drop false =
     if
-      caddr u w/o create-file throw to fid
-    else
-      
+      caddr u delete-file throw
     then
+    caddr u w/o create-file throw to fid
   ;m method getfileid
   m: ( caddr u board -- ) \ save puzzle data into file of name caddr u string
     0 { caddr u fid }
-    caddr u w/o open-file swap to fid	0 <>
-    if
-      caddr u w/o create-file throw to fid
-    else
-      caddr u delete-file throw
-      caddr u w/o open-file throw to fid
-    then
+    caddr u this [current] getfileid to fid
     this [current] makesavestring
-    save$ $@ fid write-file throw
-    fid flush-file throw
-    fid close-file throw
+    save$ $@ type
+    \ save$ $@ fid write-file throw
+    \ fid flush-file throw
+    \ fid close-file throw
   ;m method savepuzzle
   m: ( caddr u board -- ) \ open caddr u string file and check valid data then continue to solve puzzle from that data
     r/o open-file throw { fid }
