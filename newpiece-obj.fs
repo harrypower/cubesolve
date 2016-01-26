@@ -594,6 +594,7 @@ object class
   m: ( board -- ) \ print out list of pieces for each board location
     cr boardpieces  0 ?do i this [current] board@ . ." :" i . cr loop
   ;m method seeboardpieces
+  protected
   m: ( ncolltest ncollindex board -- ) \ will display the piece in collison piece list for ncollindex then display if it collides with ncolltest piece
   \ essentialy see if two pieces collide and does this test from the collision list data created in this board object
     cr dup this [current] collisionpiece@ [bind] piece piece@ .
@@ -647,6 +648,7 @@ object class
     then
     caddr u w/o create-file throw
   ;m method getfileid
+  public
   m: ( caddr u board -- ) \ save puzzle data into file of name caddr u string
     0 { caddr u fid }
     caddr u this [current] getfileid to fid
