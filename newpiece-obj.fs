@@ -626,14 +626,14 @@ object class
     this [current] clearboard
     this [current] cleardisplay
     2dup this [current] validsave?
-    if ." it is valid! " cr
+    if cr ." Loaded solution is valid now continuing solution! " cr
       13 $split 2swap s>unumber? drop d>s dup [to-inst] current-solution-index
       0 ?do
         13 $split 2swap s>unumber? drop
         d>s i this [current] board!
       loop 2drop
       0 current-solution-index
-    else ." it is not valid!" cr
+    else ." Loaded solution is not valid! Now stopping!" cr
       2drop
       0 0
     then
@@ -687,12 +687,26 @@ object class
   ;m method testingsolutionwords
 end-class board
 
+\ this is my current location for testing.. this string will need to be changed for other machines
+: savename ( -- caddr u ) s" c:\Users\Philip\Documents\github\cubesolve\mysolution.puz" ;
+
 \ this simply starts solving  after making the board (aboard) then show combination piece numbers in board list
 \ then display the board
 board heap-new constant aboard
-aboard  solvestart cr ." Left off at index:" swap . ." peice:" . cr
-aboard  seeboardpieces page
-aboard  showboard
-: savename ( -- caddr u ) s" c:\Users\Philip\Documents\github\cubesolve\mysolution.puz" ;
-savename aboard savepuzzle
-\ savename aboard loadpuzzle
+\ ***************************
+\ uncomment the following to start board again
+\ aboard  solvestart cr ." Left off at index:" swap . ." peice:" . cr
+\ aboard  seeboardpieces page
+\ aboard  showboard
+\ savename aboard savepuzzle
+\ ***************************
+
+\ the following line will only work if the puzzle has a saved file at savename location
+ savename aboard loadpuzzle
+ cr ." Left off at index:" swap . ." peice:" . cr
+ aboard seeboardpieces page
+ aboard showboard
+ savename aboard savepuzzle
+ cr cr
+ ." savename aboard loadpuzzle . . <- type this to loadpuzzle and continue solution!" cr cr
+ ." savename aboard savepuzzle <- type this to save the current working solution!"
