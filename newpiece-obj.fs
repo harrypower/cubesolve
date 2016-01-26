@@ -476,6 +476,9 @@ object class
       current-solution-index piece-max >= \ if true then solution reached if false continue
       key? or
     until
+    key? if
+      begin key drop key? true <> until
+    then
   ;m method solveit
   public
   m: ( board -- ) \ free allocated memory for the board pieces
@@ -623,35 +626,34 @@ object class
     this [current] clearboard
     this [current] cleardisplay
     2dup this [current] validsave?
-    if
+    if ." it is valid! " cr
       13 $split 2swap s>unumber? drop d>s dup [to-inst] current-solution-index
       0 ?do
         13 $split 2swap s>unumber? drop
         d>s i this [current] board!
       loop 2drop
       0 current-solution-index
-    else
+    else ." it is not valid!" cr
       2drop
       0 0
     then
     this [current] solvecontinue
   ;m method SolveContinueFromFile
   m: ( caddr u board -- nfid nflag )
-    0 { caddr u fid }
+    { caddr u }
     caddr u file-status swap drop false =
     if
       caddr u delete-file throw
     then
-    caddr u w/o create-file throw to fid
+    caddr u w/o create-file throw
   ;m method getfileid
   m: ( caddr u board -- ) \ save puzzle data into file of name caddr u string
     0 { caddr u fid }
     caddr u this [current] getfileid to fid
     this [current] makesavestring
-    save$ $@ type
-    \ save$ $@ fid write-file throw
-    \ fid flush-file throw
-    \ fid close-file throw
+    save$ $@ fid write-file throw
+    fid flush-file throw
+    fid close-file throw
   ;m method savepuzzle
   m: ( caddr u board -- ) \ open caddr u string file and check valid data then continue to solve puzzle from that data
     r/o open-file throw { fid }
@@ -688,15 +690,9 @@ end-class board
 \ this simply starts solving  after making the board (aboard) then show combination piece numbers in board list
 \ then display the board
 board heap-new constant aboard
-aboard  solvestart
+aboard  solvestart cr ." Left off at index:" swap . ." peice:" . cr
 aboard  seeboardpieces page
 aboard  showboard
-\ aboard makesavestring
-\ variable test$
-\ test$ $!
-\ test$ $@
-\ aboard SolveContinueFromFile
-\ aboard seeboardpieces
 : savename ( -- caddr u ) s" c:\Users\Philip\Documents\github\cubesolve\mysolution.puz" ;
 savename aboard savepuzzle
-savename aboard loadpuzzle
+\ savename aboard loadpuzzle
