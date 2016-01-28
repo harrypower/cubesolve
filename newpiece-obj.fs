@@ -634,7 +634,7 @@ object class
         d>s i this [current] board!
       loop 2drop
       0 current-solution-index
-    else ." Loaded solution is not valid! Now stopping!" cr
+    else cr ." Loaded solution is not valid! Starting solution from beggining!" cr
       2drop
       0 0
     then
@@ -689,37 +689,41 @@ object class
   ;m method testingsolutionwords
 end-class board
 
-\ this is my current location for testing.. this string will need to be changed for other machines
-: savename ( -- caddr u ) s" c:\Users\Philip\Documents\github\cubesolve\mysolution.puz" ;
-
-\ this simply starts solving  after making the board (aboard) then show combination piece numbers in board list
-\ then display the board
+cr ." *********************************************************" cr
+." Populating basic piece database and collision database!" cr
 board heap-new constant aboard
-\ ***************************
-\ uncomment the following to start board again
-\ aboard  solvestart cr ." Left off at index:" swap . ." peice:" . cr
-\ aboard  seeboardpieces page
-\ aboard  showboard
-\ savename aboard savepuzzle
-\ ***************************
+\ this is my current location for testing.. this string will need to be changed for other machines
+: savepath  ( -- caddr u ) \ return string of path to save puzzle at ... change this if you want another location
+  s" c:\Users\Philip\Documents\github\cubesolve" ;
+: savename ( -- caddr u ) \ teturn string of name of saved puzzle .... change this if you want another name
+  s" mysolution.puz" ;
+variable temporary$ temporary$ $init
+: startsolution ( caddr u -- ) \ start the puzzle solution with exiting solution or a new solution caddr u is a path that soluion is at
+  \ if caddr u path does not exist this code will throw an error and simply exit.
+  \ if path exist the savename file name will be tested for and if found the solution will continue with that solution unless solution is not valid
+  \ if found solution is not valid or no solution file is present then the puzzle will start from the beginning.
+  \ if this solution is continued or started from beginning and a key is pressed the solution will stop and solution will be saved at path savename
+  { caddr u }
+  caddr u file-status swap drop false =
+  if \ directory is present
+    caddr u temporary$ $! s" \" temporary$ $+! savename temporary$ $+!
+    temporary$ $@ file-status swap drop false =
+    if
+      cr ." Past solution present and loading!"
+      temporary$ $@ aboard loadpuzzle cr ." Left off at index:" swap . ." peice:" . cr
+    else
+      cr ." No solution found starting from begining!"
+      aboard solvestart cr ." Left off at index:" swap . ." peice:" . cr
+    then
+    aboard  seeboardpieces page
+    aboard  showboard
+    temporary$ $@ aboard savepuzzle
+    cr ." Puzzle saved for future solving!" cr
+  else \ directory is not present
+    cr abort" Directory for solution is not present!"
+  then ;
 
-\ the following line will only work if the puzzle has a saved file at savename location
- \ savename aboard loadpuzzle
- \ cr ." Left off at index:" swap . ." peice:" . cr
- \ aboard seeboardpieces page
- \ aboard showboard
- \ savename aboard savepuzzle
- \ cr cr
- \ ." savename aboard loadpuzzle . . <- type this to loadpuzzle and continue solution!" cr cr
- \ ." savename aboard savepuzzle <- type this to save the current working solution!"
+  savepath startsolution
 
-\ below this are the stuff for desktop version of program
-: savenamedesktop ( -- addr u ) s" c:\Users\Philip\Documents\GitHub\cubesolve\mysolution.puz" ;
-\ aboard solvestart cr . .
-\ aboard seeboardpieces page
-\ aboard showboard
-\ savename aboard savepuzzle
-savenamedesktop aboard loadpuzzle cr . . cr
-aboard seeboardpieces page
-aboard showboard
-savename aboard savepuzzle
+  cr ." Do this to see board: aboard showboard" cr
+  cr ." Do this to see board piece list: aboard seeboardpieces" cr  
