@@ -704,11 +704,22 @@ board heap-new constant aboard
 \ ***************************
 
 \ the following line will only work if the puzzle has a saved file at savename location
- savename aboard loadpuzzle
- cr ." Left off at index:" swap . ." peice:" . cr
- aboard seeboardpieces page
- aboard showboard
- savename aboard savepuzzle
- cr cr
- ." savename aboard loadpuzzle . . <- type this to loadpuzzle and continue solution!" cr cr
- ." savename aboard savepuzzle <- type this to save the current working solution!"
+ \ savename aboard loadpuzzle
+ \ cr ." Left off at index:" swap . ." peice:" . cr
+ \ aboard seeboardpieces page
+ \ aboard showboard
+ \ savename aboard savepuzzle
+ \ cr cr
+ \ ." savename aboard loadpuzzle . . <- type this to loadpuzzle and continue solution!" cr cr
+ \ ." savename aboard savepuzzle <- type this to save the current working solution!"
+
+\ below this are the stuff for desktop version of program
+: savenamedesktop ( -- addr u ) s" c:\Users\Philip\Documents\GitHub\cubesolve\mysolution.puz" ;
+\ aboard solvestart cr . .
+\ aboard seeboardpieces page
+\ aboard showboard
+\ savename aboard savepuzzle
+savenamedesktop aboard loadpuzzle cr . . cr
+aboard seeboardpieces page
+aboard showboard
+savename aboard savepuzzle
