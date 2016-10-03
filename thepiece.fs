@@ -9,9 +9,10 @@ interface
     selector destruct ( -- ) \ to free allocated memory in objects that use this
 end-interface destruction
 
+\ piece object *******************************************************************************************************
 object class
   destruction implementation
-  protected
+  protected \ ********************************************************************************************************
   struct
     cell% field x
     cell% field y
@@ -150,7 +151,7 @@ object class
   m: ( nx ny nz piece -- ) \ just displays x y z from stack
     rot ." x:" . swap ."  y:" . ."  z:" .
   ;m method xyz.
-  public
+  public \ ***********************************************************************************************************
   m: ( piece -- )
     piece-table-created @ false = if \ to create piece table only once for all piece objects
       0 0 0 base-shapes a 0 this [current] basicshape! \ first shape
@@ -192,15 +193,22 @@ object class
     false [to-inst] collisionlist-flag
     nopiece [to-inst] thispiece#
   ;m overrides destruct
-  m: ( npiece# piece -- ) \ set the piece# and create the collision list
+  m: ( npiece# piece -- ) \ set the thispiece#
     dup dup 0 >= -rot pindex-max < rot and if [to-inst] thispiece# else drop nopiece [to-inst] thispiece# then
   ;m method piece!
-  m: ( piece -- npiece# ) \ get the current piece#
+  m: ( piece -- npiece# ) \ get the current thispiece#
     thispiece#
   ;m method piece@
-  m: ( piece -- ) \ create the collision list for this piece
+  m: ( piece -- ) \ generate the collision list for thispiece#
+   \ note this does clean out the collision list if it already was populated
     this [current] populatecollisionlist
   ;m method collisionlist!
+  m: ( npiece# piece -- ) \ set thispiece# and removed old collision list and generate a new collision list
+  this [current] destruct
+  this [current] construct
+  this [current] piece!
+  this [current] collisionlist!
+  ;m method newpiece!
   m: ( npiece# piece -- nflag ) \ test the npiece# collistion value from collision list
   \ nflag is true if npiece# has collided with thispiece# from the collision list
   \ nflag is false if npiece# has not collided with thispiece# in the collision list or the collision list does not exist
@@ -227,6 +235,7 @@ object class
       all-orient a npiece# this [current] basicshape@ 3 roll
     ENDCASE
   ;m method subpiece@
+  \ testing words to ensure this piece generation is correct ******************************************************************
   m: ( piece -- ) \ testing basic data set creation
     base-shapes e 3 this [current] basicshape@ . . . cr
     base-shapes d 2 this [current] basicshape@ . . . cr
@@ -304,6 +313,7 @@ object class
   ;m method testcollsionlistfull
 end-class piece
 
+\ displaypieces object *****************************************************************************************************************
 object class
   destruction implementation
   protected
