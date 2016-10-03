@@ -341,7 +341,7 @@ object class
       thepiece% %size xyz-size * xyz-size * xyz-size * allocate throw [to-inst] displaydata-addr
       displaypiecesetup displaypiecesetup ! \ now this instance has been setup once
     then
-    displaydata-addr thepiece% %size xyz-size * xyz-size * xyz-size * true fill \ place no pices in display data
+    displaydata-addr thepiece% %size xyz-size * xyz-size * xyz-size * true fill \ place no pieces in display data
   ;m overrides construct
   m: ( nx ny nz npiece# displaypieces -- )
     displaypiecesetup displaypiecesetup @ =
