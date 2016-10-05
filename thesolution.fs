@@ -4,7 +4,7 @@ object class
   destruction implementation
 
   struct
-      char% field pieceb
+      cell% field pieceb
   end-struct piecepair%
 
   inst-value piecea
@@ -16,11 +16,22 @@ object class
 
   \ protected \ ********************************************************************************************************
   m: ( np ni 2pieces -- ) \ store pieceb number at index
-    piecepair% %size * addrpiecelist + !
+    piecepair% %size * addrpiecelist + pieceb !
   ;m method npieceb!
   m: ( ni 2pieces -- np ) \ retrieve pieceb number from index
-    piecepair% %size * addrpiecelist + @
+    piecepair% %size * addrpiecelist + pieceb @
   ;m method npieceb@
+
+  m: ( 2pieces -- ) \ populate the pieceb list using piecea data
+    pindex-max 0 do
+      i piecea-object-addr collisionlist?
+      false =
+      if
+        i space piecelistsize this [current] npieceb!
+        piecelistsize 1 + [to-inst] piecelistsize
+      then
+    loop
+  ;m method populatepieceb
   public \ ***********************************************************************************************************
   m: ( n 2pieces -- ) \ construct a piece pair list
     \ make room to store pindex-max numbers for the pieceb value and store n into piecea then find all the pieceb values for piecea
@@ -33,11 +44,13 @@ object class
     0 [to-inst] piecelistsize
     dup [to-inst] piecea
     piecea-object-addr newpiece!
+    this [current] populatepieceb
     2piece-test 2piece-test ! \ set test now that construct has run once
   ;m overrides construct
   m: ( 2pieces -- ) \ to release memory of this pair list
     addrpiecelist free throw
     0 [to-inst] addrpiecelist
+    0 [to-inst] piecelistsize
     0 2piece-test !
     piecea-object-addr destruct
     piecea-object-addr free throw
@@ -47,7 +60,7 @@ object class
   ;m method npair@
   m: ( 2pieces -- nsize )
     piecelistsize
-  ;m method piecelistsize@
+  ;m method pairlistsize@
   m: ( -- ) \ print some internal variables for testing
     ." piecea " piecea . cr
     ." addrpiecelist " addrpiecelist . cr
@@ -57,8 +70,11 @@ object class
   ;m overrides print
 end-class 2pieces
 
-59 2pieces dict-new constant a
+0 2pieces dict-new constant a
 a print cr
-5 10 a npieceb!
-10 a npieceb@ . cr
-10 a npair@ . . cr
+0 a npair@ . . cr
+1 a npair@ . . cr
+2 a npair@ . . cr
+
+: testsize a pairlistsize@ 0 do i a npair@ swap . . cr loop ;
+testsize
