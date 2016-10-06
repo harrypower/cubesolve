@@ -95,7 +95,7 @@ object class
   ;m method totalsize@
   m: ( ni 2pieces -- npiecea npieceb ) \ return the pair for ni
     this [current] npair@
-  ;m method npair@
+  ;m method ngetpair@
   m: ( -- ) \ print some internal variables for testing
     ." piecea " piecea . cr
     ." addrpiecelist " addrpiecelist . cr
@@ -110,4 +110,4 @@ end-class 2pieces
 2pieces dict-new constant a
 a print
 a totalsize@ . cr
-59 a npair@ .s
+59 a ngetpair@ .s
