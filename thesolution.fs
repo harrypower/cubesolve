@@ -34,13 +34,13 @@ object class
       i piecea-object-addr collisionlist?
       false =
       if
-        i space piecelistsize this [current] npieceb!
+        i piecelistsize this [current] npieceb!
         piecelistsize 1 + [to-inst] piecelistsize
       then
     loop
   ;m method populatepieceb
   public \ ***********************************************************************************************************
-  m: ( n 2pieces -- ) \ construct a piece pair list
+  m: ( 2pieces -- ) \ construct a piece pair list
     \ make room to store pindex-max numbers for the pieceb value and store n into piecea then find all the pieceb values for piecea
     2piece-test 2piece-test @ <> \ to allocate this on the heap only once at fist construct execution time and after destruct method
     if
@@ -52,9 +52,6 @@ object class
     totalpairlist pairindex-max erase
     0 [to-inst] piecelistsize
     0 [to-inst] pairlistsize
-    dup [to-inst] piecea
-    piecea-object-addr newpiece!
-    this [current] populatepieceb
     2piece-test 2piece-test ! \ set test now that construct has run once
   ;m overrides construct
   m: ( 2pieces -- ) \ to release memory of this pair list
@@ -67,6 +64,12 @@ object class
     piecea-object-addr destruct
     piecea-object-addr free throw
   ;m overrides destruct
+  m: ( n 2pieces -- ) \ calculate the pair that goes with value n
+    0 [to-inst] piecelistsize
+    dup [to-inst] piecea
+    piecea-object-addr newpiece!
+    this [current] populatepieceb
+  ;m method calcpair \ **********move this to protected once the total calculation method is done***************
   m: ( nindex 2pieces -- npiecea npieceb ) \ for the present nindex return npiecea and npieceb values to stack
     this [current] npieceb@ piecea swap
   ;m method npair@
@@ -82,14 +85,15 @@ object class
   ;m overrides print
 end-class 2pieces
 
-0 2pieces dict-new constant a
+2pieces dict-new constant a
 0 value totalpairs
 
 : findtotalpairs ( -- )
   960 0 do
-    i a construct
+    i a calcpair
     a pairlistsize@ totalpairs + to totalpairs
   loop ;
+
 utime
 findtotalpairs
 utime
