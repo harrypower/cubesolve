@@ -28,7 +28,15 @@ object class
   m: ( ni 2pieces -- np ) \ retrieve pieceb number from index
     piecepair% %size * addrpiecelist + pieceb @
   ;m method npieceb@
-
+  m: ( na nb ni 2pieces -- ) \ store pair in totalpairlist
+    totalpairs% %size * totalpairlist + dup ( na nb addr addr )
+    rot swap p2 !
+    p1 !
+  ;m method npair!
+  m: ( ni 2pieces -- na nb ) \ retrieve pair from totalpairlist
+    totalpairs% %size * totalpairlist + dup
+    p1 @ swap p2 @
+  ;m method npair@
   m: ( 2pieces -- ) \ populate the pieceb list using piecea data
     pindex-max 0 do
       i piecea-object-addr collisionlist?
@@ -39,6 +47,22 @@ object class
       then
     loop
   ;m method populatepieceb
+  m: ( n 2pieces -- ) \ calculate the pair that goes with value n
+    0 [to-inst] piecelistsize
+    dup [to-inst] piecea
+    piecea-object-addr newpiece!
+    this [current] populatepieceb
+  ;m method calcpair
+  m: ( 2pieces -- ) \ populate all the possible pairs in puzzle
+    0 [to-inst] pairlistsize
+    pindex-max 0 do
+      i this [current] calcpair
+      piecelistsize 0 do
+        piecea i this [current] npieceb@ pairlistsize this [current] npair!
+        pairlistsize 1 + [to-inst] pairlistsize
+      loop
+    loop
+  ;m method populatetotalpairs
   public \ ***********************************************************************************************************
   m: ( 2pieces -- ) \ construct a piece pair list
     \ make room to store pindex-max numbers for the pieceb value and store n into piecea then find all the pieceb values for piecea
@@ -53,6 +77,7 @@ object class
     0 [to-inst] piecelistsize
     0 [to-inst] pairlistsize
     2piece-test 2piece-test ! \ set test now that construct has run once
+    this [current] populatetotalpairs
   ;m overrides construct
   m: ( 2pieces -- ) \ to release memory of this pair list
     addrpiecelist free throw
@@ -64,38 +89,25 @@ object class
     piecea-object-addr destruct
     piecea-object-addr free throw
   ;m overrides destruct
-  m: ( n 2pieces -- ) \ calculate the pair that goes with value n
-    0 [to-inst] piecelistsize
-    dup [to-inst] piecea
-    piecea-object-addr newpiece!
-    this [current] populatepieceb
-  ;m method calcpair \ **********move this to protected once the total calculation method is done***************
-  m: ( nindex 2pieces -- npiecea npieceb ) \ for the present nindex return npiecea and npieceb values to stack
-    this [current] npieceb@ piecea swap
-  ;m method npair@
+
   m: ( 2pieces -- nsize )
-    piecelistsize
-  ;m method pairlistsize@
+    pairlistsize
+  ;m method totalsize@
+  m: ( ni 2pieces -- npiecea npieceb ) \ return the pair for ni
+    this [current] npair@
+  ;m method npair@
   m: ( -- ) \ print some internal variables for testing
     ." piecea " piecea . cr
     ." addrpiecelist " addrpiecelist . cr
     ." piecelistsize " piecelistsize . cr
     ." 2piece-test contents " 2piece-test @ . cr
     ." 2piece-test address " 2piece-test . cr
+    ." totalpairlist " totalpairlist . cr
+    ." pairlistsize " pairlistsize . cr
   ;m overrides print
 end-class 2pieces
 
 2pieces dict-new constant a
-0 value totalpairs
-
-: findtotalpairs ( -- )
-  960 0 do
-    i a calcpair
-    a pairlistsize@ totalpairs + to totalpairs
-  loop ;
-
-utime
-findtotalpairs
-utime
-totalpairs . space ." the total pairs!" cr
-2swap d- d. cr
+a print
+a totalsize@ . cr
+59 a npair@ .s
