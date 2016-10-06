@@ -107,7 +107,29 @@ object class
   ;m overrides print
 end-class 2pieces
 
+struct
+  cell% field onepiece
+end-struct plist%
+create pliststart
+pliststart plist% %size 960 * dup allot erase
+
+: poppiecelist ( -- )
+  960 0 do piece heap-new dup i plist% %size * pliststart + ! i swap newpiece! loop ;
+poppiecelist
+: piecetest ( np1 np2 -- nflag ) \ test if np1 intersects np2 if nflag is true then they intersect if false they do not intersect
+  plist% %size * pliststart + @ collisionlist? ;
+
+0 value 2pairsums
 2pieces dict-new constant a
-a print
-a totalsize@ . cr
-59 a ngetpair@ .s
+
+: calc2pair ( -- )
+  a totalsize@ 0 do
+    a totalsize@ 0 do
+      i a ngetpair@ drop j a ngetpair@ drop piecetest
+      i a ngetpair@ swap drop j a ngetpair@ drop piecetest
+      i a ngetpair@ drop j a ngetpair@ swap drop piecetest
+      i a ngetpair@ swap drop j a ngetpair@ swap drop piecetest
+      and and and 0 = if 2pairsums 1 + to 2pairsums then
+    loop
+  loop ;
+\ calc2pair 2pairsums cr ." total pairs of pairs is " . cr
