@@ -133,3 +133,10 @@ poppiecelist
     loop
   loop ;
 \ calc2pair 2pairsums cr ." total pairs of pairs is " . cr
+0 value 3piecesums
+struct
+  cell% field pa
+  cell% field pb
+  cell% field pc
+end-struct 3plist%
+3plist% %size 730000000 * 4 / dup allocate throw dup value 3plistaddres swap erase
