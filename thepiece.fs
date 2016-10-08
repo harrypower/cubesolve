@@ -134,6 +134,16 @@ object class
     restore
     endtry
   ;m method test-collision?
+  m: ( nx1 ny1 nz1 nx2 ny2 nz2 piece -- nflag ) \ compare nx1 ny1 nz1 to nx2 ny2 nz2 for adjacent voxel
+    noop
+  ;m method test-adj-voxel?
+  m: ( nx1 ny1 nz1 nindex piece -- nflag ) \ compair nx ny nz voxel to nindex piece all voxels for adjacent piece
+  \ aka 2 shared dimentions only on any one voxel piece of nindex
+    noop
+  ;m method test-adj-voxeltovoxel?
+  m: ( nindex1 nindex2 piece -- nflag )  \ will test for adjacent pieces that share 2 dimentions only for any one piece
+    noop
+  ;m method test-pair?
   m: ( piece -- ) \ populate the possible pair list for thispiece#
     0 pair-addr <> thispiece# nopiece <> pairlist-flag false = and and
     if
