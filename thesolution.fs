@@ -133,32 +133,26 @@ poppiecelist
     loop
   loop ;
 \ calc2pair 2pairsums cr ." total pairs of pairs is " . cr
+
 0 value 3piecesums
-100000000 constant 3piecemax  \ this needs to be 600000000 but no memory room so another solution is needed
+570000000 constant 3piecemax  \ this needs to be 600000000 but no memory room so another solution is needed
 struct
-  cell% field pa
-  cell% field pb
-  cell% field pc
+  cell% field pairpart
+  cell% field part3
 end-struct 3plist%
-3plist% %size 3piecemax * dup allocate throw dup value 3plistaddres swap erase
+3plist% %size 3piecemax * dup allocate throw dup value 3plistaddr swap erase
 
 : 3plistaddres! ( npa npb npc ni -- )
-  3plist% %size * 3plistaddres + { addr }
-  addr pc !
-  addr pb !
-  addr pa ! ;
+;
 : 3plistaddres@ ( ni -- npa npb npc )
-  3plist% %size * 3plistaddres + { addr }
-  addr pa @
-  addr pb @
-  addr pc @ ;
-
+  3plist% %size * 3plistaddr + { addr }
+  addr pairpart @ a ngetpair@
+  addr part3 @ ;
 : calc3piece ( -- ) \ calculate 3piecesums for the total list size
   a totalsize@ 0 do
     960 0 do
-      i a ngetpair@ drop i piecetest
-      i a ngetpair@ swap drop i piecetest
+      j a ngetpair@ drop i piecetest
+      j a ngetpair@ swap drop i piecetest
       or 0 = if 3piecesums 1 + to 3piecesums then
     loop
-  loop
-;
+  loop ;
