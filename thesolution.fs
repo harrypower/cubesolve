@@ -122,6 +122,8 @@ poppiecelist
 0 value 2pairsums
 2pieces dict-new constant a
 
+piece heap-new constant test
+0 0 0 2 0 0 test tav? . 
 
 \\\
 0 value 3piecesums

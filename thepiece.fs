@@ -56,10 +56,10 @@ object class
   end-struct collisionlist%
 
   struct
-    char% field pair-flag
-  end-struct pairlist%
-  inst-value pair-addr \ the address to start of pair possible list
-  inst-value pairlist-flag \ flag if true then pair list is valid false means list not calculated yet
+    char% field adjacent-flag
+  end-struct adjacentlist%
+  inst-value adjacent-addr \ the address to start of adjacent possible list
+  inst-value adjacentlist-flag \ flag if true then adjacent list is valid false means list not calculated yet
 
   protected
   m: ( nx ny nz naddr nindex piece -- )
@@ -134,26 +134,38 @@ object class
     restore
     endtry
   ;m method test-collision?
+  m: ( n1 n2 piece -- nflag ) \ test n1 against n2 nflag true if n1 is -1 or +1 from n2
+    \ -2 if n1 n2 is > or < 2 from each other
+    \ false if non of these conditions are meet
+    { n1 n2 }
+    n1 n2 1 + = n1 n2 1 - = or
+    n1 n2 1 + > n1 n2 1 - < or if -2 else false then +
+  ;m method test-distance?
   m: ( nx1 ny1 nz1 nx2 ny2 nz2 piece -- nflag ) \ compare nx1 ny1 nz1 to nx2 ny2 nz2 for adjacent voxel
-    noop
+    \ true only if 2 dimentions are adjacent ... false if more or less dimentions are adjacent
+    { nx2 ny2 nz2 }
+    nz2 this [current] test-distance? to nz2
+    ny2 this [current] test-distance? to ny2
+    nx2 this [current] test-distance? to nx2
+    nz2 ny2 nx2 + + -1 = if true else false then
   ;m method test-adj-voxel?
   m: ( nx1 ny1 nz1 nindex piece -- nflag ) \ compair nx ny nz voxel to nindex piece all voxels for adjacent piece
-  \ aka 2 shared dimentions only on any one voxel piece of nindex
+  \ aka 2 shared dimentions and other dimention is -+ 1 value away
     noop
   ;m method test-adj-voxeltovoxel?
-  m: ( nindex1 nindex2 piece -- nflag )  \ will test for adjacent pieces that share 2 dimentions only for any one piece
+  m: ( nindex1 nindex2 piece -- nflag )  \ will test for adjacent pieces that share 2 dimentions have third dimention is one away from any one piece
     noop
-  ;m method test-pair?
-  m: ( piece -- ) \ populate the possible pair list for thispiece#
-    0 pair-addr <> thispiece# nopiece <> pairlist-flag false = and and
+  ;m method test-adjacent?
+  m: ( piece -- ) \ populate the possible adjacent list for thispiece#
+    0 adjacent-addr <> thispiece# nopiece <> adjacentlist-flag false = and and
     if
       pindex-max 0 do
-        thispiece# i this [current] test-pair?
-        pair-addr pair-flag i pairlist% %size * + c!
+        thispiece# i this [current] test-adjacent?
+        adjacent-addr adjacent-flag i adjacentlist% %size * + c!
       loop
-      true [to-inst] pairlist-flag
+      true [to-inst] adjacentlist-flag
     then
-  ;m method populatepairlist
+  ;m method populateadjacentlist
   m: ( piece -- ) \ populate the collision  list for thispiece#
     0 collisionlist-addr <> thispiece# nopiece <> collisionlist-flag false = and and
     if
@@ -174,20 +186,26 @@ object class
     then
     false [to-inst] collisionlist-flag
   ;m method create-collisionlist
-  m: ( piece -- ) \ allocate room for the pair list or clear list if allocated already
-    0 pair-addr <>
+  m: ( piece -- ) \ allocate room for the adjacent list or clear list if allocated already
+    0 adjacent-addr <>
     if
-      pair-addr pairlist% %size pindex-max * erase
+      adjacent-addr adjacentlist% %size pindex-max * erase
     else
-      pairlist% %size pindex-max * allocate throw [to-inst] pair-addr
-      pair-addr pairlist% %size pindex-max * erase
+      adjacentlist% %size pindex-max * allocate throw [to-inst] adjacent-addr
+      adjacent-addr adjacentlist% %size pindex-max * erase
     then
-    false [to-inst] pairlist-flag
-  ;m method create-pairlist
+    false [to-inst] adjacentlist-flag
+  ;m method create-adjacentlist
   m: ( nx ny nz piece -- ) \ just displays x y z from stack
     rot ." x:" . swap ."  y:" . ."  z:" .
   ;m method xyz.
   public \ ***********************************************************************************************************
+  m: ( n1 n2 piece -- nflag )
+    this [current] test-distance?
+  ;m method tavd?
+  m: ( nx1 ny1 nz1 nx2 ny2 nz2 piece -- nflag )
+    this [current] test-adj-voxel?
+  ;m method tav?
   m: ( piece -- )
     piece-table-created @ false = if \ to create piece table only once for all piece objects
       0 0 0 base-shapes a 0 this [current] basicshape! \ first shape
@@ -218,17 +236,17 @@ object class
       true piece-table-created !
     then
     0 [to-inst] collisionlist-addr \ at construct time the collsion list is not allocated yet
-    0 [to-inst] pair-addr \ at construct time the pair list is not allocated yet
+    0 [to-inst] adjacent-addr \ at construct time the adjacent list is not allocated yet
     this [current] create-collisionlist
-    this [current] create-pairlist
+    this [current] create-adjacentlist
     nopiece [to-inst] thispiece#  \ start with no piece
   ;m overrides construct
   m: ( piece -- ) \ free allocated memory for this piece
     0 collisionlist-addr <> if
       collisionlist-addr free throw
     then
-    0 [to-inst] pair-addr
-    false [to-inst] pairlist-flag
+    0 [to-inst] adjacent-addr
+    false [to-inst] adjacentlist-flag
     0 [to-inst] collisionlist-addr
     false [to-inst] collisionlist-flag
     nopiece [to-inst] thispiece#
