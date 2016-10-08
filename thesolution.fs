@@ -135,7 +135,7 @@ poppiecelist
 \ calc2pair 2pairsums cr ." total pairs of pairs is " . cr
 
 0 value 3piecesums
-570000000 constant 3piecemax  \ this needs to be 600000000 but no memory room so another solution is needed
+510000000 constant 3piecemax  \ this needs to be 505735152 for pair and a piece list
 struct
   cell% field pairpart
   cell% field part3
