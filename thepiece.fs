@@ -142,7 +142,8 @@ object class
     n1 n2 1 + > n1 n2 1 - < or if -2 else false then +
   ;m method test-distance?
   m: ( nx1 ny1 nz1 nx2 ny2 nz2 piece -- nflag ) \ compare nx1 ny1 nz1 to nx2 ny2 nz2 for adjacent voxel
-    \ true only if 2 dimentions are adjacent ... false if more or less dimentions are adjacent
+    \ true only if 2 shared dimentions and the other dimention is +- 1 value away
+    \ false if the aboce condition is not meet
     { nx2 ny2 nz2 }
     nz2 this [current] test-distance? to nz2
     ny2 this [current] test-distance? to ny2
@@ -151,10 +152,28 @@ object class
   ;m method test-adj-voxel?
   m: ( nx1 ny1 nz1 nindex piece -- nflag ) \ compair nx ny nz voxel to nindex piece all voxels for adjacent piece
   \ aka 2 shared dimentions and other dimention is -+ 1 value away
-    noop
+    { nx ny nz nindex }
+    try
+      nx ny nz all-orient a nindex this [current] basicshape@ this [current] test-adj-voxel? throw
+      nx ny nz all-orient b nindex this [current] basicshape@ this [current] test-adj-voxel? throw
+      nx ny nz all-orient c nindex this [current] basicshape@ this [current] test-adj-voxel? throw
+      nx ny nz all-orient d nindex this [current] basicshape@ this [current] test-adj-voxel? throw
+      nx ny nz all-orient e nindex this [current] basicshape@ this [current] test-adj-voxel? throw
+      false
+    restore
+    endtry
   ;m method test-adj-voxeltovoxel?
   m: ( nindex1 nindex2 piece -- nflag )  \ will test for adjacent pieces that share 2 dimentions have third dimention is one away from any one piece
-    noop
+    { nindex1 nindex2 }
+    try
+      all-orient a nindex1 this [current] basicshape@ nindex2 this [current] test-adj-voxeltovoxel? throw
+      all-orient b nindex1 this [current] basicshape@ nindex2 this [current] test-adj-voxeltovoxel? throw
+      all-orient c nindex1 this [current] basicshape@ nindex2 this [current] test-adj-voxeltovoxel? throw
+      all-orient d nindex1 this [current] basicshape@ nindex2 this [current] test-adj-voxeltovoxel? throw
+      all-orient e nindex1 this [current] basicshape@ nindex2 this [current] test-adj-voxeltovoxel? throw
+      false
+    restore
+    endtry
   ;m method test-adjacent?
   m: ( piece -- ) \ populate the possible adjacent list for thispiece#
     0 adjacent-addr <> thispiece# nopiece <> adjacentlist-flag false = and and
@@ -261,23 +280,36 @@ object class
    \ note this does clean out the collision list if it already was populated
     this [current] populatecollisionlist
   ;m method collisionlist!
+  m: ( piece -- ) \ generate the adjacent list for thispiece#
+    this [current] populateadjacentlist
+  ;m method adjacentlist!
   m: ( npiece# piece -- ) \ set thispiece# and removed old collision list and generate a new collision list
-  this [current] destruct
-  this [current] construct
-  this [current] piece!
-  this [current] collisionlist!
+    this [current] destruct
+    this [current] construct
+    this [current] piece!
+    this [current] collisionlist!
+    this [current] adjacentlist!
   ;m method newpiece!
   m: ( npiece# piece -- nflag ) \ test the npiece# collistion value from collision list
   \ nflag is true if npiece# has collided with thispiece# from the collision list
   \ nflag is false if npiece# has not collided with thispiece# in the collision list or the collision list does not exist
     collisionlist-flag true =
     if
-      collisionlist-addr swap collisionlist% %size * + c@
+      collisionlist-addr piece-flag swap collisionlist% %size * + c@
       if true else false then
     else
       drop false
     then
   ;m method collisionlist?
+  m: ( npiece# piece -- nflag ) \ test the npiece# adjacent value from adjacent list
+    adjacentlist-flag true =
+    if
+      adjacent-addr adjacent-flag swap adjacentlist% %size * + c@
+      if true else false then
+    else
+      drop false
+    then
+  ;m method adjacent?
   m: ( nsubpiece# npiece# piece -- nx ny nz ) \ will return sub block xyz values for a given npiece# and a given nsubpiece#
     \ nsubpiece# is 0 to 4
     \ npiece# is 0 to pindex-max -1
