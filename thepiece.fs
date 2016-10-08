@@ -55,6 +55,12 @@ object class
     char% field piece-flag
   end-struct collisionlist%
 
+  struct
+    char% field pair-flag
+  end-struct pairlist%
+  inst-value pair-addr \ the address to start of pair possible list
+  inst-value pairlist-flag \ flag if true then pair list is valid false means list not calculated yet
+
   protected
   m: ( nx ny nz naddr nindex piece -- )
     loc% %size * + { naddr }
@@ -128,6 +134,16 @@ object class
     restore
     endtry
   ;m method test-collision?
+  m: ( piece -- ) \ populate the possible pair list for thispiece#
+    0 pair-addr <> thispiece# nopiece <> pairlist-flag false = and and
+    if
+      pindex-max 0 do
+        thispiece# i this [current] test-pair?
+        pair-addr pair-flag i pairlist% %size * + c!
+      loop
+      true [to-inst] pairlist-flag
+    then
+  ;m method populatepairlist
   m: ( piece -- ) \ populate the collision  list for thispiece#
     0 collisionlist-addr <> thispiece# nopiece <> collisionlist-flag false = and and
     if
@@ -148,6 +164,16 @@ object class
     then
     false [to-inst] collisionlist-flag
   ;m method create-collisionlist
+  m: ( piece -- ) \ allocate room for the pair list or clear list if allocated already
+    0 pair-addr <>
+    if
+      pair-addr pairlist% %size pindex-max * erase
+    else
+      pairlist% %size pindex-max * allocate throw [to-inst] pair-addr
+      pair-addr pairlist% %size pindex-max * erase
+    then
+    false [to-inst] pairlist-flag
+  ;m method create-pairlist
   m: ( nx ny nz piece -- ) \ just displays x y z from stack
     rot ." x:" . swap ."  y:" . ."  z:" .
   ;m method xyz.
@@ -182,13 +208,17 @@ object class
       true piece-table-created !
     then
     0 [to-inst] collisionlist-addr \ at construct time the collsion list is not allocated yet
+    0 [to-inst] pair-addr \ at construct time the pair list is not allocated yet
     this [current] create-collisionlist
+    this [current] create-pairlist
     nopiece [to-inst] thispiece#  \ start with no piece
   ;m overrides construct
   m: ( piece -- ) \ free allocated memory for this piece
     0 collisionlist-addr <> if
       collisionlist-addr free throw
     then
+    0 [to-inst] pair-addr
+    false [to-inst] pairlist-flag
     0 [to-inst] collisionlist-addr
     false [to-inst] collisionlist-flag
     nopiece [to-inst] thispiece#

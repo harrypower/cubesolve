@@ -122,18 +122,8 @@ poppiecelist
 0 value 2pairsums
 2pieces dict-new constant a
 
-: calc2pair ( -- )
-  a totalsize@ 0 do
-    a totalsize@ 0 do
-      i a ngetpair@ drop j a ngetpair@ drop piecetest
-      i a ngetpair@ swap drop j a ngetpair@ drop piecetest
-      i a ngetpair@ drop j a ngetpair@ swap drop piecetest
-      i a ngetpair@ swap drop j a ngetpair@ swap drop piecetest
-      or or or 0 = if 2pairsums 1 + to 2pairsums then
-    loop
-  loop ;
-\ calc2pair 2pairsums cr ." total pairs of pairs is " . cr
 
+\\\
 0 value 3piecesums
 510000000 constant 3piecemax  \ this needs to be 505735152 for pair and a piece list
 struct
