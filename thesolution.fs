@@ -118,8 +118,17 @@ pliststart plist% %size 960 * dup allot erase
 poppiecelist
 : piecetest ( np1 np2 -- nflag ) \ test if np1 intersects np2 if nflag is true then they intersect if false they do not intersect
   0 { np1 np2 tempaddr }
-  np1 np2 plist% %size * pliststart onepiece + @ dup to tempaddr collisionlist?
-  np1 tempaddr adjacent? true = if false else true then and ;
+  np1 np2 plist% %size * pliststart onepiece + @ dup to tempaddr collisionlist? false =
+  if np1 tempaddr adjacent? true =
+    if false else true then
+  else
+    true
+  then ;
+  \ c false a true yes     false false yes
+  \ c false a false no     false true  no
+  \ c true a true no       true  false no
+  \ c true a false no      true  true  no
+
 
 0 value 2pairsums
 2pieces dict-new constant apair
