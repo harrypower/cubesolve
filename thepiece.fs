@@ -219,12 +219,6 @@ object class
     rot ." x:" . swap ."  y:" . ."  z:" .
   ;m method xyz.
   public \ ***********************************************************************************************************
-  m: ( n1 n2 piece -- nflag )
-    this [current] test-distance?
-  ;m method tavd?
-  m: ( nx1 ny1 nz1 nx2 ny2 nz2 piece -- nflag )
-    this [current] test-adj-voxel?
-  ;m method tav?
   m: ( piece -- )
     piece-table-created @ false = if \ to create piece table only once for all piece objects
       0 0 0 base-shapes a 0 this [current] basicshape! \ first shape
@@ -302,6 +296,8 @@ object class
     then
   ;m method collisionlist?
   m: ( npiece# piece -- nflag ) \ test the npiece# adjacent value from adjacent list
+    \ nflag is true if npiece# is adjacent to thispiece# from this object
+    \ nflag is false if npiece# is not adjacent to thispiece# from this object or the adjacent list does not exist
     adjacentlist-flag true =
     if
       adjacent-addr adjacent-flag swap adjacentlist% %size * + c@

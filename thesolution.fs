@@ -39,8 +39,8 @@ object class
   ;m method npair@
   m: ( 2pieces -- ) \ populate the pieceb list using piecea data
     pindex-max 0 do
-      i piecea-object-addr collisionlist?
-      false =
+      i piecea-object-addr collisionlist? false =
+      i piecea-object-addr adjacent? true = and
       if
         i piecelistsize this [current] npieceb!
         piecelistsize 1 + [to-inst] piecelistsize
@@ -117,34 +117,34 @@ pliststart plist% %size 960 * dup allot erase
   960 0 do piece heap-new dup i plist% %size * pliststart + ! i swap newpiece! loop ;
 poppiecelist
 : piecetest ( np1 np2 -- nflag ) \ test if np1 intersects np2 if nflag is true then they intersect if false they do not intersect
-  plist% %size * pliststart + @ collisionlist? ;
+  0 { np1 np2 tempaddr }
+  np1 np2 plist% %size * pliststart onepiece + @ dup to tempaddr collisionlist?
+  np1 tempaddr adjacent? true = if false else true then and ;
 
 0 value 2pairsums
-2pieces dict-new constant a
+2pieces dict-new constant apair
+apair totalsize@ ." totalsize = " . cr
 
-piece heap-new constant test
-0 0 0 2 0 0 test tav? . 
+260000 constant 2pairmax  \ 256344 is the actual value
 
-\\\
-0 value 3piecesums
-510000000 constant 3piecemax  \ this needs to be 505735152 for pair and a piece list
 struct
-  cell% field pairpart
-  cell% field part3
-end-struct 3plist%
-3plist% %size 3piecemax * dup allocate throw dup value 3plistaddr swap erase
+  cell% field paira
+  cell% field pairb
+end-struct 2plist%
+2plist% %size 2pairmax * dup allocate throw dup value 2plistaddr swap erase
 
-: 3plistaddres! ( npa npb npc ni -- )
+: 2plistaddres! ( npa npb npc ni -- )
 ;
-: 3plistaddres@ ( ni -- npa npb npc )
-  3plist% %size * 3plistaddr + { addr }
-  addr pairpart @ a ngetpair@
-  addr part3 @ ;
-: calc3piece ( -- ) \ calculate 3piecesums for the total list size
-  a totalsize@ 0 do
-    960 0 do
-      j a ngetpair@ drop i piecetest
-      j a ngetpair@ swap drop i piecetest
-      or 0 = if 3piecesums 1 + to 3piecesums then
+: 2plistaddres@ ( ni -- npa npb npc )
+;
+: calc2pair ( -- )
+  apair totalsize@ 0 do i . ." outer " 2pairsums . ." total" cr
+    apair totalsize@ 0 do
+      i apair ngetpair@ drop j apair ngetpair@ drop piecetest
+      i apair ngetpair@ swap drop j apair ngetpair@ drop piecetest
+      i apair ngetpair@ drop j apair ngetpair@ swap drop piecetest
+      i apair ngetpair@ swap drop j apair ngetpair@ swap drop piecetest
+      or or or 0 = if 2pairsums 1 + to 2pairsums then
     loop
   loop ;
+\ calc2pair 2pairsums cr ." total pairs of pairs is " . cr
