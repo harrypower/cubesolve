@@ -124,36 +124,42 @@ poppiecelist
   else
     true
   then ;
-  \ c false a true yes     false false yes
-  \ c false a false no     false true  no
-  \ c true a true no       true  false no
-  \ c true a false no      true  true  no
+  \ c false a true yes
+  \ c false a false no
+  \ c true a true no
+  \ c true a false no
 
-
-0 value 2pairsums
+0 value 3piecesums
 2pieces dict-new constant apair
 apair totalsize@ ." totalsize = " . cr
 
-260000 constant 2pairmax  \ 256344 is the actual value
+21000000 constant 3piecemax
 
 struct
   cell% field paira
-  cell% field pairb
-end-struct 2plist%
-2plist% %size 2pairmax * dup allocate throw dup value 2plistaddr swap erase
+  cell% field piece2
+end-struct 3plist%
+3plist% %size 3piecemax * dup allocate throw dup value 3plistaddr swap erase
 
-: 2plistaddres! ( npa npb npc ni -- )
-;
-: 2plistaddres@ ( ni -- npa npb npc )
-;
-: calc2pair ( -- )
-  apair totalsize@ 0 do i . ." outer " 2pairsums . ." total" cr
+: 2plistpieces@ ( ni -- npa npb ) \ retreave npa and npb from ni index
+  apair ngetpair@ ;
+: 3plistpieces@ ( ni -- npa npb npc )
+  3plist% %size * { theaddr }
+  theaddr 3plistaddr paira + @ 2plistpieces@
+  theaddr 3plistaddr piece2 + @ ;
+: 3plistpieces! ( npaira np2 ni -- )
+  3plist% %size * { theaddr }
+  theaddr 3plistaddr paira + rot swap !
+  theaddr 3plistaddr piece2 + ! ;
+
+: calc3piece ( -- )
+  960 0 do i . ." outer " 3piecesums . ." total" cr
     apair totalsize@ 0 do
-      i apair ngetpair@ drop j apair ngetpair@ drop piecetest
-      i apair ngetpair@ swap drop j apair ngetpair@ drop piecetest
-      i apair ngetpair@ drop j apair ngetpair@ swap drop piecetest
-      i apair ngetpair@ swap drop j apair ngetpair@ swap drop piecetest
-      or or or 0 = if 2pairsums 1 + to 2pairsums then
+      i 2plistpieces@ j piecetest swap j piecetest
+      or 0 = if
+        i j 3piecesums 3plistpieces!
+        3piecesums 1 + to 3piecesums
+      then
     loop
   loop ;
 \ calc2pair 2pairsums cr ." total pairs of pairs is " . cr
