@@ -131,7 +131,7 @@ poppiecelist
 
 0 value 3piecesums
 2pieces dict-new constant apair
-apair totalsize@ ." totalsize = " . cr
+cr apair totalsize@ . ." the total 2 piece list!" cr
 
 21000000 constant 3piecemax
 
@@ -152,8 +152,8 @@ end-struct 3plist%
   theaddr 3plistaddr paira + rot swap !
   theaddr 3plistaddr piece2 + ! ;
 
-: calc3piece ( -- )
-  960 0 do i . ." outer " 3piecesums . ." total" cr
+: populate3pieces ( -- )
+  960 0 do i \ . ." outer " 3piecesums . ." total" cr
     apair totalsize@ 0 do
       i 2plistpieces@ j piecetest swap j piecetest
       or 0 = if
@@ -162,4 +162,25 @@ end-struct 3plist%
       then
     loop
   loop ;
-\ calc2pair 2pairsums cr ." total pairs of pairs is " . cr
+populate3pieces
+3piecesums . ."  the total 3 piece list!" cr
+
+0 value 5piecesums
+: calc5pieces ( -- )
+  0 0 0 0 0 { p3a p3b p3c p2a p2b }
+  apair totalsize@ 0 do i . cr
+    3piecesums 0 do
+      i 3plistpieces@ to p3c to p3b to p3a
+      j 2plistpieces@ to p2b to p2a
+      p2a p3a piecetest
+      p2a p3b piecetest
+      p2a p3c piecetest
+      p2b p3a piecetest
+      p2b p3b piecetest
+      p2b p3c piecetest
+      or or or or or 0 = if
+        5piecesums 1 + to 5piecesums
+      then
+    loop
+  loop
+;
