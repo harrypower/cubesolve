@@ -128,6 +128,8 @@ poppiecelist
   \ c false a false no
   \ c true a true no
   \ c true a false no
+: piecexyz@ ( nsub# npiece# -- nx ny nz ) \ return the x y z values of npiece# givin the nsub# of the piece
+  pliststart onepiece @ subpiece@ ;
 
 0 value 3piecesums
 2pieces dict-new constant apair
@@ -162,7 +164,7 @@ end-struct 3plist%
       then
     loop
   loop ;
-populate3pieces
+\ populate3pieces  \ uncomment this to generate the 3piece list
 3piecesums . ."  the total 3 piece list!" cr ( is 20647344 )
 
 0 value 5piecesums
@@ -183,3 +185,22 @@ populate3pieces
       then
     loop
   loop ;
+
+displaypieces heap-new constant showit
+
+: showapair ( npair -- ) \ display npair on the board
+  showit construct
+  apair ngetpair@ { paira pairb }
+  0 paira piecexyz@ paira showit displaypiece!
+  1 paira piecexyz@ paira showit displaypiece!
+  2 paira piecexyz@ paira showit displaypiece!
+  3 paira piecexyz@ paira showit displaypiece!
+  4 paira piecexyz@ paira showit displaypiece!
+  0 pairb piecexyz@ pairb showit displaypiece!
+  1 pairb piecexyz@ pairb showit displaypiece!
+  2 pairb piecexyz@ pairb showit displaypiece!
+  3 pairb piecexyz@ pairb showit displaypiece!
+  4 pairb piecexyz@ pairb showit displaypiece!
+  showit showdisplay ;
+
+0 showapair
