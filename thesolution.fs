@@ -131,7 +131,7 @@ poppiecelist
 
 0 value 3piecesums
 2pieces dict-new constant apair
-cr apair totalsize@ . ." the total 2 piece list!" cr
+cr apair totalsize@ . ." the total 2 piece list!" cr ( is 256344 )
 
 21000000 constant 3piecemax
 
@@ -163,7 +163,7 @@ end-struct 3plist%
     loop
   loop ;
 populate3pieces
-3piecesums . ."  the total 3 piece list!" cr
+3piecesums . ."  the total 3 piece list!" cr ( is 20647344 )
 
 0 value 5piecesums
 : calc5pieces ( -- )
@@ -182,5 +182,4 @@ populate3pieces
         5piecesums 1 + to 5piecesums
       then
     loop
-  loop
-;
+  loop ;
