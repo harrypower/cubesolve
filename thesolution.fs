@@ -204,3 +204,5 @@ displaypieces heap-new constant showit
   showit showdisplay ;
 
 0 showapair
+: showpairs ( nmax -- )
+  0 do i showapair 4000 ms loop ;
