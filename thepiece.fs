@@ -172,7 +172,7 @@ object class
       all-orient d nindex1 this [current] basicshape@ nindex2 this [current] test-adj-voxeltovoxel? \ throw
       all-orient e nindex1 this [current] basicshape@ nindex2 this [current] test-adj-voxeltovoxel? \ throw
       + + + +
-      -1 >= if false else true then 
+      -1 >= if false else true then
     \  false
     \ restore
     \ endtry
