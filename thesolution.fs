@@ -123,7 +123,8 @@ poppiecelist
     if false else true then
   else
     true
-  then ;
+  then
+  ;
   \ c false a true yes
   \ c false a false no
   \ c true a true no
@@ -133,7 +134,7 @@ poppiecelist
 
 0 value 3piecesums
 2pieces dict-new constant apair
-cr apair totalsize@ . ." the total 2 piece list!" cr ( is 256344 )
+cr apair totalsize@ . ." the total 2 piece list!" cr ( is 256344 with 1 or more adjacent 105768 with 2 or more adjacent )
 
 21000000 constant 3piecemax
 
@@ -155,17 +156,17 @@ end-struct 3plist%
   theaddr 3plistaddr piece2 + ! ;
 
 : populate3pieces ( -- )
-  960 0 do i \ . ." outer " 3piecesums . ." total" cr
+  960 0 do \ i . ." outer " 3piecesums . ." total" cr
     apair totalsize@ 0 do
       i 2plistpieces@ j piecetest swap j piecetest
       or 0 = if
-        i j 3piecesums 3plistpieces!
+        \ i j 3piecesums 3plistpieces!
         3piecesums 1 + to 3piecesums
       then
     loop
   loop ;
 \ populate3pieces  \ uncomment this to generate the 3piece list
-3piecesums . ."  the total 3 piece list!" cr ( is 20647344 )
+3piecesums . ."  the total 3 piece list!" cr ( is 20647344 with 1 or more adjacent 1518312 with 2 or more adjacent )
 
 0 value 5piecesums
 : calc5pieces ( -- )
