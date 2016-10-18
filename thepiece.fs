@@ -165,17 +165,15 @@ object class
   ;m method test-adj-voxeltovoxel?
   m: ( nindex1 nindex2 piece -- nflag )  \ will test for adjacent pieces that share 2 dimentions have third dimention is one away from any one piece
     { nindex1 nindex2 }
-    \ try
-      all-orient a nindex1 this [current] basicshape@ nindex2 this [current] test-adj-voxeltovoxel? \ throw
-      all-orient b nindex1 this [current] basicshape@ nindex2 this [current] test-adj-voxeltovoxel? \ throw
-      all-orient c nindex1 this [current] basicshape@ nindex2 this [current] test-adj-voxeltovoxel? \ throw
-      all-orient d nindex1 this [current] basicshape@ nindex2 this [current] test-adj-voxeltovoxel? \ throw
-      all-orient e nindex1 this [current] basicshape@ nindex2 this [current] test-adj-voxeltovoxel? \ throw
-      + + + +
-      -1 >= if false else true then
-    \  false
-    \ restore
-    \ endtry
+    try
+      all-orient a nindex1 this [current] basicshape@ nindex2 this [current] test-adj-voxeltovoxel? throw
+      all-orient b nindex1 this [current] basicshape@ nindex2 this [current] test-adj-voxeltovoxel? throw
+      all-orient c nindex1 this [current] basicshape@ nindex2 this [current] test-adj-voxeltovoxel? throw
+      all-orient d nindex1 this [current] basicshape@ nindex2 this [current] test-adj-voxeltovoxel? throw
+      all-orient e nindex1 this [current] basicshape@ nindex2 this [current] test-adj-voxeltovoxel? throw
+      false
+    restore
+    endtry
   ;m method test-adjacent?
   m: ( piece -- ) \ populate the possible adjacent list for thispiece#
     0 adjacent-addr <> thispiece# nopiece <> adjacentlist-flag false = and and

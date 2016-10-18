@@ -134,7 +134,7 @@ poppiecelist
 
 0 value 3piecesums
 2pieces dict-new constant apair
-cr apair totalsize@ . ." the total 2 piece list!" cr ( is 256344 with 1 or more adjacent 105768 with 2 or more adjacent )
+cr apair totalsize@ . ." the total 2 piece list!" cr ( is 256344 )
 
 21000000 constant 3piecemax
 
@@ -166,7 +166,7 @@ end-struct 3plist%
     loop
   loop ;
 \ populate3pieces  \ uncomment this to generate the 3piece list
-3piecesums . ."  the total 3 piece list!" cr ( is 20647344 with 1 or more adjacent 1518312 with 2 or more adjacent )
+3piecesums . ."  the total 3 piece list!" cr ( is 20647344 )
 
 0 value 5piecesums
 : calc5pieces ( -- )
