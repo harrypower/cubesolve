@@ -132,10 +132,33 @@ poppiecelist
 : piecexyz@ ( nsub# npiece# -- nx ny nz ) \ return the x y z values of npiece# givin the nsub# of the piece
   pliststart onepiece @ subpiece@ ;
 
-0 value 3piecesums
 2pieces dict-new constant apair
 cr apair totalsize@ . ." the total 2 piece list!" cr ( is 256344 )
 
+displaypieces heap-new constant showit
+
+: showapair ( npair -- ) \ display npair on the board
+  showit construct
+  apair ngetpair@ { paira pairb }
+  0 paira piecexyz@ paira showit displaypiece!
+  1 paira piecexyz@ paira showit displaypiece!
+  2 paira piecexyz@ paira showit displaypiece!
+  3 paira piecexyz@ paira showit displaypiece!
+  4 paira piecexyz@ paira showit displaypiece!
+  0 pairb piecexyz@ pairb showit displaypiece!
+  1 pairb piecexyz@ pairb showit displaypiece!
+  2 pairb piecexyz@ pairb showit displaypiece!
+  3 pairb piecexyz@ pairb showit displaypiece!
+  4 pairb piecexyz@ pairb showit displaypiece!
+  showit showdisplay ;
+
+0 showapair
+: showpairs ( nmax -- )
+  0 do i showapair 4000 ms loop ;
+
+
+\ looks like 3 and 5 piece lists will not be able to fit in memory to solve 
+0 value 3piecesums
 21000000 constant 3piecemax
 
 struct
@@ -186,24 +209,3 @@ end-struct 3plist%
       then
     loop
   loop ;
-
-displaypieces heap-new constant showit
-
-: showapair ( npair -- ) \ display npair on the board
-  showit construct
-  apair ngetpair@ { paira pairb }
-  0 paira piecexyz@ paira showit displaypiece!
-  1 paira piecexyz@ paira showit displaypiece!
-  2 paira piecexyz@ paira showit displaypiece!
-  3 paira piecexyz@ paira showit displaypiece!
-  4 paira piecexyz@ paira showit displaypiece!
-  0 pairb piecexyz@ pairb showit displaypiece!
-  1 pairb piecexyz@ pairb showit displaypiece!
-  2 pairb piecexyz@ pairb showit displaypiece!
-  3 pairb piecexyz@ pairb showit displaypiece!
-  4 pairb piecexyz@ pairb showit displaypiece!
-  showit showdisplay ;
-
-0 showapair
-: showpairs ( nmax -- )
-  0 do i showapair 4000 ms loop ;
