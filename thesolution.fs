@@ -169,7 +169,7 @@ displaypieces heap-new constant showit
   do i showapiece 1000 ms loop ;
 
 
-\ looks like 3 and 5 piece lists will not be able to fit in memory to solve
+\\\ looks like 3 and 5 piece lists will not be able to fit in memory to solve
 0 value 3piecesums
 21000000 constant 3piecemax
 
