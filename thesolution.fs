@@ -156,8 +156,20 @@ displaypieces heap-new constant showit
 : showpairs ( nmax -- )
   0 do i showapair 4000 ms loop ;
 
+: showapiece { npiece -- } \ simply display one pice on the board
+  showit construct
+  0 npiece piecexyz@ npiece showit displaypiece!
+  1 npiece piecexyz@ npiece showit displaypiece!
+  2 npiece piecexyz@ npiece showit displaypiece!
+  3 npiece piecexyz@ npiece showit displaypiece!
+  4 npiece piecexyz@ npiece showit displaypiece!
+  showit showdisplay ;
 
-\ looks like 3 and 5 piece lists will not be able to fit in memory to solve 
+: showpieces ( nmax nmin -- ) \ loop through display of nmax to nmin pieces
+  do i showapiece 1000 ms loop ;
+
+
+\ looks like 3 and 5 piece lists will not be able to fit in memory to solve
 0 value 3piecesums
 21000000 constant 3piecemax
 

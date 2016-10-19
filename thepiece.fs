@@ -403,7 +403,7 @@ end-class piece
 object class
   destruction implementation
   protected
-  4 constant displaycellsize
+  5 constant displaycellsize
 	1 constant topoffset
 	1 constant zplane-spacing
   5 constant xyz-size
@@ -460,7 +460,7 @@ object class
       xyz-size 0 ?do		\ y
         xyz-size 0 ?do	\ z
           k j i this [current] displaypiece@ \ retrieve piece value to display
-          dup true = if drop 99 then  \ if no piece then show 99
+          dup true = if drop 999 then  \ if no piece then show 99
           k displaycellsize * \ x for at-xy
           xyz-size zplane-spacing + i * j + topoffset + \ y for at-xy
           at-xy
