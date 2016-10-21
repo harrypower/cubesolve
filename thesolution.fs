@@ -40,7 +40,7 @@ object class
   m: ( 2pieces -- ) \ populate the pieceb list using piecea data
     pindex-max 0 do
       i piecea-object-addr collisionlist? false =
-      i piecea-object-addr adjacent? true = and
+      \ i piecea-object-addr adjacent? true = and
       if
         i piecelistsize this [current] npieceb!
         piecelistsize 1 + [to-inst] piecelistsize
@@ -118,12 +118,12 @@ pliststart plist% %size 960 * dup allot erase
 poppiecelist
 : piecetest ( np1 np2 -- nflag ) \ test if np1 intersects np2 if nflag is true then they intersect if false they do not intersect
   0 { np1 np2 tempaddr }
-  np1 np2 plist% %size * pliststart onepiece + @ dup to tempaddr collisionlist? false =
-  if np1 tempaddr adjacent? true =
-    if false else true then
-  else
-    true
-  then
+  np1 np2 plist% %size * pliststart onepiece + @ dup to tempaddr collisionlist? \ false =
+  \ if np1 tempaddr adjacent? true =
+  \  if false else true then
+  \ else
+  \  true
+  \ then
   ;
   \ c false a true yes
   \ c false a false no
@@ -133,7 +133,7 @@ poppiecelist
   pliststart onepiece @ subpiece@ ;
 
 2pieces dict-new constant apair
-cr apair totalsize@ . ." the total 2 piece list!" cr ( is 256344 )
+cr apair totalsize@ . ." the total 2 piece list!" cr ( is 256344 with adjacent test or 766056  with no adjacent testing of pieces )
 
 displaypieces heap-new constant showit
 
