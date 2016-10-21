@@ -89,7 +89,6 @@ object class
     piecea-object-addr destruct
     piecea-object-addr free throw
   ;m overrides destruct
-
   m: ( 2pieces -- nsize )
     pairlistsize
   ;m method totalsize@
@@ -118,22 +117,23 @@ pliststart plist% %size 960 * dup allot erase
 poppiecelist
 : piecetest ( np1 np2 -- nflag ) \ test if np1 intersects np2 if nflag is true then they intersect if false they do not intersect
   0 { np1 np2 tempaddr }
-  np1 np2 plist% %size * pliststart onepiece + @ dup to tempaddr collisionlist? \ false =
-  \ if np1 tempaddr adjacent? true =
-  \  if false else true then
-  \ else
-  \  true
-  \ then
-  ;
-  \ c false a true yes
-  \ c false a false no
-  \ c true a true no
-  \ c true a false no
+  np1 np2 plist% %size * pliststart onepiece + @ dup to tempaddr collisionlist? ;
 : piecexyz@ ( nsub# npiece# -- nx ny nz ) \ return the x y z values of npiece# givin the nsub# of the piece
   pliststart onepiece @ subpiece@ ;
 
 2pieces dict-new constant apair
 cr apair totalsize@ . ." the total 2 piece list!" cr ( is 256344 with adjacent test or 766056  with no adjacent testing of pieces )
+
+960 constant piece-max
+struct
+  cell% field pair-index#
+  cell% field pair-total#
+end-struct pairdata%
+create pair-data-list
+pair-data-list pairdata% %size piece-max * dup allot erase
+: poppairdata ( -- ) \ make data table of pairs from apair indexed by piecea from that apair data
+  piece-max 0 do loop ;
+
 
 displaypieces heap-new constant showit
 
@@ -170,6 +170,7 @@ displaypieces heap-new constant showit
 
 
 \\\ looks like 3 and 5 piece lists will not be able to fit in memory to solve
+\ **************************************************************************************
 0 value 3piecesums
 21000000 constant 3piecemax
 
