@@ -1,0 +1,8 @@
+- make a list of all pieces and generate collision table for quick testing ( 960 total pieces )
+- make the pair list for all possible pairs from all possible pieces ( 766056 total pairs )
+- pick a pair to solve with
+- generate the union list of pieces to work with the selected pair
+    - this union list is generated from the total possible pairs
+    - do this by taking total list of pairs for piece a and total list of pairs for piece b
+    - the final list is the union from the piece a and piece b total pair list
+- now start at top of union list and 
