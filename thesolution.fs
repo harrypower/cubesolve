@@ -40,7 +40,6 @@ object class
   m: ( 2pieces -- ) \ populate the pieceb list using piecea data
     pindex-max 0 do
       i piecea-object-addr collisionlist? false =
-      \ i piecea-object-addr adjacent? true = and
       if
         i piecelistsize this [current] npieceb!
         piecelistsize 1 + [to-inst] piecelistsize
@@ -95,6 +94,11 @@ object class
   m: ( ni 2pieces -- npiecea npieceb ) \ return the pair for ni
     this [current] npair@
   ;m method ngetpair@
+  \ need to mechanize these words in this object!
+  m: ( npiecea 2pieces -- npiecebtotal ) \ return the total quantity of piece b parts for a given piecea value
+  ;m method ngettotalpieceb@
+  m: ( npiecea nindex 2pieces -- npieceb# ) \ return piece b given the piece a and index
+  ;m method ngetpieceb@
   m: ( -- ) \ print some internal variables for testing
     ." piecea " piecea . cr
     ." addrpiecelist " addrpiecelist . cr
@@ -123,17 +127,6 @@ poppiecelist
 
 2pieces dict-new constant apair
 cr apair totalsize@ . ." the total 2 piece list!" cr ( is 256344 with adjacent test or 766056  with no adjacent testing of pieces )
-
-960 constant piece-max
-struct
-  cell% field pair-index#
-  cell% field pair-total#
-end-struct pairdata%
-create pair-data-list
-pair-data-list pairdata% %size piece-max * dup allot erase
-: poppairdata ( -- ) \ make data table of pairs from apair indexed by piecea from that apair data
-  piece-max 0 do loop ;
-
 
 displaypieces heap-new constant showit
 
