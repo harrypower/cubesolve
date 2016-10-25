@@ -77,6 +77,17 @@ object class
     swap pairamount @
   ;m method npairlistindex@
   m: ( 2pieces -- ) \ generate and store the pairlistindex data from the totalpairs data
+    0 0 0 { nstartindex ncurpamount ntemp }
+    pairlistsize 0 do
+      nstartindex i this [current] npair@ drop dup to ntemp >
+      if
+        i ncurpamount nstartindex this [current] npairlistindex!
+        ntemp to nstartindex
+        0 to ncurpamount
+      else
+        ncurpamount 1 + to ncurpamount
+      then
+    loop
   ;m method populatepairlistindex
   public \ ***********************************************************************************************************
   m: ( 2pieces -- ) \ construct a piece pair list
@@ -116,6 +127,7 @@ object class
   ;m method ngetpair@
   \ need to mechanize these words in this object!
   m: ( npiecea 2pieces -- npiecebtotal ) \ return the total quantity of piece b parts for a given piecea value
+    this [current] npairlistindex@
   ;m method ngettotalpieceb@
   m: ( npiecea nindex 2pieces -- npieceb# ) \ return piece b given the piece a and index
   ;m method ngetpieceb@
@@ -127,6 +139,7 @@ object class
     ." 2piece-test address " 2piece-test . cr
     ." totalpairlist " totalpairlist . cr
     ." pairlistsize " pairlistsize . cr
+    ." pairlistindex " pairlistindex . cr
   ;m overrides print
 end-class 2pieces
 
