@@ -10,6 +10,10 @@ object class
     cell% field p1
     cell% field p2
   end-struct totalpairs%
+  struct
+    cell% field pairaddress
+    cell% field pairamount
+  end-struct pairlist%
 
   inst-value piecea
   inst-value addrpiecelist
@@ -20,6 +24,7 @@ object class
   inst-value piecea-object-addr
   inst-value totalpairlist
   inst-value pairlistsize
+  inst-value pairlistindex
 
   protected \ ********************************************************************************************************
   m: ( np ni 2pieces -- ) \ store pieceb number at index
@@ -62,6 +67,17 @@ object class
       loop
     loop
   ;m method populatetotalpairs
+  m: ( npaddr npamount ni 2pieces -- ) \ store data into pairlistindex
+    pairlist% %size * pairlistindex + dup
+    rot swap pairamount !
+    pairaddress !
+  ;m method npairlistindex!
+  m: ( ni 2pieces -- npaddr npamount ) \ retrieve data from pairlistindex
+    pairlist% %size * pairlistindex + dup pairaddress @
+    swap pairamount @
+  ;m method npairlistindex@
+  m: ( 2pieces -- ) \ generate and store the pairlistindex data from the totalpairs data
+  ;m method populatepairlistindex
   public \ ***********************************************************************************************************
   m: ( 2pieces -- ) \ construct a piece pair list
     \ make room to store pindex-max numbers for the pieceb value and store n into piecea then find all the pieceb values for piecea
@@ -70,6 +86,7 @@ object class
       piecepair% %alignment piecepair% %size pindex-max * %allocate throw [to-inst] addrpiecelist
       piece heap-new [to-inst] piecea-object-addr
       totalpairs% %alignment totalpairs% %size pairindex-max * %allocate throw [to-inst] totalpairlist
+      pairlist% %alignment pairlist% %size pindex-max * %allocate throw [to-inst] pairlistindex
     then
     addrpiecelist pindex-max erase
     totalpairlist pairindex-max erase
@@ -77,13 +94,16 @@ object class
     0 [to-inst] pairlistsize
     2piece-test 2piece-test ! \ set test now that construct has run once
     this [current] populatetotalpairs
+    this [current] populatepairlistindex
   ;m overrides construct
   m: ( 2pieces -- ) \ to release memory of this pair list
     addrpiecelist free throw
     totalpairlist free throw
+    pairlistindex free throw
     0 [to-inst] addrpiecelist
     0 [to-inst] piecelistsize
     0 [to-inst] pairlistsize
+    0 [to-inst] pairlistindex
     0 2piece-test !
     piecea-object-addr destruct
     piecea-object-addr free throw
