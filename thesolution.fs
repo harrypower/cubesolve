@@ -68,6 +68,7 @@ object class
     loop
   ;m method populatetotalpairs
   m: ( npaddr npamount ni 2pieces -- ) \ store data into pairlistindex
+  \  dup . space rot dup . space rot dup . rot cr \ just to see it
     pairlist% %size * pairlistindex + dup
     rot swap pairamount !
     pairaddress !
@@ -77,17 +78,20 @@ object class
     swap pairamount @
   ;m method npairlistindex@
   m: ( 2pieces -- ) \ generate and store the pairlistindex data from the totalpairs data
-    0 0 0 { nstartindex ncurpamount ntemp }
+    0 0 0 0 { nstartindex ncurpamount ntemp nlastpamount }
     pairlistsize 0 do
-      nstartindex i this [current] npair@ drop dup to ntemp >
+      nstartindex i this [current] npair@ drop dup to ntemp <
       if
-        i ncurpamount nstartindex this [current] npairlistindex!
+        nlastpamount ncurpamount nstartindex this [current] npairlistindex!
         ntemp to nstartindex
         0 to ncurpamount
+        i to nlastpamount
       else
         ncurpamount 1 + to ncurpamount
       then
     loop
+    \ the last value needs to be stored in data set
+    nlastpamount  pairlistsize nlastpamount - nstartindex this [current] npairlistindex!
   ;m method populatepairlistindex
   public \ ***********************************************************************************************************
   m: ( 2pieces -- ) \ construct a piece pair list
@@ -125,11 +129,11 @@ object class
   m: ( ni 2pieces -- npiecea npieceb ) \ return the pair for ni
     this [current] npair@
   ;m method ngetpair@
-  \ need to mechanize these words in this object!
   m: ( npiecea 2pieces -- npiecebtotal ) \ return the total quantity of piece b parts for a given piecea value
-    this [current] npairlistindex@
+    this [current] npairlistindex@ swap drop
   ;m method ngettotalpieceb@
-  m: ( npiecea nindex 2pieces -- npieceb# ) \ return piece b given the piece a and index
+  m: ( npiecea nindex 2pieces -- npieceb ) \ return piece b given the piece a and index
+    swap this [current] npairlistindex@ drop + this [current] npair@ swap drop
   ;m method ngetpieceb@
   m: ( -- ) \ print some internal variables for testing
     ." piecea " piecea . cr
@@ -178,7 +182,7 @@ displaypieces heap-new constant showit
   4 pairb piecexyz@ pairb showit displaypiece!
   showit showdisplay ;
 
-0 showapair
+\ 0 showapair
 : showpairs ( nmax -- )
   0 do i showapair 4000 ms loop ;
 
