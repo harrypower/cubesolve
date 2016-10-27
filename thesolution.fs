@@ -147,10 +147,13 @@ object class
   ;m overrides print
 end-class 2pieces
 
+2pieces dict-new constant apair
+cr apair totalsize@ . ." the total 2 piece list!" cr ( is 256344 with adjacent test or 766056  with no adjacent testing of pieces )
+
 struct
   cell% field onepiece
 end-struct plist%
-create pliststart
+create pliststart   \ list addresses of piece objects
 pliststart plist% %size 960 * dup allot erase
 
 : poppiecelist ( -- )
@@ -162,8 +165,26 @@ poppiecelist
 : piecexyz@ ( nsub# npiece# -- nx ny nz ) \ return the x y z values of npiece# givin the nsub# of the piece
   pliststart onepiece @ subpiece@ ;
 
-2pieces dict-new constant apair
-cr apair totalsize@ . ." the total 2 piece list!" cr ( is 256344 with adjacent test or 766056  with no adjacent testing of pieces )
+create unionlist    \ list of pieces for union test
+unionlist plist% %size 960 * dup allot erase
+
+: union! ( npiece ni -- ) \ store npiece in union list at ni location
+  plist% %size * unionlist onepiece + ! ;
+: union@ ( ni -- npiece ) \ retreave npiece from union list from ni location
+  plist% %size * unionlist onepiece + @ ;
+0 value pa
+0 value pb
+0 value testpiece
+0 value currenttestindex
+: testit ( -- )
+  pa 0 apair ngetpieceb@ to pb
+  pa apair ngettotalpieceb@ 0 do
+    pa i apair ngetpieceb@ to testpiece
+    pb apair ngettotalpieceb@ 0 do
+      pb i apair ngetpieceb@ testpiece =
+      if testpiece currenttestindex union! currenttestindex 1 + to currenttestindex then
+    loop
+  loop ;
 
 displaypieces heap-new constant showit
 
