@@ -228,6 +228,20 @@ displaypieces heap-new constant showit
 : showpieces ( nmax nmin -- ) \ loop through display of nmax to nmin pieces
   do i showapiece 1000 ms loop ;
 
+: showunionpiece { npiece ni -- } \ simply display the board with npiece added to existing
+  0 npiece piecexyz@ ni showit displaypiece!
+  1 npiece piecexyz@ ni showit displaypiece!
+  2 npiece piecexyz@ ni showit displaypiece!
+  3 npiece piecexyz@ ni showit displaypiece!
+  4 npiece piecexyz@ ni showit displaypiece!
+  showit showdisplay ;
+
+: showunionpieces ( -- ) \ take the data from the current unionlist and display it
+  showit construct
+  currenttestindex 0 do
+    i union@ i showunionpiece
+  loop
+  showit showdisplay ;
 
 \\\ looks like 3 and 5 piece lists will not be able to fit in memory to solve
 \ **************************************************************************************
