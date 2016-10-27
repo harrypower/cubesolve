@@ -207,14 +207,17 @@ displaypieces heap-new constant showit
 : showpairs ( nmax -- )
   0 do i showapair 4000 ms loop ;
 
-: showapiece { npiece -- } \ simply display one pice on the board
-  showit construct
+: addshowpiece { npiece -- } \ simply display the board with npiece added to existing
   0 npiece piecexyz@ npiece showit displaypiece!
   1 npiece piecexyz@ npiece showit displaypiece!
   2 npiece piecexyz@ npiece showit displaypiece!
   3 npiece piecexyz@ npiece showit displaypiece!
   4 npiece piecexyz@ npiece showit displaypiece!
   showit showdisplay ;
+
+: showapiece ( npiece -- ) \ simply display one piece on the board
+  showit construct
+  addshowpiece ;
 
 : showpieces ( nmax nmin -- ) \ loop through display of nmax to nmin pieces
   do i showapiece 1000 ms loop ;
