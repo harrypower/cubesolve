@@ -178,19 +178,23 @@ unionlist plist% %size 960 * dup allot erase
 0 value currenttestindex
 : checklist { npiece -- nflag } \ test npiece in current union list to see if it can be added to list
   false currenttestindex 0 do i union@ npiece piecetest or loop ;
-: testit ( -- )
-  pa 0 apair ngetpieceb@ to pb
-  pa 0 union!
-  pb 1 union!
-  2 to currenttestindex
-  pa apair ngettotalpieceb@ 0 do
-    pa i apair ngetpieceb@ to testpiece
-    pb apair ngettotalpieceb@ 0 do
-      pb i apair ngetpieceb@ testpiece = if testpiece checklist false =
+: solveapair { npa npb -- } \ will solve the npa npb pair
+  npa apair ngettotalpieceb@ 0 do
+    npa i apair ngetpieceb@ to testpiece
+    npb apair ngettotalpieceb@ 0 do
+      npb i apair ngetpieceb@ testpiece = if testpiece checklist false =
         if testpiece currenttestindex union! currenttestindex 1 + to currenttestindex then
       then
     loop
   loop ;
+
+: solveit ( -- )
+  pa 0 apair ngetpieceb@ to pb
+  pa 0 union!
+  pb 1 union!
+  2 to currenttestindex
+  pa pb solveapair
+;
 
 displaypieces heap-new constant showit
 
