@@ -188,13 +188,27 @@ unionlist plist% %size 960 * dup allot erase
     loop
   loop ;
 
-: solveit ( -- )
+: solvetest ( -- )
   pa 0 apair ngetpieceb@ to pb
   pa 0 union!
   pb 1 union!
   2 to currenttestindex
   pa pb solveapair
-;
+  pa . ." pa " pb . ." pb " currenttestindex . ." size " cr ;
+
+: fullsolution ( -- )
+  960 0 do
+    i apair ngettotalpieceb@ 0 do
+      j to pa
+      j i apair ngetpieceb@ to pb
+      pa 0 union!
+      pb 1 union!
+      2 to currenttestindex
+      pa pb solveapair
+      pa . ." pa " pb . ." pb " currenttestindex . ." size " cr
+      currenttestindex 25 = if ." A solution has been found!" cr unloop unloop exit then
+    loop
+  loop ;
 
 displaypieces heap-new constant showit
 
