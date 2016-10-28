@@ -205,7 +205,7 @@ unionlist plist% %size 960 * dup allot erase
       pb 1 union!
       2 to currenttestindex
       pa pb solveapair
-      pa . ." pa " pb . ." pb " currenttestindex . ." size " cr
+      pa . ." pa " i . ." index " pb . ." pb " currenttestindex . ." size " cr
       currenttestindex 25 = if ." A solution has been found!" cr unloop unloop exit then
     loop
   loop ;
