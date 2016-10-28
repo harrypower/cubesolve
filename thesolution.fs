@@ -196,8 +196,9 @@ unionlist plist% %size 960 * dup allot erase
   pa pb solveapair
   pa . ." pa " pb . ." pb " currenttestindex . ." size " cr ;
 
-: fullsolution ( -- )
-  960 0 do
+: fullsolution ( nstart -- ) \ the first real solution i have come up with ... nstart allows restarting at arbitray location
+   960 swap do
+    pa . ." pa " currenttestindex . ." this was the last solutions level!" cr
     i apair ngettotalpieceb@ 0 do
       j to pa
       j i apair ngetpieceb@ to pb
@@ -205,8 +206,11 @@ unionlist plist% %size 960 * dup allot erase
       pb 1 union!
       2 to currenttestindex
       pa pb solveapair
-      pa . ." pa " i . ." index " pb . ." pb " currenttestindex . ." size " cr
-      currenttestindex 25 = if ." A solution has been found!" cr unloop unloop exit then
+      currenttestindex 25 =
+      if
+        pa . ." pa " i . ." index " pb . ." pb " currenttestindex . ." size " cr
+        ." A solution has been found!" cr unloop unloop exit
+      then
     loop
   loop ;
 
