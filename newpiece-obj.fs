@@ -726,4 +726,4 @@ variable temporary$ temporary$ $init
   savepath startsolution
 
   cr ." Do this to see board: aboard showboard" cr
-  cr ." Do this to see board piece list: aboard seeboardpieces" cr  
+  cr ." Do this to see board piece list: aboard seeboardpieces" cr
