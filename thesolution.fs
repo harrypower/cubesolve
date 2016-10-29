@@ -176,6 +176,9 @@ unionlist plist% %size 960 * dup allot erase
 0 value pb
 0 value testpiece
 0 value currenttestindex
+0 value maxsolution
+: setmaxsolution ( ncurrent -- )
+  dup maxsolution > if to maxsolution else drop then ;
 : checklist { npiece -- nflag } \ test npiece in current union list to see if it can be added to list
   false currenttestindex 0 do i union@ npiece piecetest or loop ;
 : solveapair { npa npb -- } \ will solve the npa npb pair
@@ -183,7 +186,9 @@ unionlist plist% %size 960 * dup allot erase
     npa i apair ngetpieceb@ to testpiece
     npb apair ngettotalpieceb@ 0 do
       npb i apair ngetpieceb@ testpiece = if testpiece checklist false =
-        if testpiece currenttestindex union! currenttestindex 1 + to currenttestindex then
+        if
+          testpiece currenttestindex union! currenttestindex 1 + dup to currenttestindex setmaxsolution
+        then
       then
     loop
   loop ;
@@ -198,7 +203,7 @@ unionlist plist% %size 960 * dup allot erase
 
 : fullsolution ( nstart -- ) \ the first real solution i have come up with ... nstart allows restarting at arbitray location
    960 swap do
-    pa . ." pa " currenttestindex . ." this was the last solutions level!" cr
+    pa . ." pa " maxsolution . ." The current max solution!" cr
     i apair ngettotalpieceb@ 0 do
       j to pa
       j i apair ngetpieceb@ to pb
