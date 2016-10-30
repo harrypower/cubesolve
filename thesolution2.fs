@@ -17,14 +17,14 @@ object class
 
   inst-value piecea
   inst-value addr-piece-list
-  inst-value piecelistsize
+  inst-value piece-list-size
   cell% inst-var 2piece-test
-  960 constant pindex-max
+  960 constant piece-index-max
   767000 constant pairindex-max
   inst-value piecea-object-addr
-  inst-value totalpairlist
-  inst-value pairlistsize
-  inst-value pairlistindex
+  inst-value total-pair-list
+  inst-value pair-list-qnt
+  inst-value pair-list-index
 
   m: ( np ni 2pieces -- ) \ store pieceb number at index
     piece-pair% %size * addr-piece-list + pieceb !
@@ -32,56 +32,56 @@ object class
   m: ( ni 2pieces -- np ) \ retrieve pieceb number from index
     piece-pair% %size * addr-piece-list + pieceb @
   ;m method npieceb@
-  m: ( na nb ni 2pieces -- ) \ store pair in totalpairlist
-    total-pairs% %size * totalpairlist + dup ( na nb addr addr )
+  m: ( na nb ni 2pieces -- ) \ store pair in total-pair-list
+    total-pairs% %size * total-pair-list + dup ( na nb addr addr )
     rot swap p2 !
     p1 !
   ;m method npair!
-  m: ( ni 2pieces -- na nb ) \ retrieve pair from totalpairlist
-    total-pairs% %size * totalpairlist + dup
+  m: ( ni 2pieces -- na nb ) \ retrieve pair from total-pair-list
+    total-pairs% %size * total-pair-list + dup
     p1 @ swap p2 @
   ;m method npair@
   m: ( 2pieces -- ) \ populate the pieceb list using piecea data
-    pindex-max 0 do
+    piece-index-max 0 do
       i piecea-object-addr collisionlist? false =
       if
-        i piecelistsize this [current] npieceb!
-        piecelistsize 1 + [to-inst] piecelistsize
+        i piece-list-size this [current] npieceb!
+        piece-list-size 1 + [to-inst] piece-list-size
       then
     loop
   ;m method populatepieceb
   m: ( n 2pieces -- ) \ calculate the pair that goes with value n
-    0 [to-inst] piecelistsize
+    0 [to-inst] piece-list-size
     dup [to-inst] piecea
     piecea-object-addr newpiece!
     this [current] populatepieceb
   ;m method calcpair
   m: ( 2pieces -- ) \ populate all the possible pairs in puzzle
-    0 [to-inst] pairlistsize
-    pindex-max 0 do
+    0 [to-inst] pair-list-qnt
+    piece-index-max 0 do
       i this [current] calcpair
-      piecelistsize 0 do
-        piecea i this [current] npieceb@ pairlistsize this [current] npair!
-        pairlistsize 1 + [to-inst] pairlistsize
+      piece-list-size 0 do
+        piecea i this [current] npieceb@ pair-list-qnt this [current] npair!
+        pair-list-qnt 1 + [to-inst] pair-list-qnt
       loop
     loop
   ;m method populatetotalpairs
-  m: ( npaddr npamount ni 2pieces -- ) \ store data into pairlistindex
+  m: ( npaddr npamount ni 2pieces -- ) \ store data into pair-list-index
   \  dup . space rot dup . space rot dup . rot cr \ just to see it
-    pair-list% %size * pairlistindex + dup
+    pair-list% %size * pair-list-index + dup
     rot swap pair-qnt !
     pair-address !
-  ;m method npairlistindex!
-  m: ( ni 2pieces -- npaddr npamount ) \ retrieve data from pairlistindex
-    pair-list% %size * pairlistindex + dup pair-address @
+  ;m method npair-list-index!
+  m: ( ni 2pieces -- npaddr npamount ) \ retrieve data from pair-list-index
+    pair-list% %size * pair-list-index + dup pair-address @
     swap pair-qnt @
-  ;m method npairlistindex@
-  m: ( 2pieces -- ) \ generate and store the pairlistindex data from the totalpairs data
+  ;m method npair-list-index@
+  m: ( 2pieces -- ) \ generate and store the pair-list-index data from the totalpairs data
     0 0 0 0 { nstartindex ncurpamount ntemp nlastpamount }
-    pairlistsize 0 do
+    pair-list-qnt 0 do
       nstartindex i this [current] npair@ drop dup to ntemp <
       if
-        nlastpamount ncurpamount nstartindex this [current] npairlistindex!
+        nlastpamount ncurpamount nstartindex this [current] npair-list-index!
         ntemp to nstartindex
         0 to ncurpamount
         i to nlastpamount
@@ -90,59 +90,59 @@ object class
       then
     loop
     \ the last value needs to be stored in data set
-    nlastpamount  pairlistsize nlastpamount - nstartindex this [current] npairlistindex!
-  ;m method populatepairlistindex
+    nlastpamount  pair-list-qnt nlastpamount - nstartindex this [current] npair-list-index!
+  ;m method populatepair-list-index
   public \ ***********************************************************************************************************
   m: ( 2pieces -- ) \ construct a piece pair list
-    \ make room to store pindex-max numbers for the pieceb value and store n into piecea then find all the pieceb values for piecea
+    \ make room to store piece-index-max numbers for the pieceb value and store n into piecea then find all the pieceb values for piecea
     2piece-test 2piece-test @ <> \ to allocate this on the heap only once at fist construct execution time and after destruct method
     if
-      piece-pair% %alignment piece-pair% %size pindex-max * %allocate throw [to-inst] addr-piece-list
+      piece-pair% %alignment piece-pair% %size piece-index-max * %allocate throw [to-inst] addr-piece-list
       piece heap-new [to-inst] piecea-object-addr
-      total-pairs% %alignment total-pairs% %size pairindex-max * %allocate throw [to-inst] totalpairlist
-      pair-list% %alignment pair-list% %size pindex-max * %allocate throw [to-inst] pairlistindex
+      total-pairs% %alignment total-pairs% %size pairindex-max * %allocate throw [to-inst] total-pair-list
+      pair-list% %alignment pair-list% %size piece-index-max * %allocate throw [to-inst] pair-list-index
     then
-    addr-piece-list pindex-max erase
-    totalpairlist pairindex-max erase
-    0 [to-inst] piecelistsize
-    0 [to-inst] pairlistsize
+    addr-piece-list piece-index-max erase
+    total-pair-list pairindex-max erase
+    0 [to-inst] piece-list-size
+    0 [to-inst] pair-list-qnt
     2piece-test 2piece-test ! \ set test now that construct has run once
     this [current] populatetotalpairs
-    this [current] populatepairlistindex
+    this [current] populatepair-list-index
   ;m overrides construct
   m: ( 2pieces -- ) \ to release memory of this pair list
     addr-piece-list free throw
-    totalpairlist free throw
-    pairlistindex free throw
+    total-pair-list free throw
+    pair-list-index free throw
     0 [to-inst] addr-piece-list
-    0 [to-inst] piecelistsize
-    0 [to-inst] pairlistsize
-    0 [to-inst] pairlistindex
+    0 [to-inst] piece-list-size
+    0 [to-inst] pair-list-qnt
+    0 [to-inst] pair-list-index
     0 2piece-test !
     piecea-object-addr destruct
     piecea-object-addr free throw
   ;m overrides destruct
   m: ( 2pieces -- nsize )
-    pairlistsize
+    pair-list-qnt
   ;m method totalsize@
   m: ( ni 2pieces -- npiecea npieceb ) \ return the pair for ni
     this [current] npair@
   ;m method ngetpair@
   m: ( npiecea 2pieces -- npiecebtotal ) \ return the total quantity of piece b parts for a given piecea value
-    this [current] npairlistindex@ swap drop
+    this [current] npair-list-index@ swap drop
   ;m method ngettotalpieceb@
   m: ( npiecea nindex 2pieces -- npieceb ) \ return piece b given the piece a and index
-    swap this [current] npairlistindex@ drop + this [current] npair@ swap drop
+    swap this [current] npair-list-index@ drop + this [current] npair@ swap drop
   ;m method ngetpieceb@
   m: ( -- ) \ print some internal variables for testing
     ." piecea " piecea . cr
     ." addr-piece-list " addr-piece-list . cr
-    ." piecelistsize " piecelistsize . cr
+    ." piece-list-size " piece-list-size . cr
     ." 2piece-test contents " 2piece-test @ . cr
     ." 2piece-test address " 2piece-test . cr
-    ." totalpairlist " totalpairlist . cr
-    ." pairlistsize " pairlistsize . cr
-    ." pairlistindex " pairlistindex . cr
+    ." total-pair-list " total-pair-list . cr
+    ." pair-list-qnt " pair-list-qnt . cr
+    ." pair-list-index " pair-list-index . cr
   ;m overrides print
 end-class 2pieces
 
