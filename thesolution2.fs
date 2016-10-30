@@ -7,7 +7,7 @@ create piece-list-start   \ list of addresses of piece objects
 piece-list-start piece-list% %size 960 * dup allot erase
 
 : populate-piece-list ( -- )  \ populate the complete 960 set of pieces with collision tables calculated
-  960 0 do piece heap-new dup i piece-list% %size * piece-list-start + ! i swap newpiece! loop ;
+  960 0 ?do piece heap-new dup i piece-list% %size * piece-list-start + ! i swap newpiece! loop ;
 populate-piece-list
 : piece-test ( np1 np2 -- nflag ) \ test if np1 intersects np2 if nflag is true then they intersect if false they do not intersect
   piece-list% %size * piece-list-start a-piece + @ collisionlist? ;
@@ -15,7 +15,7 @@ populate-piece-list
   piece-list-start a-piece @ subpiece@ ;
   \ note this works because any piece object can return all the xyz info for any nsub# given any npiece#
   \ so i am just using the first piece object in the piece-list-start list of addresses for piece objects
-  
+
 create union-list    \ list of pieces for union solution
 union-list piece-list% %size 960 * dup allot erase
 
@@ -23,6 +23,25 @@ union-list piece-list% %size 960 * dup allot erase
   piece-list% %size * union-list a-piece + ! ;
 : union@ ( ni -- npiece ) \ retreave npiece from union list from ni location
   piece-list% %size * union-list a-piece + @ ;
+
+0 value current-index \ used to keep track of current location in union list to work on
+: in-union-list? { npiece -- nflag } \ test npiece in current union-list to see if it can be added to list
+  \ nflag is false if npiece can be added to list ... true if npiece can not be added to list
+  current-index 0 > if
+    false current-index 0 ?do i union@ npiece piece-test or loop
+  else
+    false
+  then ;
+
+: fullsolution ( nstart nend -- ) \ top level word to solve puzzle
+  page
+  swap ?do
+    0 0 at-xy i . ." outside loop!      "
+    960 0 ?do
+
+    loop
+  loop
+;
 
 displaypieces heap-new constant show-it
 
@@ -39,7 +58,7 @@ displaypieces heap-new constant show-it
   add-show-piece ;
 
 : show-pieces ( nmax nmin -- ) \ loop through display of nmax to nmin pieces
-  do i show-a-piece 1000 ms loop ;
+  ?do i show-a-piece 1000 ms loop ;
 
 : show-union-piece { npiece ni -- } \ simply display the board with npiece added to existing board .. piece will be calle ni on board
   0 npiece piece-xyz@ ni show-it displaypiece!
@@ -51,7 +70,7 @@ displaypieces heap-new constant show-it
 
 : show-union-pieces ( ni -- ) \ take the data from the current unionlist and display it
   show-it construct
-  ( ni ) 0 do
+  ( ni ) 0 ?do
     i union@ i show-union-piece
   loop
   show-it showdisplay ;
