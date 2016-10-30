@@ -49,23 +49,23 @@ object class
         piece-list-size 1 + [to-inst] piece-list-size
       then
     loop
-  ;m method populatepieceb
+  ;m method populate-pieceb
   m: ( n 2pieces -- ) \ calculate the pair that goes with value n
     0 [to-inst] piece-list-size
     dup [to-inst] piecea
     piecea-object-addr newpiece!
-    this [current] populatepieceb
-  ;m method calcpair
+    this [current] populate-pieceb
+  ;m method calculate-pair
   m: ( 2pieces -- ) \ populate all the possible pairs in puzzle
     0 [to-inst] pair-list-qnt
     piece-index-max 0 do
-      i this [current] calcpair
+      i this [current] calculate-pair
       piece-list-size 0 do
         piecea i this [current] npieceb@ pair-list-qnt this [current] npair!
         pair-list-qnt 1 + [to-inst] pair-list-qnt
       loop
     loop
-  ;m method populatetotalpairs
+  ;m method populate-total-pairs
   m: ( npaddr npamount ni 2pieces -- ) \ store data into pair-list-index
   \  dup . space rot dup . space rot dup . rot cr \ just to see it
     pair-list% %size * pair-list-index + dup
@@ -77,21 +77,21 @@ object class
     swap pair-qnt @
   ;m method npair-list-index@
   m: ( 2pieces -- ) \ generate and store the pair-list-index data from the totalpairs data
-    0 0 0 0 { nstartindex ncurpamount ntemp nlastpamount }
+    0 0 0 0 { nstart-index ncurrent-piece-qnt ntemp nlast-piece-qnt }
     pair-list-qnt 0 do
-      nstartindex i this [current] npair@ drop dup to ntemp <
+      nstart-index i this [current] npair@ drop dup to ntemp <
       if
-        nlastpamount ncurpamount nstartindex this [current] npair-list-index!
-        ntemp to nstartindex
-        0 to ncurpamount
-        i to nlastpamount
+        nlast-piece-qnt ncurrent-piece-qnt nstart-index this [current] npair-list-index!
+        ntemp to nstart-index
+        0 to ncurrent-piece-qnt
+        i to nlast-piece-qnt
       else
-        ncurpamount 1 + to ncurpamount
+        ncurrent-piece-qnt 1 + to ncurrent-piece-qnt
       then
     loop
     \ the last value needs to be stored in data set
-    nlastpamount  pair-list-qnt nlastpamount - nstartindex this [current] npair-list-index!
-  ;m method populatepair-list-index
+    nlast-piece-qnt  pair-list-qnt nlast-piece-qnt - nstart-index this [current] npair-list-index!
+  ;m method populate-pair-list-index
   public \ ***********************************************************************************************************
   m: ( 2pieces -- ) \ construct a piece pair list
     \ make room to store piece-index-max numbers for the pieceb value and store n into piecea then find all the pieceb values for piecea
@@ -107,8 +107,8 @@ object class
     0 [to-inst] piece-list-size
     0 [to-inst] pair-list-qnt
     2piece-test 2piece-test ! \ set test now that construct has run once
-    this [current] populatetotalpairs
-    this [current] populatepair-list-index
+    this [current] populate-total-pairs
+    this [current] populate-pair-list-index
   ;m overrides construct
   m: ( 2pieces -- ) \ to release memory of this pair list
     addr-piece-list free throw
@@ -124,16 +124,16 @@ object class
   ;m overrides destruct
   m: ( 2pieces -- nsize )
     pair-list-qnt
-  ;m method totalsize@
+  ;m method total-pair-qnt@
   m: ( ni 2pieces -- npiecea npieceb ) \ return the pair for ni
     this [current] npair@
-  ;m method ngetpair@
+  ;m method nget-pair@
   m: ( npiecea 2pieces -- npiecebtotal ) \ return the total quantity of piece b parts for a given piecea value
     this [current] npair-list-index@ swap drop
-  ;m method ngettotalpieceb@
+  ;m method nget-total-pieceb@
   m: ( npiecea nindex 2pieces -- npieceb ) \ return piece b given the piece a and index
     swap this [current] npair-list-index@ drop + this [current] npair@ swap drop
-  ;m method ngetpieceb@
+  ;m method nget-pieceb@
   m: ( -- ) \ print some internal variables for testing
     ." piecea " piecea . cr
     ." addr-piece-list " addr-piece-list . cr
@@ -147,7 +147,7 @@ object class
 end-class 2pieces
 
 2pieces dict-new constant the-pairs
-cr the-pairs totalsize@ . ." the total 2 piece list!" cr ( is 256344 with adjacent test or 766056  with no adjacent testing of pieces )
+cr the-pairs total-pair-qnt@ . ." the total 2 piece list!" cr ( is 256344 with adjacent test or 766056  with no adjacent testing of pieces )
 
 struct
   cell% field a-piece
@@ -198,7 +198,7 @@ displaypieces heap-new constant show-it
 
 : show-a-pair ( npair -- ) \ display npair on the board
   show-it construct
-  the-pairs ngetpair@ { paira pairb }
+  the-pairs nget-pair@ { paira pairb }
   0 paira piece-xyz@ paira show-it displaypiece!
   1 paira piece-xyz@ paira show-it displaypiece!
   2 paira piece-xyz@ paira show-it displaypiece!
