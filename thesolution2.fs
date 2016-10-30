@@ -20,17 +20,17 @@ object class
   inst-value piece-list-size
   cell% inst-var 2piece-test
   960 constant piece-index-max
-  767000 constant pairindex-max
+  767000 constant pair-index-max
   inst-value piecea-object-addr
   inst-value total-pair-list
   inst-value pair-list-qnt
   inst-value pair-list-index
 
   m: ( np ni 2pieces -- ) \ store pieceb number at index
-    piece-pair% %size * addr-piece-list + pieceb !
+    piece-pair% %size * addr-piece-list pieceb + !
   ;m method npieceb!
   m: ( ni 2pieces -- np ) \ retrieve pieceb number from index
-    piece-pair% %size * addr-piece-list + pieceb @
+    piece-pair% %size * addr-piece-list pieceb + @
   ;m method npieceb@
   m: ( na nb ni 2pieces -- ) \ store pair in total-pair-list
     total-pairs% %size * total-pair-list + dup ( na nb addr addr )
@@ -42,7 +42,7 @@ object class
     p1 @ swap p2 @
   ;m method npair@
   m: ( 2pieces -- ) \ populate the pieceb list using piecea data
-    piece-index-max 0 do
+    piece-index-max 0 ?do
       i piecea-object-addr collisionlist? false =
       if
         i piece-list-size this [current] npieceb!
@@ -58,9 +58,9 @@ object class
   ;m method calculate-pair
   m: ( 2pieces -- ) \ populate all the possible pairs in puzzle
     0 [to-inst] pair-list-qnt
-    piece-index-max 0 do
+    piece-index-max 0 ?do
       i this [current] calculate-pair
-      piece-list-size 0 do
+      piece-list-size 0 ?do
         piecea i this [current] npieceb@ pair-list-qnt this [current] npair!
         pair-list-qnt 1 + [to-inst] pair-list-qnt
       loop
@@ -78,7 +78,7 @@ object class
   ;m method npair-list-index@
   m: ( 2pieces -- ) \ generate and store the pair-list-index data from the totalpairs data
     0 0 0 0 { nstart-index ncurrent-piece-qnt ntemp nlast-piece-qnt }
-    pair-list-qnt 0 do
+    pair-list-qnt 0 ?do
       nstart-index i this [current] npair@ drop dup to ntemp <
       if
         nlast-piece-qnt ncurrent-piece-qnt nstart-index this [current] npair-list-index!
@@ -99,11 +99,11 @@ object class
     if
       piece-pair% %alignment piece-pair% %size piece-index-max * %allocate throw [to-inst] addr-piece-list
       piece heap-new [to-inst] piecea-object-addr
-      total-pairs% %alignment total-pairs% %size pairindex-max * %allocate throw [to-inst] total-pair-list
+      total-pairs% %alignment total-pairs% %size pair-index-max * %allocate throw [to-inst] total-pair-list
       pair-list% %alignment pair-list% %size piece-index-max * %allocate throw [to-inst] pair-list-index
     then
-    addr-piece-list piece-index-max erase
-    total-pair-list pairindex-max erase
+    addr-piece-list piece-pair% %size piece-index-max * erase
+    total-pair-list total-pairs% %size pair-index-max * erase
     0 [to-inst] piece-list-size
     0 [to-inst] pair-list-qnt
     2piece-test 2piece-test ! \ set test now that construct has run once
@@ -212,7 +212,7 @@ displaypieces heap-new constant show-it
   show-it showdisplay ;
 
 : showpairs ( nmax -- )
-  0 do i show-a-pair 4000 ms loop ;
+  0 ?do i show-a-pair 4000 ms loop ;
 
 : add-show-piece { npiece -- } \ simply display the board with npiece added to existing
   0 npiece piece-xyz@ npiece show-it displaypiece!
