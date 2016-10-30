@@ -309,6 +309,7 @@ object class
   m: ( nsubpiece# npiece# piece -- nx ny nz ) \ will return sub block xyz values for a given npiece# and a given nsubpiece#
     \ nsubpiece# is 0 to 4
     \ npiece# is 0 to pindex-max -1
+    \ note this method returns the correct xyz values all the time from any object instance given the correct input information
     { nsubpiece# npiece# }
     nsubpiece#
     CASE
