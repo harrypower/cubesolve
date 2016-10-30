@@ -2,7 +2,6 @@ require c:\users\philip\documents\github\cubesolve\thepiece.fs
 
 object class
   destruction implementation
-
   struct
     cell% field pieceb
   end-struct piecepair%
@@ -26,7 +25,7 @@ object class
   inst-value pairlistsize
   inst-value pairlistindex
 
-  protected \ ********************************************************************************************************
+  protected \ *******************************************************************************************************
   m: ( np ni 2pieces -- ) \ store pieceb number at index
     piecepair% %size * addrpiecelist + pieceb !
   ;m method npieceb!

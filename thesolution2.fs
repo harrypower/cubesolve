@@ -35,9 +35,11 @@ union-list piece-list% %size 960 * dup allot erase
 
 : fullsolution ( nstart nend -- ) \ top level word to solve puzzle
   page
-  swap ?do
+  swap ?do  \ the first piece to place in union list and piece to use to populate find sub list to pair with other pieces
     0 0 at-xy i . ." outside loop!      "
-    960 0 ?do
+    960 0 ?do \ the second piece to place in union list only if it pairs with first piece
+    \ if both pieces do not collid then add to union list
+    \ use first piece to get second list of all pieces that work with it...
 
     loop
   loop
