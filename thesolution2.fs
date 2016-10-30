@@ -5,18 +5,18 @@ object class
   protected \ *******************************************************************************************************
   struct
     cell% field pieceb
-  end-struct piecepair%
+  end-struct piece-pair%
   struct
     cell% field p1
     cell% field p2
-  end-struct totalpairs%
+  end-struct total-pairs%
   struct
-    cell% field pairaddress
-    cell% field pairamount
-  end-struct pairlist%
+    cell% field pair-address
+    cell% field pair-qnt
+  end-struct pair-list%
 
   inst-value piecea
-  inst-value addrpiecelist
+  inst-value addr-piece-list
   inst-value piecelistsize
   cell% inst-var 2piece-test
   960 constant pindex-max
@@ -27,18 +27,18 @@ object class
   inst-value pairlistindex
 
   m: ( np ni 2pieces -- ) \ store pieceb number at index
-    piecepair% %size * addrpiecelist + pieceb !
+    piece-pair% %size * addr-piece-list + pieceb !
   ;m method npieceb!
   m: ( ni 2pieces -- np ) \ retrieve pieceb number from index
-    piecepair% %size * addrpiecelist + pieceb @
+    piece-pair% %size * addr-piece-list + pieceb @
   ;m method npieceb@
   m: ( na nb ni 2pieces -- ) \ store pair in totalpairlist
-    totalpairs% %size * totalpairlist + dup ( na nb addr addr )
+    total-pairs% %size * totalpairlist + dup ( na nb addr addr )
     rot swap p2 !
     p1 !
   ;m method npair!
   m: ( ni 2pieces -- na nb ) \ retrieve pair from totalpairlist
-    totalpairs% %size * totalpairlist + dup
+    total-pairs% %size * totalpairlist + dup
     p1 @ swap p2 @
   ;m method npair@
   m: ( 2pieces -- ) \ populate the pieceb list using piecea data
@@ -68,13 +68,13 @@ object class
   ;m method populatetotalpairs
   m: ( npaddr npamount ni 2pieces -- ) \ store data into pairlistindex
   \  dup . space rot dup . space rot dup . rot cr \ just to see it
-    pairlist% %size * pairlistindex + dup
-    rot swap pairamount !
-    pairaddress !
+    pair-list% %size * pairlistindex + dup
+    rot swap pair-qnt !
+    pair-address !
   ;m method npairlistindex!
   m: ( ni 2pieces -- npaddr npamount ) \ retrieve data from pairlistindex
-    pairlist% %size * pairlistindex + dup pairaddress @
-    swap pairamount @
+    pair-list% %size * pairlistindex + dup pair-address @
+    swap pair-qnt @
   ;m method npairlistindex@
   m: ( 2pieces -- ) \ generate and store the pairlistindex data from the totalpairs data
     0 0 0 0 { nstartindex ncurpamount ntemp nlastpamount }
@@ -97,12 +97,12 @@ object class
     \ make room to store pindex-max numbers for the pieceb value and store n into piecea then find all the pieceb values for piecea
     2piece-test 2piece-test @ <> \ to allocate this on the heap only once at fist construct execution time and after destruct method
     if
-      piecepair% %alignment piecepair% %size pindex-max * %allocate throw [to-inst] addrpiecelist
+      piece-pair% %alignment piece-pair% %size pindex-max * %allocate throw [to-inst] addr-piece-list
       piece heap-new [to-inst] piecea-object-addr
-      totalpairs% %alignment totalpairs% %size pairindex-max * %allocate throw [to-inst] totalpairlist
-      pairlist% %alignment pairlist% %size pindex-max * %allocate throw [to-inst] pairlistindex
+      total-pairs% %alignment total-pairs% %size pairindex-max * %allocate throw [to-inst] totalpairlist
+      pair-list% %alignment pair-list% %size pindex-max * %allocate throw [to-inst] pairlistindex
     then
-    addrpiecelist pindex-max erase
+    addr-piece-list pindex-max erase
     totalpairlist pairindex-max erase
     0 [to-inst] piecelistsize
     0 [to-inst] pairlistsize
@@ -111,10 +111,10 @@ object class
     this [current] populatepairlistindex
   ;m overrides construct
   m: ( 2pieces -- ) \ to release memory of this pair list
-    addrpiecelist free throw
+    addr-piece-list free throw
     totalpairlist free throw
     pairlistindex free throw
-    0 [to-inst] addrpiecelist
+    0 [to-inst] addr-piece-list
     0 [to-inst] piecelistsize
     0 [to-inst] pairlistsize
     0 [to-inst] pairlistindex
@@ -136,7 +136,7 @@ object class
   ;m method ngetpieceb@
   m: ( -- ) \ print some internal variables for testing
     ." piecea " piecea . cr
-    ." addrpiecelist " addrpiecelist . cr
+    ." addr-piece-list " addr-piece-list . cr
     ." piecelistsize " piecelistsize . cr
     ." 2piece-test contents " 2piece-test @ . cr
     ." 2piece-test address " 2piece-test . cr
@@ -146,8 +146,8 @@ object class
   ;m overrides print
 end-class 2pieces
 
-2pieces dict-new constant apair
-cr apair totalsize@ . ." the total 2 piece list!" cr ( is 256344 with adjacent test or 766056  with no adjacent testing of pieces )
+2pieces dict-new constant the-pairs
+cr the-pairs totalsize@ . ." the total 2 piece list!" cr ( is 256344 with adjacent test or 766056  with no adjacent testing of pieces )
 
 struct
   cell% field a-piece
@@ -198,7 +198,7 @@ displaypieces heap-new constant show-it
 
 : show-a-pair ( npair -- ) \ display npair on the board
   show-it construct
-  apair ngetpair@ { paira pairb }
+  the-pairs ngetpair@ { paira pairb }
   0 paira piece-xyz@ paira show-it displaypiece!
   1 paira piece-xyz@ paira show-it displaypiece!
   2 paira piece-xyz@ paira show-it displaypiece!
