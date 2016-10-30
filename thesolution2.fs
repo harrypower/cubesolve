@@ -50,7 +50,7 @@ object class
       then
     loop
   ;m method populate-pieceb
-  m: ( n 2pieces -- ) \ calculate the pair that goes with value n
+  m: ( npiece 2pieces -- ) \ calculate the pair piece that goes with npiece
     0 [to-inst] piece-list-size
     dup [to-inst] piecea
     piecea-object-addr newpiece!
@@ -66,13 +66,13 @@ object class
       loop
     loop
   ;m method populate-total-pairs
-  m: ( npaddr npamount ni 2pieces -- ) \ store data into pair-list-index
+  m: ( npairaddr npair-qnt ni 2pieces -- ) \ store data into pair-list-index
   \  dup . space rot dup . space rot dup . rot cr \ just to see it
     pair-list% %size * pair-list-index + dup
     rot swap pair-qnt !
     pair-address !
   ;m method npair-list-index!
-  m: ( ni 2pieces -- npaddr npamount ) \ retrieve data from pair-list-index
+  m: ( ni 2pieces -- npairaddr npairqnt ) \ retrieve data from pair-list-index
     pair-list% %size * pair-list-index + dup pair-address @
     swap pair-qnt @
   ;m method npair-list-index@
