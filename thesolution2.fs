@@ -211,8 +211,8 @@ displaypieces heap-new constant show-it
   4 pairb piece-xyz@ pairb show-it displaypiece!
   show-it showdisplay ;
 
-: showpairs ( nmax -- )
-  0 ?do i show-a-pair 4000 ms loop ;
+: showpairs ( nmax nmin -- ) \ display loop through nmin to nmax pairs from the-pairs object
+  ?do i show-a-pair 1000 ms loop ;
 
 : add-show-piece { npiece -- } \ simply display the board with npiece added to existing
   0 npiece piece-xyz@ npiece show-it displaypiece!
