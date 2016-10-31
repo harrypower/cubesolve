@@ -158,7 +158,7 @@ piece-list-start piece-list% %size 960 * dup allot erase
 : populate-piece-list ( -- )  \ populate the complete 960 set of pieces with collision tables calculated
   960 0 ?do piece heap-new dup i piece-list% %size * piece-list-start + ! i swap newpiece! loop ;
 populate-piece-list
-: piece-test ( np1 np2 -- nflag ) \ test if np1 intersects np2 if nflag is true then they intersect if false they do not intersect
+: piece-test? ( np1 np2 -- nflag ) \ test if np1 intersects np2 if nflag is true then they intersect if false they do not intersect
   piece-list% %size * piece-list-start a-piece + @ collisionlist? ;
 : piece-xyz@ ( nsub# npiece# -- nx ny nz ) \ return the x y z values of npiece# givin the nsub# of the piece
   piece-list-start a-piece @ subpiece@ ;
@@ -173,21 +173,19 @@ union-list piece-list% %size 960 * dup allot erase
 : union@ ( ni -- npiece ) \ retreave npiece from union list from ni location
   piece-list% %size * union-list a-piece + @ ;
 
-0 value current-index \ used to keep track of current location in union list to work on
-: in-union-list? { npiece -- nflag } \ test npiece in current union-list to see if it can be added to list
-  \ nflag is false if npiece can be added to list ... true if npiece can not be added to list
-  current-index 0 > if
-    false current-index 0 ?do i union@ npiece piece-test or loop
-  else
-    false
-  then ;
-
 0 value test-piece
 0 value current-test-index
 0 value max-solution
 0 value piece-a
 0 value piece-b
 
+: in-union-list? { npiece -- nflag } \ test npiece in current union-list to see if it can be added to list
+  \ nflag is false if npiece can be added to list ... true if npiece can not be added to list
+  current-test-index 0 > if
+    false current-test-index 0 ?do i union@ npiece piece-test? or loop
+  else
+    false
+  then ;
 : set-max-solution ( ncurrent-test-index -- ) \ increase max-solution if current-test-index is larger then max-solution
   dup max-solution > if to max-solution else drop then ;
 : solve-a-pair { npa npb -- } \ will solve the npa npb pair
