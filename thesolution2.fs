@@ -214,9 +214,9 @@ union-list piece-list% %size 960 * dup allot erase
   page
   swap ?do  \ the first piece to place in union list and piece to use to populate find sub list to pair with other pieces
     0 5 at-xy piece-a . ." pa " max-solution . ." The current max solution!      " cr
+    i to piece-a
     i the-pairs nget-total-pieceb@ 0 ?do
-      j to piece-a
-      j i the-pairs nget-pieceb@ to piece-b
+      piece-a i the-pairs nget-pieceb@ to piece-b
       piece-a 0 union!
       piece-b 1 union!
       2 to current-test-index
