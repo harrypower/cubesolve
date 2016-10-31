@@ -185,12 +185,16 @@ union-list piece-list% %size 960 * dup allot erase
 0 value test-piece
 0 value current-test-index
 0 value max-solution
+0 value piece-a
+0 value piece-b
+
 : set-max-solution ( ncurrent-test-index -- ) \ increase max-solution if current-test-index is larger then max-solution
   dup max-solution > if to max-solution else drop then ;
 : solve-a-pair { npa npb -- } \ will solve the npa npb pair
-  npa the-pairs nget-total-pieceb@ 0 do
+  npa . ." npa " npb ." npb    " cr
+  npa the-pairs nget-total-pieceb@ 0 ?do
     npa i the-pairs nget-pair@ to test-piece
-    npb the-pairs nget-total-pieceb@ 0 do
+    npb the-pairs nget-total-pieceb@ 0 ?do
       npb i the-pairs nget-pieceb@ test-piece =
         if test-piece in-union-list? false =
           if
@@ -200,18 +204,38 @@ union-list piece-list% %size 960 * dup allot erase
     loop
   loop ;
 
+: solve-test ( -- )
+  piece-a 0 the-pairs nget-pieceb@ to piece-b
+  piece-a 0 union!
+  piece-b 1 union!
+  2 to current-test-index
+  piece-a piece-b solve-a-pair
+  piece-a . ." piece-a " piece-b . ." piece-b " current-test-index . ." size " cr ;
 
 : fullsolution ( nstart nend -- ) \ top level word to solve puzzle
   page
   swap ?do  \ the first piece to place in union list and piece to use to populate find sub list to pair with other pieces
-    0 0 at-xy i . ." outside loop!      "
-    960 0 ?do \ the second piece to place in union list only if it pairs with first piece
-    \ if both pieces do not collid then add to union list
-    \ use first piece to get second list of all pieces that work with it...
-
+    0 5 at-xy piece-a . ." pa " max-solution . ." The current max solution!      " cr
+    i the-pairs nget-total-pieceb@ 0 ?do
+      j to piece-a
+      j i the-pairs nget-pieceb@ to piece-b
+      piece-a 0 union!
+      piece-b 1 union!
+      2 to current-test-index
+      0 0 at-xy piece-a . ." pa " piece-b . ." pb " i . ." i -- now testing!      " cr
+      piece-a piece-b solve-a-pair
+      current-test-index 25 >=
+      if
+        0 10 at-xy piece-a . ." pa " i . ." index " piece-b . ." pb " current-test-index . ." size     " cr
+        0 15 at-xy ." A solution has been found!    " cr unloop unloop exit
+      then
+      current-test-index 24 >=
+      if
+        0 20 at-xy ." 24 pieces found!"
+        0 21 at-xy piece-a . ." pa " i . ." index " piece-b . ." pb " current-test-index . ." size      " cr
+      then
     loop
-  loop
-;
+  loop ;
 
 displaypieces heap-new constant show-it
 
@@ -230,8 +254,27 @@ displaypieces heap-new constant show-it
   4 pairb piece-xyz@ pairb show-it displaypiece!
   show-it showdisplay ;
 
-: showpairs ( nmax nmin -- ) \ display loop through nmin to nmax pairs from the-pairs object
+: show-pairs ( nmax nmin -- ) \ display loop through nmin to nmax pairs from the-pairs object
   ?do i show-a-pair 1000 ms loop ;
+
+: show-group ( npiece nindex -- )
+  0 { paira nindex pairb -- }
+  show-it construct
+  paira nindex the-pairs nget-pieceb@ to pairb
+  0 paira piece-xyz@ paira show-it displaypiece!
+  1 paira piece-xyz@ paira show-it displaypiece!
+  2 paira piece-xyz@ paira show-it displaypiece!
+  3 paira piece-xyz@ paira show-it displaypiece!
+  4 paira piece-xyz@ paira show-it displaypiece!
+  0 pairb piece-xyz@ pairb show-it displaypiece!
+  1 pairb piece-xyz@ pairb show-it displaypiece!
+  2 pairb piece-xyz@ pairb show-it displaypiece!
+  3 pairb piece-xyz@ pairb show-it displaypiece!
+  4 pairb piece-xyz@ pairb show-it displaypiece!
+  show-it showdisplay ;
+
+: see-group ( npiece -- )
+  dup the-pairs nget-total-pieceb@ 0 ?do dup i show-group 1000 ms loop ;
 
 : add-show-piece { npiece -- } \ simply display the board with npiece added to existing
   0 npiece piece-xyz@ npiece show-it displaypiece!
