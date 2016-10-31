@@ -189,9 +189,9 @@ union-list piece-list% %size 960 * dup allot erase
 : set-max-solution ( ncurrent-test-index -- ) \ increase max-solution if current-test-index is larger then max-solution
   dup max-solution > if to max-solution else drop then ;
 : solve-a-pair { npa npb -- } \ will solve the npa npb pair
-  npa . ." npa " npb ." npb    " cr
+  \ npa . ." npa " npb . ." npb    " cr
   npa the-pairs nget-total-pieceb@ 0 ?do
-    npa i the-pairs nget-pair@ to test-piece
+    npa i the-pairs nget-pieceb@ to test-piece
     npb the-pairs nget-total-pieceb@ 0 ?do
       npb i the-pairs nget-pieceb@ test-piece =
         if test-piece in-union-list? false =
