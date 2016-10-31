@@ -182,6 +182,25 @@ union-list piece-list% %size 960 * dup allot erase
     false
   then ;
 
+0 value test-piece
+0 value current-test-index
+0 value max-solution
+: set-max-solution ( ncurrent-test-index -- ) \ increase max-solution if current-test-index is larger then max-solution
+  dup max-solution > if to max-solution else drop then ;
+: solve-a-pair { npa npb -- } \ will solve the npa npb pair
+  npa the-pairs nget-total-pieceb@ 0 do
+    npa i the-pairs nget-pair@ to test-piece
+    npb the-pairs nget-total-pieceb@ 0 do
+      npb i the-pairs nget-pieceb@ test-piece =
+        if test-piece in-union-list? false =
+          if
+            test-piece current-test-index union! current-test-index 1 + dup to current-test-index set-max-solution
+          then
+        then
+    loop
+  loop ;
+
+
 : fullsolution ( nstart nend -- ) \ top level word to solve puzzle
   page
   swap ?do  \ the first piece to place in union list and piece to use to populate find sub list to pair with other pieces
