@@ -1,9 +1,11 @@
 require objects.fs
 
 : #to$ ( n -- c-addr u1 ) \ convert n to string
-    s>d
-    swap over dabs
-    <<# #s rot sign #> #>> ;
+  s>d
+  swap over dabs
+  <<# #s rot sign #> #>> ;
+: #to$-3digits ( n -- c-addr u1 ) \ convert n to string of at least 3 digits
+  s>d <<# # # #s #> #>> ;
 
 interface
     selector destruct ( -- ) \ to free allocated memory in objects that use this
@@ -455,19 +457,22 @@ object class
     2drop drop true  \ no display setup just drop input and output no piece
   then
   ;m method displaypiece@
-  m: ( displaypices -- )
-    page
+  m: ( displaypieces -- )
     xyz-size 0 ?do    	\ x
       xyz-size 0 ?do		\ y
         xyz-size 0 ?do	\ z
           k j i this [current] displaypiece@ \ retrieve piece value to display
-          dup true = if drop 999 then  \ if no piece then show 99
+          dup true = if drop 999 then  \ if no piece then show 999
           k displaycellsize * \ x for at-xy
           xyz-size zplane-spacing + i * j + topoffset + \ y for at-xy
           at-xy
-          ." :" #to$ type
+          ." :"  #to$-3digits type
         loop
       loop
     loop
+  ;m method update-display
+  m: ( displaypices -- )
+    page
+    this [current] update-display
   ;m method showdisplay
 end-class displaypieces

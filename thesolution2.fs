@@ -1,5 +1,13 @@
 require c:\users\philip\documents\github\cubesolve\thepiece.fs
 
+: wait-for-key ( -- ) \ if keyboard is pressed pause untill it is pressed again
+    key?
+    if
+      key drop 10 ms
+      begin key? until
+      key drop
+    then ;
+
 object class
   destruction implementation
   protected \ *******************************************************************************************************
@@ -179,6 +187,8 @@ union-list piece-list% %size 960 * dup allot erase
 0 value piece-a
 0 value piece-b
 
+defer the-current-display ( ni -- ) \ show the current state of puzzle solution
+
 : in-union-list? { npiece -- nflag } \ test npiece in current union-list to see if it can be added to list
   \ nflag is false if npiece can be added to list ... true if npiece can not be added to list
   current-test-index 0 > if
@@ -213,25 +223,28 @@ union-list piece-list% %size 960 * dup allot erase
 : fullsolution ( nstart nend -- ) \ top level word to solve puzzle
   page
   swap ?do  \ the first piece to place in union list and piece to use to populate find sub list to pair with other pieces
-    0 5 at-xy piece-a . ." pa " max-solution . ." The current max solution!      " cr
+    30 5 at-xy piece-a . ." pa " max-solution . ." The current max solution!      "
     i to piece-a
     i the-pairs nget-total-pieceb@ 0 ?do
       piece-a i the-pairs nget-pieceb@ to piece-b
       piece-a 0 union!
       piece-b 1 union!
       2 to current-test-index
-      0 0 at-xy piece-a . ." pa " piece-b . ." pb " i . ." i -- now testing!      " cr
+      30 0 at-xy piece-a . ." pa " piece-b . ." pb " i . ." i -- now testing!      "
       piece-a piece-b solve-a-pair
       current-test-index 25 >=
       if
-        0 10 at-xy piece-a . ." pa " i . ." index " piece-b . ." pb " current-test-index . ." size     " cr
-        0 15 at-xy ." A solution has been found!    " cr unloop unloop exit
+        30 10 at-xy piece-a . ." pa " i . ." index " piece-b . ." pb " current-test-index . ." size     "
+        30 15 at-xy ." A solution has been found!    " unloop unloop exit
       then
       current-test-index 24 >=
       if
-        0 20 at-xy ." 24 pieces found!"
-        0 21 at-xy piece-a . ." pa " i . ." index " piece-b . ." pb " current-test-index . ." size      " cr
+        30 20 at-xy ." 24 pieces found!"
+        30 21 at-xy piece-a . ." pa " i . ." index " piece-b . ." pb " current-test-index . ." size      "
       then
+      wait-for-key
+      current-test-index the-current-display
+      30 1 at-xy current-test-index . ." last size!      "
     loop
   loop ;
 
@@ -289,17 +302,18 @@ displaypieces heap-new constant show-it
 : show-pieces ( nmax nmin -- ) \ loop through display of nmax to nmin pieces
   ?do i show-a-piece 1000 ms loop ;
 
-: show-union-piece { npiece ni -- } \ simply display the board with npiece added to existing board .. piece will be calle ni on board
+: show-union-piece { npiece ni -- } \ simply display the board with npiece added to existing board .. piece will be called ni on board
   0 npiece piece-xyz@ ni show-it displaypiece!
   1 npiece piece-xyz@ ni show-it displaypiece!
   2 npiece piece-xyz@ ni show-it displaypiece!
   3 npiece piece-xyz@ ni show-it displaypiece!
   4 npiece piece-xyz@ ni show-it displaypiece!
-  show-it showdisplay ;
+  show-it update-display ;
 
 : show-union-pieces ( ni -- ) \ take the data from the current unionlist and display it
   show-it construct
   ( ni ) 0 ?do
     i union@ i show-union-piece
   loop
-  show-it showdisplay ;
+  show-it update-display ;
+' show-union-pieces is the-current-display ( ni -- ) \ set up the display word
