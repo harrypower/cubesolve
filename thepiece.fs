@@ -466,7 +466,7 @@ object class
           k displaycellsize * \ x for at-xy
           xyz-size zplane-spacing + i * j + topoffset + \ y for at-xy
           at-xy
-          ." :"  #to$-3digits type
+          ." :" dup 999 = if ." ***" drop else  #to$-3digits type then
         loop
       loop
     loop
