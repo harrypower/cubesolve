@@ -128,7 +128,7 @@ object class
   m: ( ni 2pieces -- npiecea npieceb ) \ return the pair for ni
     this [current] npair@
   ;m method nget-pair@
-  m: ( npiecea 2pieces -- npiecebtotal ) \ return the total quantity of piece b parts for a given piecea value
+  m: ( npiecea 2pieces -- npiecebqnt ) \ return the total quantity of piece b parts for a given piecea value
     this [current] npair-list-index@ swap drop
   ;m method nget-total-pieceb@
   m: ( npiecea nindex 2pieces -- npieceb ) \ return piece b given the piece a and index
