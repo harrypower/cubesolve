@@ -87,11 +87,11 @@ object class
   m: ( 2pieces -- ) \ generate and store the pair-list-index data from the totalpairs data
     0 0 0 0 { nstart-index ncurrent-piece-qnt ntemp nlast-piece-qnt }
     pair-list-qnt 0 ?do
-      nstart-index i this [current] npair@ drop dup to ntemp <
+      i this [current] npair@ drop dup to ntemp nstart-index >
       if
         nlast-piece-qnt ncurrent-piece-qnt nstart-index this [current] npair-list-index!
         ntemp to nstart-index
-        0 to ncurrent-piece-qnt
+        1 to ncurrent-piece-qnt
         i to nlast-piece-qnt
       else
         ncurrent-piece-qnt 1 + to ncurrent-piece-qnt
@@ -247,6 +247,24 @@ defer the-current-display ( ni -- ) \ show the current state of puzzle solution
       30 1 at-xy current-test-index . ." last size!      "
     loop
   loop ;
+
+: test-pair-data ( -- )  \ i used this to find an error in populate-pair-list-index method of 2pieces object
+  0 { pairs-index }
+  960 0 ?do
+    i the-pairs nget-total-pieceb@ 0 ?do
+      j . ." j " i . ." i "
+      j . ." pa "
+      j i the-pairs nget-pieceb@ dup . ." pb "
+      pairs-index the-pairs nget-pair@ 2dup swap . ." pa1 " . ." pb1 " pairs-index . ." pairs-index    " cr
+      rot = swap j = false = swap false = or
+      if
+        j . ." pa " i . ." index " pairs-index . ." pairs-index ... they do not match! " cr
+        unloop unloop exit
+      then
+      pairs-index 1+ to pairs-index
+    loop
+  loop
+;
 
 displaypieces heap-new constant show-it
 
