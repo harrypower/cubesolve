@@ -248,6 +248,26 @@ defer the-current-display ( ni -- ) \ show the current state of puzzle solution
     loop
   loop ;
 
+: solve-a-pair2 { npa -- }
+  npa the-pairs nget-total-pieceb@ 0 ?do
+    npa i the-pairs nget-pieceb@ to test-piece
+    test-piece in-union-list? false =
+    if
+      test-piece current-test-index union! current-test-index 1 + dup to current-test-index set-max-solution
+    then
+  loop ;
+: full-solution2 ( nstart nend -- )
+  page
+  swap ?do
+    i 0 union!
+    1 to current-test-index
+    30 0 at-xy i . ." pa " max-solution . ." current max solution!  "
+    i solve-a-pair2
+    current-test-index 25 >= if 30 15 at-xy ." solution found!" then
+    current-test-index 24 >= if 30 20 at-xy ." 24 pieces found!" then
+    30 1 at-xy current-test-index . ." last size!     "
+  loop ;
+
 : test-pair-data ( -- )  \ i used this to find an error in populate-pair-list-index method of 2pieces object
   0 { pairs-index }
   960 0 ?do
