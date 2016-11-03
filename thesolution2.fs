@@ -263,8 +263,17 @@ defer the-current-display ( ni -- ) \ show the current state of puzzle solution
       then
       pairs-index 1+ to pairs-index
     loop
-  loop
-;
+  loop ;
+: test-piece-pair-collision-data ( -- ) \ see if the piece-test? word works with piece object data and 2pieces pair list data
+  the-pairs total-pair-qnt@ 0 ?do
+    i the-pairs nget-pair@ piece-test? true =
+    if
+      i . ." pair index pieces collide with each other!" cr unloop exit
+    else
+      i . ." pair index pieces do not collide with each other!" cr
+    then
+  loop ;
+\ need to make a test word that does the opposite of test-piece-pair-collision-data in that it checks for the exluded pieces and confirms they all collide
 
 displaypieces heap-new constant show-it
 
