@@ -258,20 +258,20 @@ defer the-current-display ( ni -- ) \ show the current state of puzzle solution
         then
     loop
   loop
-  current-test-index . ." current-test-index " npa . ." npa  " npb . ." npb   " cr
-;
+  current-test-index . ." current-test-index " npa . ." npa  " npb . ." npb   " cr ;
 
 : see-union-amounts ( npi )
   dup ." For pair index value " . space
   0 to current-test-index
-  the-pairs nget-pair@ union-list-create
-;
+  the-pairs nget-pair@ union-list-create ;
 
 : see-union2 ( npa npb )
   0 to current-test-index
-  union-list-create
-;
+  union-list-create ;
 
+: n-see-union ( nend nstart -- )
+  ?do i see-union-amounts loop ;
+  
 : test-pair-data ( -- )  \ i used this to find an error in populate-pair-list-index method of 2pieces object
   0 { pairs-index }
   960 0 ?do
