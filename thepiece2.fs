@@ -323,7 +323,7 @@ object class
       \ default simply return a data
       all-orient a npiece# this [current] basic-shape@ 3 roll
     ENDCASE
-  ;m method subpiece@
+  ;m method sub-piece@
   \ testing words to ensure this piece generation is correct ******************************************************************
   m: ( piece -- ) \ testing basic data set creation
     base-shapes e 3 this [current] basic-shape@ . . . cr

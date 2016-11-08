@@ -271,7 +271,7 @@ defer the-current-display ( ni -- ) \ show the current state of puzzle solution
 
 : n-see-union ( nend nstart -- )
   ?do i see-union-amounts loop ;
-  
+
 : test-pair-data ( -- )  \ i used this to find an error in populate-pair-list-index method of 2pieces object
   0 { pairs-index }
   960 0 ?do
