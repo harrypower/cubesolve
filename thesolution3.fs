@@ -1,4 +1,5 @@
 require c:\users\philip\documents\github\cubesolve\thepiece2.fs
+require random.fs
 
 : wait-for-key ( -- ) \ if keyboard is pressed pause untill it is pressed again
   key?
@@ -83,6 +84,18 @@ a-piece-list piece-list% %size 960 * dup allot erase
 : set-backward-search ( -- )
   960 0 ?do 959 i - i piece-list! loop
   union-search ;
+
+: random-forward-search ( -- )
+  0 { nrandom -- }
+  seed-init
+  960 random to nrandom
+  960 0 ?do
+    nrandom i piece-list!
+    nrandom 959 >= if 0 to nrandom else nrandom 1+ to nrandom then
+  loop
+  union-search
+  0 piece-list@ . ." is 0 piece-list " cr
+  ;
 
 defer the-current-display ( ni -- ) \ show the current state of puzzle solution
 display-pieces heap-new constant show-it
