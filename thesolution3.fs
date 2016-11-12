@@ -97,9 +97,6 @@ a-piece-list piece-list% %size 960 * dup allot erase
   0 piece-list@ . ." is 0 piece-list " cr
   ;
 
-: find-sub-copy ( -- )
-
-;
 : find-copy { np -- nc1 } \ nc1 is the number of the copy or true if non found!
   \ used this word to find possible copyies in piece list!
   \ No copies were found as that was the intent of how piece object created the data
