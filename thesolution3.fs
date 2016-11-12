@@ -97,6 +97,29 @@ a-piece-list piece-list% %size 960 * dup allot erase
   0 piece-list@ . ." is 0 piece-list " cr
   ;
 
+: find-sub-copy ( -- )
+
+;
+: find-copy { np -- nc1 } \ nc1 is the number of the copy or true if non found!
+  \ used this word to find possible copyies in piece list!
+  \ No copies were found as that was the intent of how piece object created the data
+  \ so this means there are 960 unique piece orientation location items to work with
+  960 0 ?do
+    5 0 ?do
+      j np <> if \ do not test itself but only other np's
+        i j piece-xyz@
+        i np piece-xyz@ \ .s j . ." j " i . ." i " cr
+        3 pick =        \ .s ." 3 pick  " cr
+        swap 4 pick =   \ .s ." 4 pick  " cr
+        rot 5 pick =    \ .s ." 5 pick  " cr
+        and and swap drop swap drop swap drop
+      else 0
+      then
+    loop
+    and and and and true = if i unloop exit then
+  loop
+  true ;
+
 defer the-current-display ( ni -- ) \ show the current state of puzzle solution
 display-pieces heap-new constant show-it
 
