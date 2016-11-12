@@ -286,7 +286,7 @@ object class
     this [current] collision-list!
     this [current] adjacent-list!
   ;m method new-piece!
-  m: ( npiece# piece -- nflag ) \ test the npiece# collistion value from collision list
+  m: ( npiece# piece -- nflag ) \ test the npiece# collision value from collision list
   \ nflag is true if npiece# has collided with thispiece# from the collision list
   \ nflag is false if npiece# has not collided with thispiece# in the collision list or the collision list does not exist
     collisionlist-flag true =
