@@ -102,7 +102,7 @@ a-piece-list piece-list% %size 960 * dup allot erase
   \ No copies were found as that was the intent of how piece object created the data
   \ so this means there are 960 unique piece orientation location items to work with
   960 0 ?do
-    5 0 ?do
+    5 0 ?do \ same order test
       j np <> if \ do not test itself but only other np's
         i j piece-xyz@
         i np piece-xyz@ \ .s j . ." j " i . ." i " cr
@@ -114,8 +114,22 @@ a-piece-list piece-list% %size 960 * dup allot erase
       then
     loop
     and and and and true = if i unloop exit then
+    5 0 ?do \ reverse order test
+      j np <> if \ do not test itself but only other np's
+        4 i - j piece-xyz@
+        i np piece-xyz@ \ .s j . ." j " i . ." i " cr
+        3 pick =        \ .s ." 3 pick  " cr
+        swap 4 pick =   \ .s ." 4 pick  " cr
+        rot 5 pick =    \ .s ." 5 pick  " cr
+        and and swap drop swap drop swap drop
+      else 0
+      then
+    loop
+    and and and and true = if i unloop exit then
   loop
   true ;
+: full-find-copy-test ( -- )
+ 960 0 ?do i find-copy dup true <> if ." copy " i . space ." is " . cr else drop then loop ;
 
 defer the-current-display ( ni -- ) \ show the current state of puzzle solution
 display-pieces heap-new constant show-it
