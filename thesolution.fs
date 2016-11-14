@@ -22,12 +22,60 @@ object class
     cell% field piece-linked-list
     cell% field quantity
   end-struct piece-hole-list%
+  cell% inst-var constructed?
+  960 constant max-pieces
+  inst-value piece-list-start \ piece-list array start
   public \ ***********************************************************************************************************
-  m:
+  m: ( ni organized-pieces -- naddress-of-piece ) \ retrieve address of a piece object
+    piece-list% %size * piece-list-start piece-address + @
+  ;m method pieces@
+  m: ( np1 np2 organized-pieces -- nflag ) \ test if np1 collides with np2 ... return nflag true they intersect false they do not !
+    this [current] pieces@ collision-list?
+  ;m method pieces-intersect?
+  m: ( nsub# npiece# organized-pieces -- nx ny nz ) \ retrieve the nsub xyz values for npiece#
+    \ note this works because all piece objects can access all sub piece xyz values for all pieces ... so i just use the first object here!
+    piece-list-start piece-address @ sub-piece@
+  ;m method piece-xyz@
+  m: ( organized-pieces -- )
+    constructed? constructed? @ <>
+    if  \ only do this stuff once at first use of object or if destruct was used
+      piece-list% %size max-pieces * dup allocate throw dup [to-inst] piece-list-start swap erase
+      max-pieces 0 ?do piece heap-new dup i piece-list% %size * piece-list-start piece-address + ! i swap new-piece! loop
+      constructed? constructed? ! \ set test to show constructed once
+    then
   ;m overrides construct
-  
+  m: ( organized-pieces -- )
+    constructed? constructed? @ =
+    if
+      piece-list-start free throw
+      0 constructed? ! \ reset constructed test
+    then
+  ;m overrides destruct
+
 end-class organized-pieces
 
+organized-pieces heap-new constant pieces
+
+display-pieces heap-new constant show-it
+
+: add-show-piece { npiece -- } \ simply display the board with npiece added to existing
+  0 npiece pieces piece-xyz@ npiece show-it display-piece!
+  1 npiece pieces piece-xyz@ npiece show-it display-piece!
+  2 npiece pieces piece-xyz@ npiece show-it display-piece!
+  3 npiece pieces piece-xyz@ npiece show-it display-piece!
+  4 npiece pieces piece-xyz@ npiece show-it display-piece!
+  show-it show-display ;
+
+: show-a-piece ( npiece -- ) \ simply display one piece on the board
+  show-it construct
+  add-show-piece ;
+
+: show-pieces ( nmax nmin -- ) \ loop through display of nmax to nmin pieces
+  ?do i show-a-piece 400 ms wait-for-key loop ;
+
+10 0 show-pieces
+
+\\\ will delete the following once the object contains the functionality of the following!
 struct
   cell% field piece-address
 end-struct piece-list%
