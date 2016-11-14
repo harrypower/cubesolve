@@ -131,6 +131,21 @@ a-piece-list piece-list% %size 960 * dup allot erase
 : full-find-copy-test ( -- )
  960 0 ?do i find-copy dup true <> if ." copy " i . space ." is " . cr else drop then loop ;
 
+: xyz-find-piece# 0 { nx ny nz ncount -- ncount' } \ count how many pieces start with a given xyz
+  960 0 ?do 4 i 0 piece-object-address@ sub-piece@ nz = swap ny = rot nx = and and true = if ncount 1+ to ncount then loop
+  ncount ;
+
+: all-xyz-piece# ( -- ) \ find and display all counts of pieces starting with each xyz combination
+  5 0 ?do
+    5 0 ?do
+      5 0 ?do
+        i j k xyz-find-piece#
+        i . ." x " j . ." y " k . ." z " . ." piece count!  " cr
+      loop
+    loop
+  loop
+;
+
 defer the-current-display ( ni -- ) \ show the current state of puzzle solution
 display-pieces heap-new constant show-it
 
