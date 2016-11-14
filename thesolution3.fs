@@ -132,10 +132,12 @@ a-piece-list piece-list% %size 960 * dup allot erase
  960 0 ?do i find-copy dup true <> if ." copy " i . space ." is " . cr else drop then loop ;
 
 : xyz-find-piece# 0 { nx ny nz ncount -- ncount' } \ count how many pieces start with a given xyz
+  960 0 ?do 0 i 0 piece-object-address@ sub-piece@ nz = swap ny = rot nx = and and true = if ncount 1+ to ncount then loop
   960 0 ?do 4 i 0 piece-object-address@ sub-piece@ nz = swap ny = rot nx = and and true = if ncount 1+ to ncount then loop
   ncount ;
 
 : all-xyz-piece# ( -- ) \ find and display all counts of pieces starting with each xyz combination
+  \ this test shows all the possible xyz location for a piece to start or end are accounted for execpt the very middle piece at 2 2 2 location
   5 0 ?do
     5 0 ?do
       5 0 ?do
@@ -146,7 +148,6 @@ a-piece-list piece-list% %size 960 * dup allot erase
   loop
 ;
 
-defer the-current-display ( ni -- ) \ show the current state of puzzle solution
 display-pieces heap-new constant show-it
 
 : add-show-piece { npiece -- } \ simply display the board with npiece added to existing
@@ -178,4 +179,11 @@ display-pieces heap-new constant show-it
     i union@ i show-union-piece
   loop
   show-it update-display ;
-' show-union-pieces is the-current-display ( ni -- ) \ set up the display word
+
+: show-piece#-xyz { nx ny nz nsub -- }
+  960 0 ?do
+    nsub i 0 piece-object-address@ sub-piece@ nz = swap ny = rot nx = and and true =
+    if
+      i show-a-piece 1000 ms wait-for-key
+    then
+  loop ;
