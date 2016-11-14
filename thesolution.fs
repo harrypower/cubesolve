@@ -8,6 +8,26 @@ require c:\users\philip\documents\github\cubesolve\thepiece.fs
     key drop
   then ;
 
+\ organized pieces object *******************************************************************************************************
+object class
+  destruction implementation
+  protected \ ********************************************************************************************************
+  struct
+    cell% field piece-address
+  end-struct piece-list%
+  struct
+    cell% field x
+    cell% field y
+    cell% field z
+    cell% field piece-linked-list
+    cell% field quantity
+  end-struct piece-hole-list%
+  public \ ***********************************************************************************************************
+  m:
+  ;m overrides construct
+  
+end-class organized-pieces
+
 struct
   cell% field piece-address
 end-struct piece-list%
