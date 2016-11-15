@@ -11,6 +11,7 @@ require c:\users\philip\documents\github\cubesolve\thepiece.fs
 \ organized pieces object *******************************************************************************************************
 object class
   destruction implementation
+  selector pieces-intersect?
   protected \ ********************************************************************************************************
   struct
     cell% field piece-address
@@ -28,23 +29,17 @@ object class
   inst-value union-list \ solution union list start
   inst-value current-union-index
   inst-value max-solution
-  m: ( ni organized-pieces -- naddress-of-piece ) \ retrieve address of a piece object at index ni
-    piece-list% %size * piece-list-start piece-address + @
-  ;m method do-pieces@
-  m: ( np1 np2 organized-pieces -- nflag ) \ test if np1 collides with np2 ... return nflag true they intersect false they do not !
-    this [current] do-pieces@ collision-list?
-  ;m method do-interesect?
   public \ ***********************************************************************************************************
   m: ( npiece ni organized-pieces -- ) \ store npiece in union list at ni location
     piece-list% %size * union-list piece-address + ! ;m method union!
   m: ( ni organized-pieces -- npiece ) \ retreave npiece from union list from ni location
     piece-list% %size * union-list piece-address + @ ;m method union@
   m: ( ni organized-pieces -- naddress-of-piece ) \ retrieve address of a piece object at index ni
-    this [current] do-pieces@  ;m method pieces@
+    piece-list% %size * piece-list-start piece-address + @  ;m method pieces@
   m: ( npiece organized-pieces -- nflag ) \ test npiece in current union-list to see if it can be added to list
     \ nflag is false if npiece can be added to list ... true if npiece can not be added to list
     { npiece -- nflag }
-    false current-union-index 0 ?do i this [current] union@ npiece this [current] do-interesect? or loop
+    false current-union-index 0 ?do i this [current] union@ npiece this pieces-intersect? or loop
   ;m method in-union-list?
   m: ( organized-pieces -- ) \ increase max-solution if current-union-index is larger then max-solution
     current-union-index max-solution > if current-union-index [to-inst] max-solution then
@@ -64,7 +59,7 @@ object class
   m: ( ni organized-pieces -- )
     [to-inst] current-union-index ;m method set-size!
   m: ( np1 np2 organized-pieces -- nflag ) \ test if np1 collides with np2 ... return nflag true they intersect false they do not !
-    do-interesect?  ;m method pieces-intersect?
+      this pieces@ collision-list?  ;m overrides pieces-intersect?
   m: ( nsub# npiece# organized-pieces -- nx ny nz ) \ retrieve the nsub xyz values for npiece#
     \ note this works because all piece objects can access all sub piece xyz values for all pieces ... so i just use the first object here!
     piece-list-start piece-address @ sub-piece@
@@ -135,8 +130,8 @@ display-pieces heap-new constant show-it
   loop
   show-it update-display ;
 
-\\\
-10 0 show-pieces
+
+\ 10 0 show-pieces
 0 pieces add-piece-to-union-list
 8 pieces add-piece-to-union-list
 page
