@@ -16,26 +16,28 @@ object class
   struct
     cell% field piece-address
   end-struct piece-list%
+  piece-list%
+    cell% field next-link
+  end-struct pieces-link%
   struct
-    cell% field x
-    cell% field y
-    cell% field z
-    cell% field piece-linked-list
+    cell% field pieces-link-list
     cell% field quantity
-  end-struct piece-hole-list%
+  end-struct pieces-for-holes%
   cell% inst-var constructed?
   960 constant max-pieces
+  5 constant hole-size
   inst-value piece-list-start \ piece-list array start
   inst-value union-list \ solution union list start
   inst-value current-union-index
   inst-value max-solution
+  inst-value holes-list \ holes for pieces list start
   public \ ***********************************************************************************************************
   m: ( npiece ni organized-pieces -- ) \ store npiece in union list at ni location
     piece-list% %size * union-list piece-address + ! ;m method union!
   m: ( ni organized-pieces -- npiece ) \ retreave npiece from union list from ni location
     piece-list% %size * union-list piece-address + @ ;m method union@
   m: ( ni organized-pieces -- naddress-of-piece ) \ retrieve address of a piece object at index ni
-    piece-list% %size * piece-list-start piece-address + @  ;m method pieces@
+    piece-list% %size * piece-list-start piece-address + @ ;m method pieces@
   m: ( npiece organized-pieces -- nflag ) \ test npiece in current union-list to see if it can be added to list
     \ nflag is false if npiece can be added to list ... true if npiece can not be added to list
     { npiece -- nflag }
@@ -56,20 +58,21 @@ object class
   ;m method add-piece-to-union-list
   m: ( organized-pieces -- nsize ) \ return the size of the union list
     current-union-index ;m method union-size@
-  m: ( ni organized-pieces -- )
+  m: ( ni organized-pieces -- ) \ ******* remove this method after testing
     [to-inst] current-union-index ;m method set-size!
   m: ( np1 np2 organized-pieces -- nflag ) \ test if np1 collides with np2 ... return nflag true they intersect false they do not !
       this pieces@ collision-list?  ;m overrides pieces-intersect?
   m: ( nsub# npiece# organized-pieces -- nx ny nz ) \ retrieve the nsub xyz values for npiece#
     \ note this works because all piece objects can access all sub piece xyz values for all pieces ... so i just use the first object here!
-    piece-list-start piece-address @ sub-piece@
-  ;m method piece-xyz@
+    piece-list-start piece-address @ sub-piece@ ;m method piece-xyz@
   m: ( organized-pieces -- )
     constructed? constructed? @ <>
     if  \ only do this stuff once at first use of object or if destruct was used
       piece-list% %size max-pieces * dup allocate throw dup [to-inst] piece-list-start swap erase \ make room for piece-list
       max-pieces 0 ?do piece heap-new dup i piece-list% %size * piece-list-start piece-address + ! i swap new-piece! loop \ populate it
       piece-list% %size max-pieces * dup allocate throw dup [to-inst] union-list swap erase \ make room for union-list
+      pieces-for-holes% %size hole-size hole-size * hole-size * * sup allocate throw dup [to-inst] holes-list swap erase \ make room for hole array ( x y z )
+      \ populate hole array ... do this populating here!
       constructed? constructed? ! \ set test to show constructed once
     then
     0 [to-inst] current-union-index
@@ -80,12 +83,14 @@ object class
     if
       piece-list-start free throw
       union-list free throw
+      holes-list free throw
       0 constructed? ! \ reset constructed test
     then
     0 [to-inst] current-union-index
     0 [to-inst] max-solution
     0 [to-inst] piece-list-start
     0 [to-inst] union-list
+    0 [to-inst] holes-list
   ;m overrides destruct
   m: ( organized-pieces -- )
     cr this [parent] print cr
@@ -93,6 +98,7 @@ object class
     max-solution . ." max-solution" cr
     piece-list-start . ." piece-list-start"  cr
     union-list . ." union-list" cr
+    holes-list . ." holes-list" cr
   ;m overrides print
 end-class organized-pieces
 
@@ -130,7 +136,7 @@ display-pieces heap-new constant show-it
   loop
   show-it update-display ;
 
-
+\\\
 \ 10 0 show-pieces
 0 pieces add-piece-to-union-list
 8 pieces add-piece-to-union-list
