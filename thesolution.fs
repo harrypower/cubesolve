@@ -71,7 +71,7 @@ object class
       piece-list% %size max-pieces * dup allocate throw dup [to-inst] piece-list-start swap erase \ make room for piece-list
       max-pieces 0 ?do piece heap-new dup i piece-list% %size * piece-list-start piece-address + ! i swap new-piece! loop \ populate it
       piece-list% %size max-pieces * dup allocate throw dup [to-inst] union-list swap erase \ make room for union-list
-      pieces-for-holes% %size hole-size hole-size * hole-size * * sup allocate throw dup [to-inst] holes-list swap erase \ make room for hole array ( x y z )
+      pieces-for-holes% %size hole-size hole-size * hole-size * * dup allocate throw dup [to-inst] holes-list swap erase \ make room for hole array ( x y z )
       \ populate hole array ... do this populating here!
       constructed? constructed? ! \ set test to show constructed once
     then
