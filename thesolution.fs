@@ -120,21 +120,24 @@ display-pieces heap-new constant show-it
 : show-pieces ( nmax nmin -- ) \ loop through display of nmax to nmin pieces
   ?do i show-a-piece 400 ms wait-for-key loop ;
 
-\ 10 0 show-pieces
-
-\\\ will delete the following once the object contains the functionality of the following!
-
 : show-union-piece { npiece ni -- } \ simply display the board with npiece added to existing board .. piece will be called ni on board
-  0 npiece piece-xyz@ ni show-it display-piece!
-  1 npiece piece-xyz@ ni show-it display-piece!
-  2 npiece piece-xyz@ ni show-it display-piece!
-  3 npiece piece-xyz@ ni show-it display-piece!
-  4 npiece piece-xyz@ ni show-it display-piece!
+  0 npiece pieces piece-xyz@ ni show-it display-piece!
+  1 npiece pieces piece-xyz@ ni show-it display-piece!
+  2 npiece pieces piece-xyz@ ni show-it display-piece!
+  3 npiece pieces piece-xyz@ ni show-it display-piece!
+  4 npiece pieces piece-xyz@ ni show-it display-piece!
   show-it update-display ;
 
 : show-union-pieces ( ni -- ) \ take the data from the current unionlist and display it
   show-it construct
   ( ni ) 0 ?do
-    i union@ i show-union-piece
+    i pieces union@ i show-union-piece
   loop
   show-it update-display ;
+
+\\\
+10 0 show-pieces
+0 pieces add-piece-to-union-list
+8 pieces add-piece-to-union-list
+page
+pieces union-size@ show-union-pieces
