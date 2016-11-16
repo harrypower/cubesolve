@@ -22,6 +22,7 @@ object class
   struct
     cell% field pieces-link-list
     cell% field quantity
+    cell% field index
   end-struct pieces-for-holes%
   cell% inst-var constructed?
   960 constant max-pieces
@@ -32,6 +33,44 @@ object class
   inst-value max-solution
   inst-value holes-list \ holes for pieces list start
   public \ ***********************************************************************************************************
+  m: ( organized-pieces -- nlink-address ) \ allocate memory for the piece link
+    pieces-link% %size dup allocate throw dup rot erase
+  ;m method allocate-piece-link
+  m: ( nx ny nz organized-pieces -- uholes-list-address )
+    hole-size hole-size * * swap hole-size * + + pieces-for-holes% %size * holes-list + \ calculate address for hole place to store
+  ;m method calculate-holes-address
+  m: ( npiece nx ny nz organized-pieces -- ) \ store npiece at hole location nx ny nz in the next list spot and update the list information
+    this [current] calculate-holes-address
+    this [current] allocate-piece-link { uha upla }
+    upla piece-address !
+    uha quantity @ 0 =
+    if
+      upla uha pieces-link-list !
+      1 uha quantity !
+    else
+      uha pieces-link-list @
+      begin
+        dup next-link @ 0 =
+      until
+      upla swap next-link !
+      uha quantity @ 1+ uha quantity !
+    then
+  ;m method hole!
+  m: ( nx ny nz organized-pieces -- npiece ) \ retreave the next piece from nx ny nz hole list
+    \ npiece will be returned as true if there are no pieces to retreave
+    this [current] calculate-holes-address dup dup dup index @ swap quantity @ rot pieces-link-list @ { uha ui uq ua }
+    uq 0 =
+    if
+      true
+    else
+      ua ui 0 ?do next-link @ loop piece-address @
+      ui 1+ uq >= if 0 uha index ! else ui 1+ uha index ! then
+    then
+  ;m method hole@
+  m: ( nx ny nz organized-pieces -- nquantity ) \ retreave quantity of the link list stored at nx ny nz hole address
+    this [current] calculate-holes-address
+    quantity @
+  ;m method hole-pieces-quantity@
   m: ( npiece ni organized-pieces -- ) \ store npiece in union list at ni location
     piece-list% %size * union-list piece-address + ! ;m method union!
   m: ( ni organized-pieces -- npiece ) \ retreave npiece from union list from ni location
@@ -83,6 +122,7 @@ object class
     if
       piece-list-start free throw
       union-list free throw
+      \ here i must deallocate all the linked piece list stuff before freeing the holes-list
       holes-list free throw
       0 constructed? ! \ reset constructed test
     then
