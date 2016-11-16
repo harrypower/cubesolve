@@ -41,30 +41,33 @@ object class
   ;m method calculate-holes-address
   m: ( npiece nx ny nz organized-pieces -- ) \ store npiece at hole location nx ny nz in the next list spot and update the list information
     this [current] calculate-holes-address
-    this [current] allocate-piece-link { uha upla }
-    upla piece-address !
-    uha quantity @ 0 =
+    this [current] allocate-piece-link { uhole-address upiece-link-address }
+    upiece-link-address piece-address !
+    uhole-address quantity @ 0 =
     if
-      upla uha pieces-link-list !
-      1 uha quantity !
+      upiece-link-address uhole-address pieces-link-list !
+      1 uhole-address quantity !
     else
-      uha pieces-link-list @
+      uhole-address pieces-link-list @
       begin
-        dup next-link @ 0 =
+        dup next-link @ dup 0 =
+        if drop true
+        else swap drop false
+        then
       until
-      upla swap next-link !
-      uha quantity @ 1+ uha quantity !
+      upiece-link-address swap next-link !
+      uhole-address quantity @ 1+ uhole-address quantity !
     then
   ;m method hole!
   m: ( nx ny nz organized-pieces -- npiece ) \ retreave the next piece from nx ny nz hole list
     \ npiece will be returned as true if there are no pieces to retreave
-    this [current] calculate-holes-address dup dup dup index @ swap quantity @ rot pieces-link-list @ { uha ui uq ua }
-    uq 0 =
+    this [current] calculate-holes-address dup dup dup index @ swap quantity @ rot pieces-link-list @ { uhole-address uindex uquantity uaddr }
+    uquantity 0 =
     if
       true
     else
-      ua ui 0 ?do next-link @ loop piece-address @
-      ui 1+ uq >= if 0 uha index ! else ui 1+ uha index ! then
+      uaddr uindex 0 ?do next-link @ loop piece-address @
+      uindex 1+ uquantity >= if 0 uhole-address index ! else uindex 1+ uhole-address index ! then
     then
   ;m method hole@
   m: ( nx ny nz organized-pieces -- nquantity ) \ retreave quantity of the link list stored at nx ny nz hole address
