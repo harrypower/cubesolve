@@ -60,17 +60,25 @@ object class
     then
   ;m method hole!
   m: ( nx ny nz organized-pieces -- npiece ) \ retreave the next piece from nx ny nz hole list
-    \ npiece will be returned as true if there are no pieces to retreave
+    \ npiece will be true if there are no pieces to retreave or the list has been indexed through one cycle and is going to restart next call
     this [current] calculate-holes-address dup dup dup index @ swap quantity @ rot pieces-link-list @ { uhole-address uindex uquantity uaddr }
     uquantity 0 =
     if
       true
     else
-      uaddr uindex 0 ?do next-link @ loop piece-address @
-      uindex 1+ uquantity >= if 0 uhole-address index ! else uindex 1+ uhole-address index ! then
+      \ uaddr uindex 0 ?do next-link @ loop piece-address @
+      \ uindex 1+ uquantity >= if 0 uhole-address index ! else uindex 1+ uhole-address index ! then
+      uindex uquantity >=
+      if
+        0 uhole-address index ! \ start index at begining
+        true \ tell caller at end of linked list
+      else
+        uaddr uindex 0 ?do next-link @ loop piece-address @
+        uindex 1+ uhole-address index ! \ update index for next call
+      then
     then
   ;m method hole@
-  m: ( nx ny nz organized-pieces -- nquantity ) \ retreave quantity of the link list stored at nx ny nz hole address
+  m: ( nx ny nz organized-pieces -- nquantity ) \ retreave quantity of the link lists stored at nx ny nz hole address
     this [current] calculate-holes-address
     quantity @
   ;m method hole-pieces-quantity@
