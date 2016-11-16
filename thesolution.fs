@@ -12,6 +12,8 @@ require c:\users\philip\documents\github\cubesolve\thepiece.fs
 object class
   destruction implementation
   selector pieces-intersect?
+  selector pieces@
+  selector piece-xyz@
   protected \ ********************************************************************************************************
   struct
     cell% field piece-address
@@ -66,8 +68,6 @@ object class
     if
       true
     else
-      \ uaddr uindex 0 ?do next-link @ loop piece-address @
-      \ uindex 1+ uquantity >= if 0 uhole-address index ! else uindex 1+ uhole-address index ! then
       uindex uquantity >=
       if
         0 uhole-address index ! \ start index at begining
@@ -82,12 +82,21 @@ object class
     this [current] calculate-holes-address
     quantity @
   ;m method hole-pieces-quantity@
+  m: ( -- ) \ populate the holes piece list
+    max-pieces 0 ?do
+      i 0 i this piece-xyz@
+      this hole!
+    loop
+  ;m method populate-hole-pieces
+  m: ( -- ) \ deallocate memory allocated in the holes piece list
+
+  ;m method depopulate-hole-pieces
   m: ( npiece ni organized-pieces -- ) \ store npiece in union list at ni location
     piece-list% %size * union-list piece-address + ! ;m method union!
   m: ( ni organized-pieces -- npiece ) \ retreave npiece from union list from ni location
     piece-list% %size * union-list piece-address + @ ;m method union@
   m: ( ni organized-pieces -- naddress-of-piece ) \ retrieve address of a piece object at index ni
-    piece-list% %size * piece-list-start piece-address + @ ;m method pieces@
+    piece-list% %size * piece-list-start piece-address + @ ;m overrides pieces@
   m: ( npiece organized-pieces -- nflag ) \ test npiece in current union-list to see if it can be added to list
     \ nflag is false if npiece can be added to list ... true if npiece can not be added to list
     { npiece -- nflag }
@@ -114,7 +123,7 @@ object class
       this pieces@ collision-list?  ;m overrides pieces-intersect?
   m: ( nsub# npiece# organized-pieces -- nx ny nz ) \ retrieve the nsub xyz values for npiece#
     \ note this works because all piece objects can access all sub piece xyz values for all pieces ... so i just use the first object here!
-    piece-list-start piece-address @ sub-piece@ ;m method piece-xyz@
+    piece-list-start piece-address @ sub-piece@ ;m overrides piece-xyz@
   m: ( organized-pieces -- )
     constructed? constructed? @ <>
     if  \ only do this stuff once at first use of object or if destruct was used
@@ -122,7 +131,7 @@ object class
       max-pieces 0 ?do piece heap-new dup i piece-list% %size * piece-list-start piece-address + ! i swap new-piece! loop \ populate it
       piece-list% %size max-pieces * dup allocate throw dup [to-inst] union-list swap erase \ make room for union-list
       pieces-for-holes% %size hole-size hole-size * hole-size * * dup allocate throw dup [to-inst] holes-list swap erase \ make room for hole array ( x y z )
-      \ populate hole array ... do this populating here!
+      this populate-hole-pieces
       constructed? constructed? ! \ set test to show constructed once
     then
     0 [to-inst] current-union-index
@@ -133,7 +142,7 @@ object class
     if
       piece-list-start free throw
       union-list free throw
-      \ here i must deallocate all the linked piece list stuff before freeing the holes-list
+      this depopulate-hole-pieces
       holes-list free throw
       0 constructed? ! \ reset constructed test
     then
