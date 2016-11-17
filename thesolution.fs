@@ -121,14 +121,15 @@ object class
   m: ( organized-pieces -- ) \ increase max-solution if current-union-index is larger then max-solution
     current-union-index max-solution > if current-union-index [to-inst] max-solution then
   ;m method set-max-solution
-  m: ( npiece organized-pieces -- )
+  m: ( npiece organized-pieces -- nflag ) \ add npiece to union list if it can be added.... nflag is true if it was added false if not added
     dup this [current] in-union-list? false =
     if
       current-union-index this [current] union!
       current-union-index 1+ [to-inst] current-union-index
       this [current] set-max-solution
+      true
     else
-      drop
+      drop false
     then
   ;m method add-piece-to-union-list
   m: ( organized-pieces -- nsize ) \ return the size of the union list
@@ -183,15 +184,50 @@ organized-pieces heap-new constant pieces
 display-pieces heap-new constant show-it
 display-pieces heap-new constant work-it
 
-: find-hole ( -- ux uy uz )
+: find-hole ( -- ux uy uz nflag ) \ look for holes in the work-it data set
+  \ nflag is true if a hole is found and ux uy uz contain the hole location
+  \ nflag is false if no hole is found ... ux uy uz will be zero
   5 0 ?do
     5 0 ?do
       5 0 ?do
         i j k work-it display-piece@ true =
-        if i j k unloop unloop unloop exit then 
+        if i j k unloop unloop unloop true exit then
       loop
     loop
+  loop
+  0 0 0 false ;
+: fill-hole { ux uy uz -- nflag } \ attempt to fill hole.. if not possible remove last union piece and return false else return true for hole filled
+  begin
+    ux uy uz pieces hole@ dup true <>
+    if
+      pieces add-piece-to-union-list  \ true for added false for not added to list
+      true = if true exit then
+    else
+      drop pieces union-size@ 1- dup 0 >= if pieces union-size! else drop 0 pieces union-size! then
+      false exit
+    then
+  again
+;
+: update-work-it ( -- ) \ put union pieces in the work-it space
+  0 { upiece }
+  work-it construct
+  pieces union-size@ 0 ?do
+    i pieces union@ to upiece
+    0 upiece pieces piece-xyz@ upiece work-it display-piece!
+    1 upiece pieces piece-xyz@ upiece work-it display-piece!
+    2 upiece pieces piece-xyz@ upiece work-it display-piece!
+    3 upiece pieces piece-xyz@ upiece work-it display-piece!
+    4 upiece pieces piece-xyz@ upiece work-it display-piece!
   loop ;
+: solution ( -- )
+  begin
+  find-hole false = if ." No holes left in puzzle!" cr  drop drop drop exit then
+  fill-hole drop \  need to use this flag instead of droping it... something like thowing a piece on the board
+  update-work-it
+  work-it show-display
+  pieces union-size@ 25 >=
+  until
+  ." Solution found!"  cr ;
 
 : add-show-piece { npiece -- } \ simply display the board with npiece added to existing
   0 npiece pieces piece-xyz@ npiece show-it display-piece!
