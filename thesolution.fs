@@ -181,6 +181,17 @@ end-class organized-pieces
 organized-pieces heap-new constant pieces
 
 display-pieces heap-new constant show-it
+display-pieces heap-new constant work-it
+
+: find-hole ( -- ux uy uz )
+  5 0 ?do
+    5 0 ?do
+      5 0 ?do
+        i j k work-it display-piece@ true =
+        if i j k unloop unloop unloop exit then 
+      loop
+    loop
+  loop ;
 
 : add-show-piece { npiece -- } \ simply display the board with npiece added to existing
   0 npiece pieces piece-xyz@ npiece show-it display-piece!
