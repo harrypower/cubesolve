@@ -133,8 +133,8 @@ object class
   ;m method add-piece-to-union-list
   m: ( organized-pieces -- nsize ) \ return the size of the union list
     current-union-index ;m method union-size@
-  m: ( ni organized-pieces -- ) \ ******* remove this method after testing
-    [to-inst] current-union-index ;m method set-size!
+  m: ( ni organized-pieces -- ) \ change size of union list
+    [to-inst] current-union-index ;m method union-size!
   m: ( np1 np2 organized-pieces -- nflag ) \ test if np1 collides with np2 ... return nflag true they intersect false they do not !
       this pieces@ collision-list?  ;m overrides pieces-intersect?
   m: ( nsub# npiece# organized-pieces -- nx ny nz ) \ retrieve the nsub xyz values for npiece#
@@ -212,6 +212,24 @@ display-pieces heap-new constant show-it
   loop
   show-it update-display ;
 
+: show-hole-pieces { ux uy uz -- } \ display the hole list pieces
+  begin
+    ux uy uz pieces hole@
+    dup true <>
+  while
+    show-a-piece
+    400 ms wait-for-key
+  repeat
+  drop ;
+
+: show-all-hole-pieces ( -- )
+  5 0 ?do
+    5 0 ?do
+      5 0 ?do
+        i j k show-hole-pieces
+      loop
+    loop
+  loop ;
 \\\
 \ 10 0 show-pieces
 0 pieces add-piece-to-union-list
