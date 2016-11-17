@@ -89,7 +89,23 @@ object class
     loop
   ;m method populate-hole-pieces
   m: ( -- ) \ deallocate memory allocated in the holes piece list
-
+    hole-size 0 ?do
+      hole-size 0 ?do
+        hole-size 0 ?do
+          i j k this calculate-holes-address pieces-link-list @
+          dup 0 <>
+          if
+            begin \ pl
+              dup \ pl pl
+              next-link @ \ pl nl
+              swap free throw \ nl
+              dup 0 = \ nl nf
+            until
+          then
+          drop
+        loop
+      loop
+    loop
   ;m method depopulate-hole-pieces
   m: ( npiece ni organized-pieces -- ) \ store npiece in union list at ni location
     piece-list% %size * union-list piece-address + ! ;m method union!
