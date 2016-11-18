@@ -201,7 +201,10 @@ display-pieces heap-new constant work-it
     5 0 ?do
       5 0 ?do
         i j k work-it display-piece@ true =
+        i j k pieces hole-pieces-quantity@ 0 > and 
         if i j k unloop unloop unloop true exit then
+        \ place a test in here or in above if then .... for a given xyz location if the hole list contains no pieces to file do not treat it as a hole
+        \ rather skip that hole and keep looking
       loop
     loop
   loop
