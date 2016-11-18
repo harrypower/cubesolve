@@ -33,6 +33,7 @@ object class
   inst-value union-list \ solution union list start
   inst-value current-union-index
   inst-value max-solution
+  inst-value min-solution
   inst-value holes-list \ holes for pieces list start
   public \ ***********************************************************************************************************
   m: ( organized-pieces -- nlink-address ) \ allocate memory for the piece link
@@ -121,6 +122,9 @@ object class
   m: ( organized-pieces -- ) \ increase max-solution if current-union-index is larger then max-solution
     current-union-index max-solution > if current-union-index [to-inst] max-solution then
   ;m method set-max-solution
+  m: ( organized-pieces -- ) \ decrease min-solution
+    current-union-index min-solution < if current-union-index [to-inst] min-solution then
+  ;m method set-min-solution
   m: ( npiece organized-pieces -- nflag ) \ add npiece to union list if it can be added.... nflag is true if it was added false if not added
     dup this [current] in-union-list? false =
     if
@@ -138,6 +142,8 @@ object class
     [to-inst] current-union-index ;m method union-size!
   m: ( organized-pieces -- umax ) \ return the max size of union list
     max-solution  ;m method max-solution@
+  m: ( organized-pieces -- umin ) \ return the min size of union achieved during solutions hunting
+    min-solution ;m method min-solution@
   m: ( np1 np2 organized-pieces -- nflag ) \ test if np1 collides with np2 ... return nflag true they intersect false they do not !
       this pieces@ collision-list?  ;m overrides pieces-intersect?
   m: ( nsub# npiece# organized-pieces -- nx ny nz ) \ retrieve the nsub xyz values for npiece#
@@ -155,6 +161,7 @@ object class
     then
     0 [to-inst] current-union-index
     0 [to-inst] max-solution
+    25 [to-inst] min-solution
   ;m overrides construct
   m: ( organized-pieces -- )
     constructed? constructed? @ =
@@ -167,6 +174,7 @@ object class
     then
     0 [to-inst] current-union-index
     0 [to-inst] max-solution
+    25 [to-inst] min-solution
     0 [to-inst] piece-list-start
     0 [to-inst] union-list
     0 [to-inst] holes-list
@@ -222,12 +230,13 @@ display-pieces heap-new constant work-it
     pieces union-size@ 1- pieces union-size!
     fill-hole true =
   until
+  pieces set-min-solution
 ;
 0 value iterations
 0 value next-view
 : solution ( -- )
   begin
-  find-hole false = if ." No holes left in puzzle!" cr  drop drop drop exit then
+  find-hole false = if 40 20 at-xy ." No holes left in puzzle!" cr  drop drop drop exit then
   fill-hole false =
   if \ somehow back up here to try again
     back-up
@@ -235,16 +244,19 @@ display-pieces heap-new constant work-it
   update-work-it
   iterations next-view >=
   if
-    iterations 100 + to next-view
+    iterations 1000 + to next-view
     work-it show-display
-    pieces max-solution@ 40 10 at-xy . ." is max-solution!"
-    pieces union-size@ 40 20 at-xy . ." is union-size!"
-    iterations 40 30 at-xy . ." is iterations!"
+    pieces max-solution@ 40 5 at-xy . ." > max-solution!"
+    pieces min-solution@ 40 6 at-xy . ." > min-solution!"
+    pieces union-size@ 40 10 at-xy . ." > union-size!"
+    iterations 40 15 at-xy . ." > iterations!"
   then
   iterations 1+ to iterations
   pieces union-size@ 25 >=
   until
-  ." Solution found!"  cr ;
+  40 20 at-xy ." Solution found!"  cr
+  iterations 40 15 at-xy . ." > the last iteration"
+  ;
 
 : add-show-piece { npiece -- } \ simply display the board with npiece added to existing
   0 npiece pieces piece-xyz@ npiece show-it display-piece!
