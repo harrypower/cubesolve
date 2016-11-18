@@ -201,10 +201,8 @@ display-pieces heap-new constant work-it
     5 0 ?do
       5 0 ?do
         i j k work-it display-piece@ true =
-        i j k pieces hole-pieces-quantity@ 0 > and 
+        i j k pieces hole-pieces-quantity@ 0 > and
         if i j k unloop unloop unloop true exit then
-        \ place a test in here or in above if then .... for a given xyz location if the hole list contains no pieces to file do not treat it as a hole
-        \ rather skip that hole and keep looking
       loop
     loop
   loop
@@ -237,12 +235,19 @@ display-pieces heap-new constant work-it
 ;
 0 value iterations
 0 value next-view
+defer see-solution
 : solution ( -- )
   begin
-  find-hole false = if 40 20 at-xy ." No holes left in puzzle!" cr  drop drop drop exit then
-  fill-hole false =
-  if \ somehow back up here to try again
+  find-hole false =
+  if
+    40 20 at-xy ." holes end for iteration!"
+    drop drop drop
     back-up
+  else
+    fill-hole false =
+    if
+      back-up
+    then
   then
   update-work-it
   iterations next-view >=
@@ -253,11 +258,13 @@ display-pieces heap-new constant work-it
     pieces min-solution@ 40 6 at-xy . ." > min-solution!"
     pieces union-size@ 40 10 at-xy . ." > union-size!"
     iterations 40 15 at-xy . ." > iterations!"
+    40 20 at-xy ."                              "
   then
   iterations 1+ to iterations
   pieces union-size@ 25 >=
   until
-  40 20 at-xy ." Solution found!"  cr
+  25 see-solution
+  40 25 at-xy ." Solution found!"
   iterations 40 15 at-xy . ." > the last iteration"
   ;
 
@@ -290,7 +297,7 @@ display-pieces heap-new constant work-it
     i pieces union@ i show-union-piece
   loop
   show-it update-display ;
-
+' show-union-pieces is see-solution
 : show-hole-pieces { ux uy uz -- } \ display the hole list pieces
   begin
     ux uy uz pieces hole@
