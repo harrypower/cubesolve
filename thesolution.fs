@@ -136,6 +136,8 @@ object class
     current-union-index ;m method union-size@
   m: ( ni organized-pieces -- ) \ change size of union list
     [to-inst] current-union-index ;m method union-size!
+  m: ( organized-pieces -- umax ) \ return the max size of union list
+    max-solution  ;m method max-solution@
   m: ( np1 np2 organized-pieces -- nflag ) \ test if np1 collides with np2 ... return nflag true they intersect false they do not !
       this pieces@ collision-list?  ;m overrides pieces-intersect?
   m: ( nsub# npiece# organized-pieces -- nx ny nz ) \ retrieve the nsub xyz values for npiece#
@@ -196,18 +198,13 @@ display-pieces heap-new constant work-it
     loop
   loop
   0 0 0 false ;
-: fill-hole { ux uy uz -- nflag } \ attempt to fill hole.. if not possible remove last union piece and return false else return true for hole filled
+: fill-hole { ux uy uz -- nflag } \ attempt to file hole at ux uy uz.. if it gets filled return true if it does not get filled return false
   begin
     ux uy uz pieces hole@ dup true <>
-    if
-      pieces add-piece-to-union-list  \ true for added false for not added to list
-      true = if true exit then
-    else
-      drop pieces union-size@ 1- dup 0 >= if pieces union-size! else drop 0 pieces union-size! then
-      false exit
-    then
-  again
-;
+  while
+    pieces add-piece-to-union-list true = if true exit then
+  repeat
+  drop false ;
 : update-work-it ( -- ) \ put union pieces in the work-it space
   0 { upiece }
   work-it construct
@@ -219,12 +216,32 @@ display-pieces heap-new constant work-it
     3 upiece pieces piece-xyz@ upiece work-it display-piece!
     4 upiece pieces piece-xyz@ upiece work-it display-piece!
   loop ;
+: back-up ( -- )
+  begin
+    pieces union-size@ 1- pieces union@ 0 swap pieces piece-xyz@
+    pieces union-size@ 1- pieces union-size!
+    fill-hole true =
+  until
+;
+0 value iterations
+0 value next-view
 : solution ( -- )
   begin
   find-hole false = if ." No holes left in puzzle!" cr  drop drop drop exit then
-  fill-hole drop \  need to use this flag instead of droping it... something like thowing a piece on the board
+  fill-hole false =
+  if \ somehow back up here to try again
+    back-up
+  then
   update-work-it
-  work-it show-display
+  iterations next-view >=
+  if
+    iterations 100 + to next-view
+    work-it show-display
+    pieces max-solution@ 40 10 at-xy . ." is max-solution!"
+    pieces union-size@ 40 20 at-xy . ." is union-size!"
+    iterations 40 30 at-xy . ." is iterations!"
+  then
+  iterations 1+ to iterations
   pieces union-size@ 25 >=
   until
   ." Solution found!"  cr ;
