@@ -1,4 +1,4 @@
-require c:\users\philip\documents\github\cubesolve\thepiece.fs
+require ./thepiece.fs
 
 : wait-for-key ( -- ) \ if keyboard is pressed pause until it is pressed again
   key?
