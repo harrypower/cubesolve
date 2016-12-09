@@ -75,28 +75,28 @@ object class
   m: ( nx ny nz nbase-shapes-addr nindex piece -- ) \ to store basic-shape data array
     blc% %size * + { nbsa }
     nbsa z ! nbsa y ! nbsa x !
-  ;m method basicshape!
+  ;m method basic-shape!
   m: ( nbase-shapes-addr nindex piece -- nx ny nz ) \ get basic-shape x y z data
     blc% %size * + dup dup
     x @ -rot y @ swap z @
-  ;m method basicshape@
+  ;m method basic-shape@
   m: ( piece -- )
     bshape-max 0 do base-shapes i this [current] bulk@ shapes-x i this [current] bulk! loop
     bshape-max 0 do base-shapes i this [current] bulk@ rot 1 + -rot shapes-x i bshape-max + this [current] bulk! loop
-  ;m method creatextrans
+  ;m method create-x-translate
   m: ( piece -- )
     sx-max 0 do shapes-x i this [current] bulk@ shapes-xy i this [current] bulk! loop
     sx-max 0 do shapes-x i this [current] bulk@ swap 1 + swap shapes-xy i sx-max + this [current] bulk! loop
     sx-max 0 do shapes-x i this [current] bulk@ swap 2 + swap shapes-xy i sx-max 2 * + this [current] bulk! loop
     sx-max 0 do shapes-x i this [current] bulk@ swap 3 + swap shapes-xy i sx-max 3 * + this [current] bulk! loop
     sx-max 0 do shapes-x i this [current] bulk@ swap 4 + swap shapes-xy i sx-max 4 * + this [current] bulk! loop
-  ;m method createxytrans
+  ;m method create-xy-translate
   m: ( piece -- )
     sxy-max 0 do shapes-xy i this [current] bulk@ shapes-xyz i this [current] bulk! loop
     sxy-max 0 do shapes-xy i this [current] bulk@ 1 + shapes-xyz i sxy-max + this [current] bulk! loop
     sxy-max 0 do shapes-xy i this [current] bulk@ 2 + shapes-xyz i sxy-max 2 * + this [current] bulk! loop
     sxy-max 0 do shapes-xy i this [current] bulk@ 3 + shapes-xyz i sxy-max 3 * + this [current] bulk! loop
-  ;m method createxyztrans
+  ;m method create-xyz-translate
   m: ( piece -- )
     sxyz-max 0 do shapes-xyz i this [current] bulk@ all-orient i this [current] bulk! loop
     sxyz-max 0 do shapes-xyz i this [current] bulk@ rot swap all-orient i sxyz-max + this [current] bulk! loop
@@ -104,7 +104,7 @@ object class
     sxyz-max 0 do shapes-xyz i this [current] bulk@ swap all-orient i sxyz-max 3 * + this [current] bulk! loop
     sxyz-max 0 do shapes-xyz i this [current] bulk@ rot all-orient i sxyz-max 4 * + this [current] bulk! loop
     sxyz-max 0 do shapes-xyz i this [current] bulk@ -rot all-orient i sxyz-max 5 * + this [current] bulk! loop
-  ;m method all6rotations
+  ;m method all-6-rotations
   m: ( nx1 ny1 nz1 nx2 ny2 nz2 piece -- nflag ) \ compare nx1 ny1 nz1 to nx2 ny2 nz2
     >r >r >r rot r> = rot r> = rot r> = and and
   ;m method test-voxel?
@@ -113,25 +113,25 @@ object class
   \ nflag is true for any collision
     { nx ny nz nindex }
     try
-      nx ny nz all-orient a nindex this [current] basicshape@ this [current] test-voxel? throw
-      nx ny nz all-orient b nindex this [current] basicshape@ this [current] test-voxel? throw
-      nx ny nz all-orient c nindex this [current] basicshape@ this [current] test-voxel? throw
-      nx ny nz all-orient d nindex this [current] basicshape@ this [current] test-voxel? throw
-      nx ny nz all-orient e nindex this [current] basicshape@ this [current] test-voxel? throw
+      nx ny nz all-orient a nindex this [current] basic-shape@ this [current] test-voxel? throw
+      nx ny nz all-orient b nindex this [current] basic-shape@ this [current] test-voxel? throw
+      nx ny nz all-orient c nindex this [current] basic-shape@ this [current] test-voxel? throw
+      nx ny nz all-orient d nindex this [current] basic-shape@ this [current] test-voxel? throw
+      nx ny nz all-orient e nindex this [current] basic-shape@ this [current] test-voxel? throw
       false
     restore
     endtry
-  ;m method test-voxeltovoxels?
+  ;m method test-voxel-to-voxels?
   m: ( nindex1 nindex2 piece -- nflag ) \ compare one piece for collision with another piece
   \ nflag is false if no collisions
   \ nflag is true for any collision
     { nindex1 nindex2 }
     try
-      all-orient a nindex1 this [current] basicshape@ nindex2 this [current] test-voxeltovoxels? throw
-      all-orient b nindex1 this [current] basicshape@ nindex2 this [current] test-voxeltovoxels? throw
-      all-orient c nindex1 this [current] basicshape@ nindex2 this [current] test-voxeltovoxels? throw
-      all-orient d nindex1 this [current] basicshape@ nindex2 this [current] test-voxeltovoxels? throw
-      all-orient e nindex1 this [current] basicshape@ nindex2 this [current] test-voxeltovoxels? throw
+      all-orient a nindex1 this [current] basic-shape@ nindex2 this [current] test-voxel-to-voxels? throw
+      all-orient b nindex1 this [current] basic-shape@ nindex2 this [current] test-voxel-to-voxels? throw
+      all-orient c nindex1 this [current] basic-shape@ nindex2 this [current] test-voxel-to-voxels? throw
+      all-orient d nindex1 this [current] basic-shape@ nindex2 this [current] test-voxel-to-voxels? throw
+      all-orient e nindex1 this [current] basic-shape@ nindex2 this [current] test-voxel-to-voxels? throw
       false
     restore
     endtry
@@ -156,11 +156,11 @@ object class
   \ aka 2 shared dimentions and other dimention is -+ 1 value away
     { nx ny nz nindex }
     try
-      nx ny nz all-orient a nindex this [current] basicshape@ this [current] test-adj-voxel? throw
-      nx ny nz all-orient b nindex this [current] basicshape@ this [current] test-adj-voxel? throw
-      nx ny nz all-orient c nindex this [current] basicshape@ this [current] test-adj-voxel? throw
-      nx ny nz all-orient d nindex this [current] basicshape@ this [current] test-adj-voxel? throw
-      nx ny nz all-orient e nindex this [current] basicshape@ this [current] test-adj-voxel? throw
+      nx ny nz all-orient a nindex this [current] basic-shape@ this [current] test-adj-voxel? throw
+      nx ny nz all-orient b nindex this [current] basic-shape@ this [current] test-adj-voxel? throw
+      nx ny nz all-orient c nindex this [current] basic-shape@ this [current] test-adj-voxel? throw
+      nx ny nz all-orient d nindex this [current] basic-shape@ this [current] test-adj-voxel? throw
+      nx ny nz all-orient e nindex this [current] basic-shape@ this [current] test-adj-voxel? throw
       false
     restore
     endtry
@@ -168,11 +168,11 @@ object class
   m: ( nindex1 nindex2 piece -- nflag )  \ will test for adjacent pieces that share 2 dimentions have third dimention is one away from any one piece
     { nindex1 nindex2 }
     try
-      all-orient a nindex1 this [current] basicshape@ nindex2 this [current] test-adj-voxeltovoxel? throw
-      all-orient b nindex1 this [current] basicshape@ nindex2 this [current] test-adj-voxeltovoxel? throw
-      all-orient c nindex1 this [current] basicshape@ nindex2 this [current] test-adj-voxeltovoxel? throw
-      all-orient d nindex1 this [current] basicshape@ nindex2 this [current] test-adj-voxeltovoxel? throw
-      all-orient e nindex1 this [current] basicshape@ nindex2 this [current] test-adj-voxeltovoxel? throw
+      all-orient a nindex1 this [current] basic-shape@ nindex2 this [current] test-adj-voxeltovoxel? throw
+      all-orient b nindex1 this [current] basic-shape@ nindex2 this [current] test-adj-voxeltovoxel? throw
+      all-orient c nindex1 this [current] basic-shape@ nindex2 this [current] test-adj-voxeltovoxel? throw
+      all-orient d nindex1 this [current] basic-shape@ nindex2 this [current] test-adj-voxeltovoxel? throw
+      all-orient e nindex1 this [current] basic-shape@ nindex2 this [current] test-adj-voxeltovoxel? throw
       false
     restore
     endtry
@@ -186,7 +186,7 @@ object class
       loop
       true [to-inst] adjacentlist-flag
     then
-  ;m method populateadjacentlist
+  ;m method populate-adjacent-list
   m: ( piece -- ) \ populate the collision  list for thispiece#
     0 collisionlist-addr <> thispiece# nopiece <> collisionlist-flag false = and and
     if
@@ -196,7 +196,7 @@ object class
       loop
       true [to-inst] collisionlist-flag
     then
-  ;m method populatecollisionlist
+  ;m method populate-collision-list
   m: ( piece -- ) \ allocate room for the collision list or clear list if allocated already
     0 collisionlist-addr <>
     if
@@ -206,7 +206,7 @@ object class
       collisionlist-addr collisionlist% %size pindex-max * erase
     then
     false [to-inst] collisionlist-flag
-  ;m method create-collisionlist
+  ;m method create-collision-list
   m: ( piece -- ) \ allocate room for the adjacent list or clear list if allocated already
     0 adjacent-addr <>
     if
@@ -216,44 +216,44 @@ object class
       adjacent-addr adjacentlist% %size pindex-max * erase
     then
     false [to-inst] adjacentlist-flag
-  ;m method create-adjacentlist
+  ;m method create-adjacent-list
   m: ( nx ny nz piece -- ) \ just displays x y z from stack
     rot ." x:" . swap ."  y:" . ."  z:" .
   ;m method xyz.
   public \ ***********************************************************************************************************
   m: ( piece -- )
     piece-table-created @ false = if \ to create piece table only once for all piece objects
-      0 0 0 base-shapes a 0 this [current] basicshape! \ first shape
-      1 0 0 base-shapes b 0 this [current] basicshape!
-      2 0 0 base-shapes c 0 this [current] basicshape!
-      2 0 1 base-shapes d 0 this [current] basicshape!
-      3 0 1 base-shapes e 0 this [current] basicshape!
-      0 0 1 base-shapes a 1 this [current] basicshape! \ second shape
-      1 0 1 base-shapes b 1 this [current] basicshape!
-      2 0 1 base-shapes c 1 this [current] basicshape!
-      2 0 0 base-shapes d 1 this [current] basicshape!
-      3 0 0 base-shapes e 1 this [current] basicshape!
-      0 0 0 base-shapes a 2 this [current] basicshape! \ third shape
-      1 0 0 base-shapes b 2 this [current] basicshape!
-      1 0 1 base-shapes c 2 this [current] basicshape!
-      2 0 1 base-shapes d 2 this [current] basicshape!
-      3 0 1 base-shapes e 2 this [current] basicshape!
-      0 0 1 base-shapes a 3 this [current] basicshape! \ fourth shape
-      1 0 1 base-shapes b 3 this [current] basicshape!
-      1 0 0 base-shapes c 3 this [current] basicshape!
-      2 0 0 base-shapes d 3 this [current] basicshape!
-      3 0 0 base-shapes e 3 this [current] basicshape!
-      this [current] creatextrans
-      this [current] createxytrans
-      this [current] createxyztrans
-      this [current] all6rotations
+      0 0 0 base-shapes a 0 this [current] basic-shape! \ first shape
+      1 0 0 base-shapes b 0 this [current] basic-shape!
+      2 0 0 base-shapes c 0 this [current] basic-shape!
+      2 0 1 base-shapes d 0 this [current] basic-shape!
+      3 0 1 base-shapes e 0 this [current] basic-shape!
+      0 0 1 base-shapes a 1 this [current] basic-shape! \ second shape
+      1 0 1 base-shapes b 1 this [current] basic-shape!
+      2 0 1 base-shapes c 1 this [current] basic-shape!
+      2 0 0 base-shapes d 1 this [current] basic-shape!
+      3 0 0 base-shapes e 1 this [current] basic-shape!
+      0 0 0 base-shapes a 2 this [current] basic-shape! \ third shape
+      1 0 0 base-shapes b 2 this [current] basic-shape!
+      1 0 1 base-shapes c 2 this [current] basic-shape!
+      2 0 1 base-shapes d 2 this [current] basic-shape!
+      3 0 1 base-shapes e 2 this [current] basic-shape!
+      0 0 1 base-shapes a 3 this [current] basic-shape! \ fourth shape
+      1 0 1 base-shapes b 3 this [current] basic-shape!
+      1 0 0 base-shapes c 3 this [current] basic-shape!
+      2 0 0 base-shapes d 3 this [current] basic-shape!
+      3 0 0 base-shapes e 3 this [current] basic-shape!
+      this [current] create-x-translate
+      this [current] create-xy-translate
+      this [current] create-xyz-translate
+      this [current] all-6-rotations
       \ at this moment the piece data base is populated
       true piece-table-created !
     then
     0 [to-inst] collisionlist-addr \ at construct time the collsion list is not allocated yet
     0 [to-inst] adjacent-addr \ at construct time the adjacent list is not allocated yet
-    this [current] create-collisionlist
-    this [current] create-adjacentlist
+    this [current] create-collision-list
+    this [current] create-adjacent-list
     nopiece [to-inst] thispiece#  \ start with no piece
   ;m overrides construct
   m: ( piece -- ) \ free allocated memory for this piece
@@ -274,19 +274,19 @@ object class
   ;m method piece@
   m: ( piece -- ) \ generate the collision list for thispiece#
    \ note this does clean out the collision list if it already was populated
-    this [current] populatecollisionlist
-  ;m method collisionlist!
+    this [current] populate-collision-list
+  ;m method collision-list!
   m: ( piece -- ) \ generate the adjacent list for thispiece#
-    this [current] populateadjacentlist
-  ;m method adjacentlist!
+    this [current] populate-adjacent-list
+  ;m method adjacent-list!
   m: ( npiece# piece -- ) \ set thispiece# and removed old collision list and generate a new collision list
     this [current] destruct
     this [current] construct
     this [current] piece!
-    this [current] collisionlist!
-    this [current] adjacentlist!
-  ;m method newpiece!
-  m: ( npiece# piece -- nflag ) \ test the npiece# collistion value from collision list
+    this [current] collision-list!
+    this [current] adjacent-list!
+  ;m method new-piece!
+  m: ( npiece# piece -- nflag ) \ test the npiece# collision value from collision list
   \ nflag is true if npiece# has collided with thispiece# from the collision list
   \ nflag is false if npiece# has not collided with thispiece# in the collision list or the collision list does not exist
     collisionlist-flag true =
@@ -296,7 +296,7 @@ object class
     else
       drop false
     then
-  ;m method collisionlist?
+  ;m method collision-list?
   m: ( npiece# piece -- nflag ) \ test the npiece# adjacent value from adjacent list
     \ nflag is true if npiece# is adjacent to thispiece# from this object
     \ nflag is false if npiece# is not adjacent to thispiece# from this object or the adjacent list does not exist
@@ -315,19 +315,19 @@ object class
     { nsubpiece# npiece# }
     nsubpiece#
     CASE
-      0 OF all-orient a npiece# this [current] basicshape@ ENDOF
-      1 OF all-orient b npiece# this [current] basicshape@ ENDOF
-      2 OF all-orient c npiece# this [current] basicshape@ ENDOF
-      3 OF all-orient d npiece# this [current] basicshape@ ENDOF
-      4 OF all-orient e npiece# this [current] basicshape@ ENDOF
+      0 OF all-orient a npiece# this [current] basic-shape@ ENDOF
+      1 OF all-orient b npiece# this [current] basic-shape@ ENDOF
+      2 OF all-orient c npiece# this [current] basic-shape@ ENDOF
+      3 OF all-orient d npiece# this [current] basic-shape@ ENDOF
+      4 OF all-orient e npiece# this [current] basic-shape@ ENDOF
       \ default simply return a data
-      all-orient a npiece# this [current] basicshape@ 3 roll
+      all-orient a npiece# this [current] basic-shape@ 3 roll
     ENDCASE
-  ;m method subpiece@
+  ;m method sub-piece@
   \ testing words to ensure this piece generation is correct ******************************************************************
   m: ( piece -- ) \ testing basic data set creation
-    base-shapes e 3 this [current] basicshape@ . . . cr
-    base-shapes d 2 this [current] basicshape@ . . . cr
+    base-shapes e 3 this [current] basic-shape@ . . . cr
+    base-shapes d 2 this [current] basic-shape@ . . . cr
     ." XXXXXXXX" cr
     bshape-max  0 do base-shapes i this [current] bulk@ this [current] xyz. ."  #" i . cr loop
     ." ********" cr
@@ -339,13 +339,13 @@ object class
     ." all------" cr
     allorient-max 0 do all-orient i this [current] bulk@ this [current] xyz. ."  #" i . cr loop
     pindex-max 0 do
-      all-orient a i this [current] basicshape@ rot ." a:" . swap . .
-      all-orient b i this [current] basicshape@ rot ." b:" . swap . .
-      all-orient c i this [current] basicshape@ rot ." c:" . swap . .
-      all-orient d i this [current] basicshape@ rot ." d:" . swap . .
-      all-orient e i this [current] basicshape@ rot ." e:" . swap . . ." #" i . cr
+      all-orient a i this [current] basic-shape@ rot ." a:" . swap . .
+      all-orient b i this [current] basic-shape@ rot ." b:" . swap . .
+      all-orient c i this [current] basic-shape@ rot ." c:" . swap . .
+      all-orient d i this [current] basic-shape@ rot ." d:" . swap . .
+      all-orient e i this [current] basic-shape@ rot ." e:" . swap . . ." #" i . cr
     loop
-  ;m method testDataSet
+  ;m method test-Data-Set
   m: ( piece -- ) \ testing collision detection words
     cr
     1 2 3 1 2 3 this [current] test-voxel? . ."  <- should be true!" cr
@@ -357,49 +357,49 @@ object class
     0 0 this [current] test-collision?  . ."  <- collision should be true!" cr
     0 1 this [current] test-collision?  . ."  <- collision should be true!" cr
     0 25 this [current] test-collision?  . ."  <- collision should be false!" cr
-    all-orient a 0 this [current] basicshape@ this [current] xyz. ."  :a 0" cr
-    all-orient b 0 this [current] basicshape@ this [current] xyz. ."  :b 0" cr
-    all-orient c 0 this [current] basicshape@ this [current] xyz. ."  :c 0" cr
-    all-orient d 0 this [current] basicshape@ this [current] xyz. ."  :d 0" cr
-    all-orient e 0 this [current] basicshape@ this [current] xyz. ."  :e 0" cr
-    all-orient a 25 this [current] basicshape@ this [current] xyz. ."  :a 25" cr
-    all-orient b 25 this [current] basicshape@ this [current] xyz. ."  :b 25" cr
-    all-orient c 25 this [current] basicshape@ this [current] xyz. ."  :c 25" cr
-    all-orient d 25 this [current] basicshape@ this [current] xyz. ."  :d 25" cr
-    all-orient e 25 this [current] basicshape@ this [current] xyz. ."  :e 25" cr
-    0 0 0 0 this [current] test-voxeltovoxels? . ."  <- collision should be true!" cr
-    3 0 1 0 this [current] test-voxeltovoxels? . ."  <- collision should be true!" cr
-    3 0 2 0 this [current] test-voxeltovoxels? . ."  <- collision should be false!" cr
-  ;m method testcompare
+    all-orient a 0 this [current] basic-shape@ this [current] xyz. ."  :a 0" cr
+    all-orient b 0 this [current] basic-shape@ this [current] xyz. ."  :b 0" cr
+    all-orient c 0 this [current] basic-shape@ this [current] xyz. ."  :c 0" cr
+    all-orient d 0 this [current] basic-shape@ this [current] xyz. ."  :d 0" cr
+    all-orient e 0 this [current] basic-shape@ this [current] xyz. ."  :e 0" cr
+    all-orient a 25 this [current] basic-shape@ this [current] xyz. ."  :a 25" cr
+    all-orient b 25 this [current] basic-shape@ this [current] xyz. ."  :b 25" cr
+    all-orient c 25 this [current] basic-shape@ this [current] xyz. ."  :c 25" cr
+    all-orient d 25 this [current] basic-shape@ this [current] xyz. ."  :d 25" cr
+    all-orient e 25 this [current] basic-shape@ this [current] xyz. ."  :e 25" cr
+    0 0 0 0 this [current] test-voxel-to-voxels? . ."  <- collision should be true!" cr
+    3 0 1 0 this [current] test-voxel-to-voxels? . ."  <- collision should be true!" cr
+    3 0 2 0 this [current] test-voxel-to-voxels? . ."  <- collision should be false!" cr
+  ;m method test-compare
   m: ( piece -- ) \ testing collision detection list processes of this object
     this [current] destruct
     this [current] construct
     500 this [current] piece!
-    this [current] collisionlist!
+    this [current] collision-list!
     cr
-    500 this [current] collisionlist? . ." < this should be true!" cr
-    501 this [current] collisionlist? . ." < this should be true!" cr
-    510 this [current] collisionlist? . ." < this should be false!" cr
-    520 this [current] collisionlist? . ." < this should be false!" cr
-    540 this [current] collisionlist? . ." < this should be true!" cr
+    500 this [current] collision-list? . ." < this should be true!" cr
+    501 this [current] collision-list? . ." < this should be true!" cr
+    510 this [current] collision-list? . ." < this should be false!" cr
+    520 this [current] collision-list? . ." < this should be false!" cr
+    540 this [current] collision-list? . ." < this should be true!" cr
 
     this [current] destruct
     this [current] construct
     0 this [current] piece!
-    this [current] collisionlist!
+    this [current] collision-list!
     cr
-    0 this [current] collisionlist? . ." < this should be true!" cr
-    3 this [current] collisionlist? . ." < this should be true!" cr
-    10 this [current] collisionlist? . ." < this should be false!" cr
-  ;m method testcollistionlist
+    0 this [current] collision-list? . ." < this should be true!" cr
+    3 this [current] collision-list? . ." < this should be true!" cr
+    10 this [current] collision-list? . ." < this should be false!" cr
+  ;m method test-collistion-list
   m: ( piece -- ) \ test collision list full
     cr
     this [current] destruct
     this [current] construct
     959 this [current] piece!
-    this [current] collisionlist!
-    pindex-max 0 do i this [current] collisionlist? i . . cr loop
-  ;m method testcollsionlistfull
+    this [current] collision-list!
+    pindex-max 0 do i this [current] collision-list? i . . cr loop
+  ;m method test-collsion-list-full
 end-class piece
 
 \ displaypieces object *****************************************************************************************************************
@@ -444,7 +444,7 @@ object class
     else
       2drop 2drop \ no display setup just drop input
     then
-  ;m method displaypiece!
+  ;m method display-piece!
   m: ( nx ny nz displaypieces -- npiece# )
   displaypiecesetup displaypiecesetup @ =
   if
@@ -456,12 +456,12 @@ object class
   else
     2drop drop true  \ no display setup just drop input and output no piece
   then
-  ;m method displaypiece@
+  ;m method display-piece@
   m: ( displaypieces -- )
     xyz-size 0 ?do    	\ x
       xyz-size 0 ?do		\ y
         xyz-size 0 ?do	\ z
-          k j i this [current] displaypiece@ \ retrieve piece value to display
+          k j i this [current] display-piece@ \ retrieve piece value to display
           dup true = if drop 999 then  \ if no piece then show 999
           k displaycellsize * \ x for at-xy
           xyz-size zplane-spacing + i * j + topoffset + \ y for at-xy
@@ -474,5 +474,5 @@ object class
   m: ( displaypices -- )
     page
     this [current] update-display
-  ;m method showdisplay
-end-class displaypieces
+  ;m method show-display
+end-class display-pieces
