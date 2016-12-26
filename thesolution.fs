@@ -267,13 +267,13 @@ defer see-solution
   update-work-it
   iterations next-view >=
   if
-    iterations 500 + to next-view
+    iterations 1000 + to next-view
     work-it show-display
     pieces max-solution@ 40 5 at-xy . ." > max-solution!"
     pieces min-solution@ 40 6 at-xy . ." > min-solution!"
     pieces union-size@ 40 10 at-xy . ." > union-size!"
-    iterations 2 *  40 15 at-xy u. ." > iterations!"
-    40 20 at-xy ."                              "
+    iterations  40 15 at-xy u. ." > iterations!"
+    \ 40 20 at-xy ."                              "
   then
   iterations 1+ to iterations
   pieces union-size@ 25 >=
