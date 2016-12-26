@@ -231,8 +231,14 @@ display-pieces heap-new constant work-it
     pieces union-size@ 1- pieces union-size!
     fill-hole true =
   until
-  pieces set-min-solution
-;
+  pieces set-min-solution ;
+: find-piece ( -- npiece nflag ) \ find a piece that fits with current placed pieces in the union-list
+  \ return true if piece can be placed , npiece is the piece number
+  \ return false if no piece can be placed , npiece is junk
+  960 0 do
+    i pieces in-union-list? false = if i unloop true exit then
+  loop
+  0 false ;
 0 value iterations
 0 value next-view
 defer see-solution
@@ -250,14 +256,23 @@ defer see-solution
     then
   then
   update-work-it
+  find-piece false =
+  if
+    40 20 at-xy ." pieces end for iteration!"
+    drop
+    back-up
+  else
+    pieces add-piece-to-union-list drop
+  then
+  update-work-it
   iterations next-view >=
   if
-    iterations 1000 + to next-view
+    iterations 500 + to next-view
     work-it show-display
     pieces max-solution@ 40 5 at-xy . ." > max-solution!"
     pieces min-solution@ 40 6 at-xy . ." > min-solution!"
     pieces union-size@ 40 10 at-xy . ." > union-size!"
-    iterations 40 15 at-xy . ." > iterations!"
+    iterations 2 *  40 15 at-xy u. ." > iterations!"
     40 20 at-xy ."                              "
   then
   iterations 1+ to iterations
