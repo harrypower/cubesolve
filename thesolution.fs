@@ -256,6 +256,18 @@ defer see-solution
     then
   then
   update-work-it
+  find-hole false =
+  if
+    40 20 at-xy ." holes end for iteration!"
+    drop drop drop
+    back-up
+  else
+    fill-hole false =
+    if
+      back-up
+    then
+  then
+  update-work-it
   find-piece false =
   if
     40 20 at-xy ." pieces end for iteration!"
@@ -273,7 +285,7 @@ defer see-solution
     pieces min-solution@ 40 6 at-xy . ." > min-solution!"
     pieces union-size@ 40 10 at-xy . ." > union-size!"
     iterations  40 15 at-xy u. ." > iterations!"
-    \ 40 20 at-xy ."                              "
+    \ 40 25 at-xy .s 
   then
   iterations 1+ to iterations
   pieces union-size@ 25 >=
