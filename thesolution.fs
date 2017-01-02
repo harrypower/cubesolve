@@ -256,18 +256,6 @@ defer see-solution
     then
   then
   update-work-it
-  find-hole false =
-  if
-    40 20 at-xy ." holes end for iteration!"
-    drop drop drop
-    back-up
-  else
-    fill-hole false =
-    if
-      back-up
-    then
-  then
-  update-work-it
   find-piece false =
   if
     40 20 at-xy ." pieces end for iteration!"
