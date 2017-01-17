@@ -256,15 +256,6 @@ defer see-solution
     then
   then
   update-work-it
-  find-piece false =
-  if
-    40 20 at-xy ." pieces end for iteration!"
-    drop
-    back-up
-  else
-    pieces add-piece-to-union-list drop
-  then
-  update-work-it
   iterations next-view >=
   if
     iterations 1000 + to next-view
