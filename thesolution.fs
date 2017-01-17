@@ -85,8 +85,11 @@ object class
   ;m method hole-pieces-quantity@
   m: ( -- ) \ populate the holes piece list
     max-pieces 0 ?do
-      i 0 i this piece-xyz@
-      this hole!
+      i 0 i this piece-xyz@ this hole!
+      i 1 i this piece-xyz@ this hole!
+      i 2 i this piece-xyz@ this hole!
+      i 3 i this piece-xyz@ this hole!
+      i 4 i this piece-xyz@ this hole!
     loop
   ;m method populate-hole-pieces
   m: ( -- ) \ deallocate memory allocated in the holes piece list
