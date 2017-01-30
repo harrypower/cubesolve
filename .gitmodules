@@ -1,0 +1,3 @@
+[submodule "Gforth-Objects"]
+	path = Gforth-Objects
+	url = https://github.com/harrypower/Gforth-Objects.git
