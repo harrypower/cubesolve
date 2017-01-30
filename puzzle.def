@@ -1,0 +1,19 @@
+\ This is the definition information for the puzzle
+\ It defines the puzzle pieces and the puzzle board
+\ I decided to simply use forth words to do this defining so the definitions below are forth code.
+
+\ Puzzle board definitions
+\ length width height
+    5     5     5     puzzle-board-dimentions
+
+\ Puzzle pieces definitions
+  1 total-puzzle-pieces
+\ -***
+\ **--
+\ x y z
+  0 0 0 piece-voxel
+  1 0 0 piece-voxel
+  1 1 0 piece-voxel
+  2 1 0 piece-voxel
+  3 1 0 piece-voxel
+  0 define-puzzle-piece
