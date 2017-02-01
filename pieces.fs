@@ -47,8 +47,8 @@ struct-base class
       piece-list @ ll-set-start
       piece-list @ ll-size@ 0 ?do
         piece-list @ ll@ drop @ destruct
-        piece-list @ ll@ drop @ free throw
-      loop
+        piece-list @ ll@> 2drop @ free throw
+      loop 
       piece-list @ destruct
       piece-list @ free throw
       voxel-list @ destruct
