@@ -38,16 +38,18 @@ struct-base class
   public
   m: ( pieces -- ) \ constructor
     construct? construct? @ = if
-    \ stuff here to deallocate memory
-    \ destruct all voxel list in each piece from piece list
-    \ destruct piece list itself
-    \ destruct the voxel-list itself
-    \ 0 construct to the parent construct
-    else
+      piece-list @ ll-set-start
+      piece-list @ ll-size@ 0 ?do
+        piece-list @ ll@ drop @ destruct
+      loop
+      piece-list @ destruct
+      voxel-list @ destruct
+      0 temp-voxel% this [parent] construct
+    then
       double-linked-list heap-new piece-list !
       double-linked-list heap-new voxel-list !
       1 temp-voxel% this [parent] construct
-    then ;m overrides construct
+    ;m overrides construct
   m: ( pieces -- ) \ add voxel list to the current piece in the piece-list
     voxel-list cell
     piece-list @ ll!
@@ -67,7 +69,7 @@ struct-base class
     piece-list @ ll@ drop @ ll@ drop
     dup >r voxel-l c@
     r@ voxel-w c@
-    r> voxel-h c@ ;m method seeavoxel
+    r> voxel-h c@ ;m method getvoxel
   m: ( unindex pieces -- ) \ move voxel list pointer to next voxel from piece uindex
     piece-list @ ll-set-start
     0 ?do piece-list @ ll> abort" Trying to get a piece that is not there!" loop
