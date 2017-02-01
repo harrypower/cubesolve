@@ -37,7 +37,7 @@ struct-base class
   cell% inst-var voxel-list
   public
   m: ( pieces -- ) \ constructor
-    construct? construct? @ = if
+    this construct? if
       piece-list @ ll-set-start
       piece-list @ ll-size@ 0 ?do
         piece-list @ ll@ drop @ destruct
