@@ -27,6 +27,7 @@ end-class puzzle-board
 create puzzle-board-dimensions puzzle-board dict-new drop
 
 struct-base class
+  destruction implementation
   protected
   struct
     char% field voxel-l
@@ -36,23 +37,26 @@ struct-base class
   cell% inst-var piece-list
   cell% inst-var voxel-list
   public
-  m: ( pieces -- ) \ constructor
-    this construct? if
-      piece-list @ ll-set-start
-      piece-list @ ll-size@ 0 ?do
-        piece-list @ ll@ drop @ destruct
-        piece-list @ ll@ drop free throw
-      loop
-      piece-list @ destruct
-      piece-list free throw
-      voxel-list @ destruct
-      voxel-list free throw
-      0 temp-voxel% this [parent] construct
-    then
+  m: ( pieces -- ) \ constructor Note memory allocated here so call destruct before calling this construct or memory leaks will happen
     double-linked-list heap-new piece-list !
     double-linked-list heap-new voxel-list !
     1 temp-voxel% this [parent] construct
   ;m overrides construct
+  m: ( pieces -- ) \ destructor
+    piece-list @ 0 <> voxel-list @ 0 <> and if
+      piece-list @ ll-set-start
+      piece-list @ ll-size@ 0 ?do
+        piece-list @ ll@ drop @ destruct
+        piece-list @ ll@ drop @ free throw
+      loop
+      piece-list @ destruct
+      piece-list @ free throw
+      voxel-list @ destruct
+      voxel-list @ free throw
+      0 piece-list !
+      0 voxel-list !
+      this [parent] destruct
+    then ;m overrides destruct
   m: ( pieces -- ) \ add voxel list to the current piece in the piece-list
     voxel-list cell
     piece-list @ ll!
