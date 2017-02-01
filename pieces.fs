@@ -41,9 +41,12 @@ struct-base class
       piece-list @ ll-set-start
       piece-list @ ll-size@ 0 ?do
         piece-list @ ll@ drop @ destruct
+        piece-list @ ll@ drop free throw
       loop
       piece-list @ destruct
+      piece-list free throw
       voxel-list @ destruct
+      voxel-list free throw
       0 temp-voxel% this [parent] construct
     then
     double-linked-list heap-new piece-list !
