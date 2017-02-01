@@ -46,10 +46,10 @@ struct-base class
       voxel-list @ destruct
       0 temp-voxel% this [parent] construct
     then
-      double-linked-list heap-new piece-list !
-      double-linked-list heap-new voxel-list !
-      1 temp-voxel% this [parent] construct
-    ;m overrides construct
+    double-linked-list heap-new piece-list !
+    double-linked-list heap-new voxel-list !
+    1 temp-voxel% this [parent] construct
+  ;m overrides construct
   m: ( pieces -- ) \ add voxel list to the current piece in the piece-list
     voxel-list cell
     piece-list @ ll!
