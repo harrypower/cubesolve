@@ -30,9 +30,9 @@ struct-base class
   destruction implementation
   protected
   struct
-    char% field voxel-l
-    char% field voxel-w
-    char% field voxel-h
+    char% field voxel-x
+    char% field voxel-y
+    char% field voxel-z
   end-struct temp-voxel%
   cell% inst-var piece-list
   cell% inst-var voxel-list
@@ -48,7 +48,7 @@ struct-base class
       piece-list @ ll-size@ 0 ?do
         piece-list @ ll@ drop @ destruct
         piece-list @ ll@> 2drop @ free throw
-      loop 
+      loop
       piece-list @ destruct
       piece-list @ free throw
       voxel-list @ destruct
@@ -64,19 +64,19 @@ struct-base class
   ;m method define
   m: ( pieces -- uquantity ) \ return quantity of pieces
     piece-list @ ll-size@ ;m method piece-quantity
-  m: ( ul uw uh pieces -- ) \ add voxel to voxel-list
-    0 this :: voxel-h c!
-    0 this :: voxel-w c!
-    0 this :: voxel-l c!
+  m: ( ux uy uz pieces -- ) \ add voxel to voxel-list
+    0 this :: voxel-z c!
+    0 this :: voxel-y c!
+    0 this :: voxel-x c!
     0 this :: size @ voxel-list @ ll!
   ;m method add-voxel
-  m: ( uindex pieces -- ul uw uh ) \ retrieve voxel from piece uindex
+  m: ( uindex pieces -- ux uy uz ) \ retrieve voxel from piece uindex
     piece-list @ ll-set-start
     0 ?do piece-list @ ll> abort" Trying to get a piece that is not there!" loop
     piece-list @ ll@ drop @ ll@ drop
-    dup >r voxel-l c@
-    r@ voxel-w c@
-    r> voxel-h c@ ;m method getvoxel
+    dup >r voxel-x c@
+    r@ voxel-y c@
+    r> voxel-z c@ ;m method getvoxel
   m: ( unindex pieces -- ) \ move voxel list pointer to next voxel from piece uindex
     piece-list @ ll-set-start
     0 ?do piece-list @ ll> abort" Trying to get a piece that is not there!" loop
