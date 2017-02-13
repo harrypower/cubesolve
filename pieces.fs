@@ -2,26 +2,18 @@ require ./Gforth-Objects/objects.fs
 require ./Gforth-Objects/double-linked-list.fs
 require ./Gforth-Objects/object-struct-helper.fs
 
-struct-base class
+object class
   protected
-  struct
-    cell% field length
-    cell% field width
-    cell% field height
-  end-struct board-dims%
+  cell% field length
+  cell% field width
+  cell% field height
   public
-  m: ( puzzle-board -- ) \ constructor
-    1 board-dims% this [parent] construct ;m overrides construct
   m: ( ulength uwidth uheight puzzle-board -- ) \ store the dimensions
-    0 this :: height !
-    0 this :: width !
-    0 this :: length ! ;m method dims!
-  m: ( puzzle-board -- ulength uwidth uheight ) \ retrieve the dimensions
-    0 this :: length @
-    0 this :: width @
-    0 this :: height @ ;m method dims@
+    this height ! this width ! this length ! ;m method dims!
+  m: ( ulength uwidth uheight puzzle-board -- ) \ store the dimensions
+    this length @ this width @ this height @ ;m method dims@
   m: ( puzzle-board -- uvoxels ) \ total number of voxels the board contains
-    0 this :: length @ 0 this :: width @ * 0 this :: height @ * ;m method voxel-qty
+    this dims@ * * ;m method voxel-qty
 end-class puzzle-board
 
 create puzzle-board-dimensions puzzle-board dict-new drop
@@ -89,4 +81,29 @@ end-class pieces
 
 create puzzle-pieces pieces dict-new drop
 
-include ./puzzle.def
+require ./puzzle.def
+
+\\\
+struct-base class
+  destruction implementation
+  protected
+  inst-value total-voxels
+  struct
+    char% field voxel-x
+    char% field voxel-y
+    char% field voxel-z
+  end-struct temp-voxel%
+  cell% inst-var piece-list
+  cell% inst-var voxel-list
+
+  public
+  m: ( uvoxelsize translated-pieces -- ) \ constructor Note memory allocated here so call destruct before calling this construct or memory leaks will happen
+    dup [to-inst] total-voxels
+    8 / aligned dup
+    8 * total-voxels < if drop total-voxels 8 / 1 + aligned then
+    dup
+    double-linked-list heap-new piece-list !
+    double-linked-list heap-new voxel-list !
+    1 temp-voxel% this [parent] construct
+  ;m overrides construct
+end-class translated-pieces
