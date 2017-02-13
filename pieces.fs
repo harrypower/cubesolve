@@ -1,6 +1,5 @@
 require ./Gforth-Objects/objects.fs
 require ./Gforth-Objects/double-linked-list.fs
-require ./Gforth-Objects/object-struct-helper.fs
 
 object class
   protected
@@ -18,7 +17,7 @@ end-class puzzle-board
 
 create puzzle-board-dimensions puzzle-board dict-new drop
 
-struct-base class
+object class
   destruction implementation
   protected
   struct
@@ -26,13 +25,16 @@ struct-base class
     char% field voxel-y
     char% field voxel-z
   end-struct temp-voxel%
+  cell% inst-var voxels
+  cell% inst-var voxels-size
   cell% inst-var piece-list
   cell% inst-var voxel-list
   public
   m: ( pieces -- ) \ constructor Note memory allocated here so call destruct before calling this construct or memory leaks will happen
     double-linked-list heap-new piece-list !
     double-linked-list heap-new voxel-list !
-    1 temp-voxel% this [parent] construct
+    temp-voxel% %size dup voxels-size ! allocate throw voxels !
+    voxels @ voxels-size @ erase
   ;m overrides construct
   m: ( pieces -- ) \ destructor
     piece-list @ 0 <> voxel-list @ 0 <> and if
@@ -47,7 +49,7 @@ struct-base class
       voxel-list @ free throw
       0 piece-list !
       0 voxel-list !
-      this [parent] destruct
+      voxels @ free throw
     then ;m overrides destruct
   m: ( pieces -- ) \ add voxel list to the current piece in the piece-list
     voxel-list cell
@@ -57,10 +59,10 @@ struct-base class
   m: ( pieces -- uquantity ) \ return quantity of pieces
     piece-list @ ll-size@ ;m method piece-quantity
   m: ( ux uy uz pieces -- ) \ add voxel to voxel-list
-    0 this :: voxel-z c!
-    0 this :: voxel-y c!
-    0 this :: voxel-x c!
-    0 this :: size @ voxel-list @ ll!
+    voxels @ voxel-z c!
+    voxels @ voxel-y c!
+    voxels @ voxel-x c!
+    voxels @ voxels-size @ voxel-list @ ll!
   ;m method add-voxel
   m: ( uindex pieces -- ux uy uz ) \ retrieve voxel from piece uindex
     piece-list @ ll-set-start
