@@ -86,7 +86,7 @@ create puzzle-pieces pieces dict-new drop
 require ./puzzle.def
 
 \\\
-struct-base class
+object class
   destruction implementation
   protected
   inst-value total-voxels
