@@ -2,14 +2,43 @@ require ./Gforth-Objects/objects.fs
 require ./Gforth-Objects/double-linked-list.fs
 
 object class
+  selector clear-board
   protected
-
+  inst-value x-max
+  inst-value y-max
+  inst-value z-max
+  cell% inst-var board-a
+  cell% inst-var board-bytes
+  cell% inst-var board-bits
   public
-  m: ( ux uy uz -- ) ;m method set-board-dims
-  m: ( ux uy uz -- ) ;m method set-board-voxel
-  m: ( -- uboard-> ubytes ) ;m method get-board
-  m: ( -- ) ;m method clear-board
+  m: ( uxmax uymax uzmax -- )
+    [to-inst] z-max
+    [to-inst] y-max
+    [to-inst] x-max
+    x-max y-max z-max
+    * * board-bits !
+    board-bits @ 8 / aligned dup
+    8 * board-bits @ > if drop board-bits @ 8 / 1+ aligned then
+    board-bytes !
+    board-bytes @ allocate throw board-a !
+    this clear-board
+  ;m method set-board-dims
+  m: ( ux uy uz -- )
+    z-max y-max * *
+    swap x-max * + + dup 8 / { ubit ubyte }
+    board-a @ ubyte + c@
+    1 ubit ubyte 8 * - lshift or
+    board-a @ ubyte + c!
+  ;m method set-board-voxel
+  m: ( -- uboard-> ubytes )
+    board-a @ board-bytes @
+  ;m method get-board
+  m: ( -- )
+    board-a @ board-bytes @ erase
+  ;m overrides clear-board
 end-class voxel-board-mapping
+
+\ voxel-board-mapping heap-new constant test
 
 object class
   protected
