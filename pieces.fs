@@ -3,6 +3,16 @@ require ./Gforth-Objects/double-linked-list.fs
 
 object class
   protected
+
+  public
+  m: ( ux uy uz -- ) ;m method set-board-dims
+  m: ( ux uy uz -- ) ;m method set-board-voxel
+  m: ( -- uboard-> ubytes ) ;m method get-board
+  m: ( -- ) ;m method clear-board
+end-class voxel-board-mapping
+
+object class
+  protected
   cell% field length
   cell% field width
   cell% field height
@@ -83,29 +93,28 @@ end-class pieces
 
 create puzzle-pieces pieces dict-new drop
 
-require ./puzzle.def
+include ./puzzle.def
 
-\\\
 object class
   destruction implementation
   protected
   inst-value total-voxels
-  struct
-    char% field voxel-x
-    char% field voxel-y
-    char% field voxel-z
-  end-struct temp-voxel%
-  cell% inst-var piece-list
-  cell% inst-var voxel-list
-
+  inst-value voxel-bytes
+  inst-value pieces->
+  inst-value board->
   public
-  m: ( uvoxelsize translated-pieces -- ) \ constructor Note memory allocated here so call destruct before calling this construct or memory leaks will happen
-    dup [to-inst] total-voxels
+  m: ( upieces uvoxelsize translated-pieces -- )
+  \ constructor Note memory allocated here so call destruct before calling this construct or memory leaks will happen
+  \ upieces is the pieces object address that contains the current puzzle pieces to work with
+  \ uvoxelsize is the total voxels of the board for this puzzle
+    dup [to-inst] total-voxels  \ receives uvoxelsize from stack ( is the total voxels of the board )
     8 / aligned dup
     8 * total-voxels < if drop total-voxels 8 / 1 + aligned then
-    dup
-    double-linked-list heap-new piece-list !
-    double-linked-list heap-new voxel-list !
-    1 temp-voxel% this [parent] construct
+    [to-inst] voxel-bytes
+    [to-inst] pieces->  \ receives upieces from stack
+    voxel-bytes allocate throw [to-inst] board->
   ;m overrides construct
+  m: ( translated-pieces -- ) \ destructor
+    board-> free
+  ;m overrides destruct
 end-class translated-pieces
