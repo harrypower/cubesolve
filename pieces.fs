@@ -114,14 +114,16 @@ create puzzle-pieces pieces dict-new drop
 include ./puzzle.def
 
 voxel-board-mapping class
-\ this class has methods to take pieces object and create all the translated pieces in a link list of board images
+\ this class has methods to take puzzle-pieces and create all the translated pieces in a link list of board images
 \ the data for this object is collected from puzzle-pieces and puzzle-board-dimensions objects
   destruction implementation
   protected
-  inst-value pieces->
-  inst-value translated-pieces->
+  inst-value pieces->             \ a pointer to the current defined pieces to puzzle
+  inst-value working-pieces->     \ a pointer to pieces object for working on translation pieces
+  inst-value translated-pieces->  \ a pointer to a double-linked-list object containing translated pieces in a board binary format
   public
   m: ( translated-pieces -- )
+    pieces heap-new [to-inst] working-pieces->
     puzzle-pieces [to-inst] pieces->
     double-linked-list heap-new [to-inst] translated-pieces->
     puzzle-board-dimensions get-board-dims this set-board-dims
@@ -129,6 +131,7 @@ voxel-board-mapping class
   m: ( translated-pieces -- ) \ destructor
     this destruct
     translated-pieces-> destruct
+    working-pieces-> destruct
   ;m overrides destruct
 end-class translate-pieces
 
