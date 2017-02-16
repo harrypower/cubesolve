@@ -9,11 +9,13 @@ object class
   inst-value y-max
   inst-value z-max
   cell% inst-var board-a
+  cell% inst-var board-b
   cell% inst-var board-bytes
   cell% inst-var board-bits
   public
   m: ( voxel-board-mapping -- ) \ destructor
-    board-a @ free throw  ;m overrides destruct
+    board-a @ free throw
+    board-b @ free throw ;m overrides destruct
   m: ( uxmax uymax uzmax voxel-board-mapping -- )
     [to-inst] z-max
     [to-inst] y-max
@@ -24,6 +26,7 @@ object class
     8 * board-bits @ > if drop board-bits @ 8 / 1+ aligned then
     board-bytes !
     board-bytes @ allocate throw board-a !
+    board-bytes @ allocate throw board-b !
     this clear-board
   ;m method set-board-dims
   m: ( voxel-board-mapping -- uxmax uymax uxmax ) \ return the board dimentions
@@ -40,7 +43,20 @@ object class
   ;m method get-board
   m: ( voxel-board-mapping -- )
     board-a @ board-bytes @ erase
+    board-b @ board-bytes @ erase
   ;m overrides clear-board
+  m: { uboard uboard1 -- nflag } \ cboard and cboard1 are addresses of boards with pieces to be tested for overlapping pieces
+  \ board sizes tested are equal to board-bytes @ amount
+  \ nflag is false if there are no overlaps
+  \ nflag is true for an overlap of any piece
+    0 board-bytes @ 0 ?do uboard i + c@ uboard1 i + c@ and or loop 0 = if false else true then
+  ;m method pieces-overlaping?
+  m: { uboard uboard1 -- nflag } \ cboard and cboard1 are addresses of boards containing pieces to compair for exact copies
+  \ board sizes tested are equal to board-bytes @ amount
+  \ nflag is false if no exact copy of pieces are found in boards
+  \ nflag is true if an exact copy of pieces are found in boards
+    true board-bytes @ 0 ?do uboard i + c@ uboard1 i + c@ <> if drop false leave then loop
+  ;m method pieces-identical?
 end-class voxel-board-mapping
 
 create puzzle-board-dimensions voxel-board-mapping dict-new drop
@@ -137,3 +153,15 @@ end-class translate-pieces
 
 create translated-pieces translate-pieces dict-new drop
 translated-pieces get-board-dims . . . cr
+
+\\\
+loop total pieces
+loop total voxels for current piece
+ piece store voxels if this pieces voxel combination is not currently in linked list
+ loop all rotations for current piece
+  loop all translations for current piece
+    piece translations rotations store voxels if this pieces translation rotations voxels combination are not currently in linked list 
+  endloop all translations for current pieces
+ endloop all rotations for current piece
+endloop total voxels for current piece
+endloop total pieces
