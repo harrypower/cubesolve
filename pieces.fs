@@ -2,6 +2,7 @@ require ./Gforth-Objects/objects.fs
 require ./Gforth-Objects/double-linked-list.fs
 
 object class
+  destruction implementation
   selector clear-board
   protected
   inst-value x-max
@@ -11,7 +12,9 @@ object class
   cell% inst-var board-bytes
   cell% inst-var board-bits
   public
-  m: ( uxmax uymax uzmax -- )
+  m: ( voxel-board-mapping -- ) \ destructor
+    board-a @ free throw  ;m overrides destruct
+  m: ( uxmax uymax uzmax voxel-board-mapping -- )
     [to-inst] z-max
     [to-inst] y-max
     [to-inst] x-max
@@ -23,38 +26,24 @@ object class
     board-bytes @ allocate throw board-a !
     this clear-board
   ;m method set-board-dims
-  m: ( ux uy uz -- )
+  m: ( voxel-board-mapping -- uxmax uymax uxmax ) \ return the board dimentions
+    x-max y-max z-max ;m method get-board-dims
+  m: ( ux uy uz voxel-board-mapping -- )
     z-max y-max * *
     swap x-max * + + dup 8 / { ubit ubyte }
     board-a @ ubyte + c@
     1 ubit ubyte 8 * - lshift or
     board-a @ ubyte + c!
   ;m method set-board-voxel
-  m: ( -- uboard-> ubytes )
+  m: ( voxel-board-mapping -- uboard-> ubytes )
     board-a @ board-bytes @
   ;m method get-board
-  m: ( -- )
+  m: ( voxel-board-mapping -- )
     board-a @ board-bytes @ erase
   ;m overrides clear-board
 end-class voxel-board-mapping
 
-\ voxel-board-mapping heap-new constant test
-
-object class
-  protected
-  cell% field length
-  cell% field width
-  cell% field height
-  public
-  m: ( ulength uwidth uheight puzzle-board -- ) \ store the dimensions
-    this height ! this width ! this length ! ;m method dims!
-  m: ( ulength uwidth uheight puzzle-board -- ) \ store the dimensions
-    this length @ this width @ this height @ ;m method dims@
-  m: ( puzzle-board -- uvoxels ) \ total number of voxels the board contains
-    this dims@ * * ;m method voxel-qty
-end-class puzzle-board
-
-create puzzle-board-dimensions puzzle-board dict-new drop
+create puzzle-board-dimensions voxel-board-mapping dict-new drop
 
 object class
   destruction implementation
@@ -124,26 +113,24 @@ create puzzle-pieces pieces dict-new drop
 
 include ./puzzle.def
 
-object class
+voxel-board-mapping class
+\ this class has methods to take pieces object and create all the translated pieces in a link list of board images
+\ the data for this object is collected from puzzle-pieces and puzzle-board-dimensions objects
   destruction implementation
   protected
-  inst-value total-voxels
-  inst-value voxel-bytes
   inst-value pieces->
-  inst-value board->
+  inst-value translated-pieces->
   public
-  m: ( upieces uvoxelsize translated-pieces -- )
-  \ constructor Note memory allocated here so call destruct before calling this construct or memory leaks will happen
-  \ upieces is the pieces object address that contains the current puzzle pieces to work with
-  \ uvoxelsize is the total voxels of the board for this puzzle
-    dup [to-inst] total-voxels  \ receives uvoxelsize from stack ( is the total voxels of the board )
-    8 / aligned dup
-    8 * total-voxels < if drop total-voxels 8 / 1 + aligned then
-    [to-inst] voxel-bytes
-    [to-inst] pieces->  \ receives upieces from stack
-    voxel-bytes allocate throw [to-inst] board->
+  m: ( translated-pieces -- )
+    puzzle-pieces [to-inst] pieces->
+    double-linked-list heap-new [to-inst] translated-pieces->
+    puzzle-board-dimensions get-board-dims this set-board-dims
   ;m overrides construct
   m: ( translated-pieces -- ) \ destructor
-    board-> free
+    this destruct
+    translated-pieces-> destruct
   ;m overrides destruct
-end-class translated-pieces
+end-class translate-pieces
+
+create translated-pieces translate-pieces dict-new drop
+translated-pieces get-board-dims . . . cr
