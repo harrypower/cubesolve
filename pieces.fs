@@ -1,6 +1,10 @@
 require ./Gforth-Objects/objects.fs
 require ./Gforth-Objects/double-linked-list.fs
 
+defer piecesclearstart
+defer piecesaddvoxels
+defer piecesdefine
+
 object class
   destruction implementation
   selector clear-board
@@ -37,6 +41,24 @@ object class
     1 ubit ubyte 8 * - lshift or
     board-a @ ubyte + c!
   ;m method set-board-voxel
+  m: ( uboard upieces voxel-board-mapping -- ) \ will extract all the voxels from the binary map in uboard and put them in upieces object
+  \ note upieces is a pieces object and it will be cleared before use
+  \ note board-a is clobered in this algorithom
+    { uboard upieces }
+    upieces piecesclearstart
+    x-max 0 ?do
+      y-max 0 ?do
+        z-max 0 ?do
+          this clear-board
+          k j i this set-board-voxel
+          uboard board-a @ this pieces-overlaping?
+          if k j i upieces piecesaddvoxels then
+        loop
+      loop
+    loop
+    upieces piecesdefine
+    upieces
+  ;m method get-voxels-from-board
   m: ( voxel-board-mapping -- uboard-> ubytes )
     board-a @ board-bytes @
   ;m method get-board
@@ -137,6 +159,13 @@ object class
   ;m overrides print
 end-class pieces
 
+: pieces-clear-start ( upieces -- ) dup [bind] pieces destruct [bind] pieces construct ;
+: pieces-addvoxels ( upieces -- ) [bind] pieces add-voxel ;
+: pieces-define ( upieces -- ) [bind] pieces define ;
+' pieces-clear-start is piecesclearstart
+' pieces-addvoxels is piecesaddvoxels
+' pieces-define is piecesdefine
+
 create puzzle-pieces pieces dict-new drop
 
 include ./puzzle.def
@@ -214,7 +243,7 @@ voxel-board-mapping class
     loop
     working-pieces-> [bind] pieces define
     working-pieces->
-  ;m method get-voxels-from-board
+  ;m method get-voxels-from-a-board
   m: ( translate-pieces -- ) \ print
     cr this [parent] print cr
     this get-board-dims rot . swap . . ."  x y z dimensions of this puzzle board!" cr
@@ -240,8 +269,15 @@ create translated-pieces translate-pieces dict-new drop
 translated-pieces print cr
 puzzle-pieces print cr
 0 translated-pieces get-board-piece pad swap move
-pad translated-pieces get-voxels-from-board
+pad translated-pieces get-voxels-from-a-board
 bind pieces print cr
+translated-pieces print cr
+
+." ***testing get-voxels-from-board***" cr
+pieces heap-new constant testing
+1 translated-pieces get-board-piece pad swap move
+pad testing translated-pieces get-voxels-from-board
+testing bind pieces print cr
 translated-pieces print cr
 
 
