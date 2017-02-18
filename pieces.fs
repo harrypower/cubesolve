@@ -137,22 +137,42 @@ voxel-board-mapping class
   inst-value pieces->             \ a pointer to the current defined pieces to puzzle
   inst-value working-pieces->     \ a pointer to pieces object for working on translation pieces
   inst-value translated-pieces->  \ a pointer to a double-linked-list object containing translated pieces in a board binary format
-  m: ( translate-pieces -- ) \ copy input pieces to working-pieces object
-    pieces-> piece-quantity 0 ?do
-      i pieces-> voxel-quantity 0 ?do
-        j pieces-> getvoxel working-pieces-> add-voxel
-        j pieces-> nextvoxel
-      loop
-      working-pieces-> define
+  m: ( uboard-> -- nflag ) \ look for uboard in translated-pieces list if not found nflag is false if found nflag is true
+    translated-pieces-> ll-set-start
+    false translated-pieces-> ll-size@ 0 ?do drop
+      dup translated-pieces-> ll@> 2drop this pieces-identical? if true leave else false then
+    loop swap drop
+  ;m method in-piece-list?
+  m: ( uindex upieces translate-pieces -- ) \ make piece board image and add it to translated-pieces list if it is not there already
+    { uindex upieces }
+    this clear-board
+    uindex upieces voxel-quantity 0 ?do
+      uindex upieces getvoxel
+      uindex upieces nextvoxel
+      this set-board-voxel
     loop
-  ;m method copy-start-pieces
+    this get-board
+    over this in-piece-list? false = if translated-pieces-> ll! else 2drop then
+  ;m method make-add-piece
+  m: ( translate-pieces -- ) \ add input pieces to translated-pieces list
+\    pieces-> piece-quantity 0 ?do
+\      i pieces-> voxel-quantity 0 ?do
+\        j pieces-> getvoxel working-pieces-> add-voxel
+\        j pieces-> nextvoxel
+\      loop
+\      working-pieces-> define
+\    loop
+    pieces-> piece-quantity 0 ?do
+      i pieces-> this make-add-piece
+    loop
+  ;m method add-start-pieces
   public
   m: ( translate-pieces -- )
     pieces heap-new [to-inst] working-pieces->
     puzzle-pieces [to-inst] pieces->
     double-linked-list heap-new [to-inst] translated-pieces->
     puzzle-board-dimensions get-board-dims this set-board-dims
-    this copy-start-pieces
+    this add-start-pieces
   ;m overrides construct
   m: ( translate-pieces -- ) \ destructor
     this destruct
@@ -161,19 +181,26 @@ voxel-board-mapping class
   ;m overrides destruct
   m: ( -- ) \ print
     cr this [parent] print cr
+    this get-board-dims rot . swap . . ."  x y z dimensions of this puzzle board!" cr
     working-pieces-> piece-quantity . ." pieces in working list!" cr
     working-pieces-> piece-quantity 0 ?do
-      i . ."  piece" cr 
+      i . ."  piece" cr
       i working-pieces-> voxel-quantity 0 ?do
         j working-pieces-> getvoxel rot . space swap . space . ." voxel!" cr
         j working-pieces-> nextvoxel
       loop
     loop
+    translated-pieces-> ll-size@ dup . ."  pieces in translated-pieces!" cr
+    translated-pieces-> ll-set-start
+    translated-pieces-> ll-size@ 0 ?do
+      i . ."  piece" cr
+      translated-pieces-> ll@> drop dump
+    loop
   ;m overrides print
 end-class translate-pieces
 
 create translated-pieces translate-pieces dict-new drop
-translated-pieces get-board-dims . . . cr
+translated-pieces print cr
 
 \\\
 loop total pieces
