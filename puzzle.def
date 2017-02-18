@@ -17,7 +17,7 @@
   3 1 0 puzzle-pieces add-voxel
   puzzle-pieces define
 
-\\\ test for other pieces
+\ \\\ test for other pieces
   0 0 0 puzzle-pieces add-voxel
   1 0 0 puzzle-pieces add-voxel
   1 1 0 puzzle-pieces add-voxel

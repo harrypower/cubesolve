@@ -137,18 +137,39 @@ voxel-board-mapping class
   inst-value pieces->             \ a pointer to the current defined pieces to puzzle
   inst-value working-pieces->     \ a pointer to pieces object for working on translation pieces
   inst-value translated-pieces->  \ a pointer to a double-linked-list object containing translated pieces in a board binary format
+  m: ( translate-pieces -- ) \ copy input pieces to working-pieces object
+    pieces-> piece-quantity 0 ?do
+      i pieces-> voxel-quantity 0 ?do
+        j pieces-> getvoxel working-pieces-> add-voxel
+        j pieces-> nextvoxel
+      loop
+      working-pieces-> define
+    loop
+  ;m method copy-start-pieces
   public
-  m: ( translated-pieces -- )
+  m: ( translate-pieces -- )
     pieces heap-new [to-inst] working-pieces->
     puzzle-pieces [to-inst] pieces->
     double-linked-list heap-new [to-inst] translated-pieces->
     puzzle-board-dimensions get-board-dims this set-board-dims
+    this copy-start-pieces
   ;m overrides construct
-  m: ( translated-pieces -- ) \ destructor
+  m: ( translate-pieces -- ) \ destructor
     this destruct
     translated-pieces-> destruct
     working-pieces-> destruct
   ;m overrides destruct
+  m: ( -- ) \ print
+    cr this [parent] print cr
+    working-pieces-> piece-quantity . ." pieces in working list!" cr
+    working-pieces-> piece-quantity 0 ?do
+      i . ."  piece" cr 
+      i working-pieces-> voxel-quantity 0 ?do
+        j working-pieces-> getvoxel rot . space swap . space . ." voxel!" cr
+        j working-pieces-> nextvoxel
+      loop
+    loop
+  ;m overrides print
 end-class translate-pieces
 
 create translated-pieces translate-pieces dict-new drop
@@ -160,7 +181,7 @@ loop total voxels for current piece
  piece store voxels if this pieces voxel combination is not currently in linked list
  loop all rotations for current piece
   loop all translations for current piece
-    piece translations rotations store voxels if this pieces translation rotations voxels combination are not currently in linked list 
+    piece translations rotations store voxels if this pieces translation rotations voxels combination are not currently in linked list
   endloop all translations for current pieces
  endloop all rotations for current piece
 endloop total voxels for current piece
