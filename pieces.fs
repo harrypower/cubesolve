@@ -9,13 +9,14 @@ object class
   inst-value y-max
   inst-value z-max
   cell% inst-var board-a
-  cell% inst-var board-b
+\  cell% inst-var board-b
   cell% inst-var board-bytes
   cell% inst-var board-bits
   public
   m: ( voxel-board-mapping -- ) \ destructor
     board-a @ free throw
-    board-b @ free throw ;m overrides destruct
+\    board-b @ free throw
+  ;m overrides destruct
   m: ( uxmax uymax uzmax voxel-board-mapping -- )
     [to-inst] z-max
     [to-inst] y-max
@@ -26,7 +27,7 @@ object class
     8 * board-bits @ > if drop board-bits @ 8 / 1+ aligned then
     board-bytes !
     board-bytes @ allocate throw board-a !
-    board-bytes @ allocate throw board-b !
+\    board-bytes @ allocate throw board-b !
     this clear-board
   ;m method set-board-dims
   m: ( voxel-board-mapping -- uxmax uymax uxmax ) \ return the board dimentions
@@ -38,20 +39,26 @@ object class
     1 ubit ubyte 8 * - lshift or
     board-a @ ubyte + c!
   ;m method set-board-voxel
+  m: ( uboard upieces voxel-board-mapping -- ) \ will extract all the voxels from the binary map in uboard and put them in upieces object
+  \ note upieces object will be cleared and added to as if one big pieces was defined
+    { uboard upieces }
+  ;m method get-voxels-from-board
   m: ( voxel-board-mapping -- uboard-> ubytes )
     board-a @ board-bytes @
   ;m method get-board
   m: ( voxel-board-mapping -- )
     board-a @ board-bytes @ erase
-    board-b @ board-bytes @ erase
+\    board-b @ board-bytes @ erase
   ;m overrides clear-board
-  m: { uboard uboard1 -- nflag } \ cboard and cboard1 are addresses of boards with pieces to be tested for overlapping pieces
+  m: ( uboard uboard1 voxel-board-mapping -- )
+    { uboard uboard1 -- nflag } \ uboard and uboard1 are addresses of boards with pieces to be tested for overlapping pieces
   \ board sizes tested are equal to board-bytes @ amount
   \ nflag is false if there are no overlaps
   \ nflag is true for an overlap of any piece
     0 board-bytes @ 0 ?do uboard i + c@ uboard1 i + c@ and or loop 0 = if false else true then
   ;m method pieces-overlaping?
-  m: { uboard uboard1 -- nflag } \ cboard and cboard1 are addresses of boards containing pieces to compair for exact copies
+  m: ( uboard uboard1 voxel-board-mapping -- )
+    { uboard uboard1 -- nflag } \ uboard and uboard1 are addresses of boards containing pieces to compair for exact copies
   \ board sizes tested are equal to board-bytes @ amount
   \ nflag is false if no exact copy of pieces are found in boards
   \ nflag is true if an exact copy of pieces are found in boards
