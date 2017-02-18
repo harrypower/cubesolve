@@ -1,6 +1,9 @@
 require ./Gforth-Objects/objects.fs
 require ./Gforth-Objects/double-linked-list.fs
 
+defer piecesadd
+defer piecesclean
+
 object class
   destruction implementation
   selector clear-board
@@ -42,6 +45,7 @@ object class
   m: ( uboard upieces voxel-board-mapping -- ) \ will extract all the voxels from the binary map in uboard and put them in upieces object
   \ note upieces object will be cleared and added to as if one big pieces was defined
     { uboard upieces }
+    upieces piecesclean
   ;m method get-voxels-from-board
   m: ( voxel-board-mapping -- uboard-> ubytes )
     board-a @ board-bytes @
@@ -132,6 +136,12 @@ object class
     piece-list @ ll@ drop @ ll-size@ ;m method voxel-quantity
 end-class pieces
 
+: pieces-clean ( pieces -- )
+  [bind] pieces destruct ;
+' pieces-clean is piecesclean
+: pieces-add ( ux uy uz pieces -- )
+  [bind] pieces add-voxel ;
+' pieces-add is piecesadd
 create puzzle-pieces pieces dict-new drop
 
 include ./puzzle.def
