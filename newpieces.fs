@@ -33,7 +33,7 @@ object class
   ;m overrides destruct
   m: ( ux uy uz piece -- )
     a-voxel @ [bind] voxel voxel!
-    a-voxel @ sp@ cell a-voxel-list @ [bind] double-linked-list ll! drop  
+    a-voxel cell a-voxel-list @ [bind] double-linked-list ll!
     voxel heap-new a-voxel !
   ;m method add-voxel
   m: ( uindex piece -- ux uy uz ) \ retrieve voxel data from uindex voxel
@@ -49,11 +49,13 @@ cr
 testvoxel voxel@ . . . cr
 15 25 35 testvoxel voxel! .s cr
 testvoxel voxel@ . . . cr
+.s cr
 
 piece heap-new constant testpiece
 cr
 3 2 1 testpiece add-voxel .s cr
 5 8 2 testpiece add-voxel .s cr
+
 
 0 testpiece get-voxel . . . cr
 1 testpiece get-voxel . . . cr
