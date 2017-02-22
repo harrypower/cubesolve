@@ -9,7 +9,8 @@
 * piece object
   * will be the base object that manage what constitutes a piece or a collection of voxels
   * will contain voxel objects
-  * methods to put and get voxel objects into this piece and out of this piece 
+  * methods to put and get voxel objects into this piece and out of this piece
+  * method to get quantity of voxels in this piece 
 
 * pieces object
   * will be the base object that manages what constitutes groups of pieces for any grouping purpose
