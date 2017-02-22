@@ -173,7 +173,7 @@ voxel-board-mapping class
 \ this class has methods to take puzzle-pieces and create all the translated pieces in a link list of board images
 \ the data for this object is collected from puzzle-pieces and puzzle-board-dimensions objects
   destruction implementation
-  protected
+\  protected
   inst-value puzzle-pieces->      \ a pointer to the current defined pieces to puzzle
   inst-value working-pieces->     \ a pointer to pieces object for working on translation pieces
   inst-value rotated-pieces->     \ a pointer to pieces object that will be used to hold rotated pieces
@@ -201,13 +201,29 @@ voxel-board-mapping class
     upieces [bind] pieces piece-quantity 0 ?do
       i upieces this voxels-to-binary-pieces-map
     loop ;m method pieces-to-binary-piece-map
+  m: ( ux uy uz translated-pieces -- nflag ) \ test ux uy uz and return nflag true if bounds are inside board dimentions
+  \ nflag is false if any of the dimentions execede the board
+    dup 0 < swap z-max 1 - > or swap
+    dup 0 < swap y-max 1 - > or or swap
+    dup 0 < swap x-max 1 - > or or true = if false else true then
+  ;m method voxel-on-board?
   m: ( upieces translate-pieces -- ) \ generate all translations that work in board from upieces data set
     \ the translated pieces are stored in translated-rotated-pieces-> pointed to piece objects
     translated-rotated-pieces-> [bind] pieces destruct
     translated-rotated-pieces-> [bind] pieces construct
-    { upieces }
-    upieces [bind] pieces piece-quantity 0 ?do
-      \ do-translation-of-pieces
+    { upieces ux uy uz }
+    x-max 0 ?do
+      y-max 0 ?do
+        z-max 0 ?do
+          i to uz j to uy k to ux
+          upieces [bind] pieces piece-quantity 0 ?do
+            i upieces [bind] pieces getvoxel
+            i upieces [bind] pieces nextvoxel
+            uz + to uz uy + to uy ux + to ux
+            ux uy uz this voxel-on-board?
+          loop
+        loop
+      loop
     loop
   ;m method generate-translation-pieces
   m: ( translate-pieces -- ) \ add input pieces to translated-pieces list
@@ -237,11 +253,14 @@ voxel-board-mapping class
     rotated-pieces-> [bind] pieces destruct
     translated-rotated-pieces-> [bind] pieces destruct
   ;m overrides destruct
-  m: ( uindex translate-pieces -- uboard-> ubytes ) \ get uindex board from translated pieces list
+  m: ( uindex translate-pieces -- uboard-> ubytes ) \ get uindex binary board map from all translated and rotated pieces in binary list
     board-binary-pieces-> [bind] double-linked-list ll-set-start
     0 ?do board-binary-pieces-> [bind] double-linked-list ll> drop loop
     board-binary-pieces-> [bind] double-linked-list ll@
   ;m method get-board-piece
+  m: ( translated-pieces -- usize ) \ return the current size of all translated and rotated pieces in binary list
+    board-binary-pieces-> ll-size@
+  ;m method get-pieces-quantity
   m: ( uboard voxel-board-mapping -- upieces ) \ will extract all the voxels from the binary map in uboard and put them in upieces object
   \ note upieces is the internal working-pieces-> object instance of pieces and it will be cleared before use
   \ note board-a is clobered in this algorithom
@@ -296,7 +315,7 @@ pieces heap-new constant testing
 pad testing translated-pieces get-voxels-from-board
 testing bind pieces print cr
 translated-pieces print cr
-
+translated-pieces get-pieces-quantity . ." total pieces in binary map" cr
 
 \\\
 loop total pieces
