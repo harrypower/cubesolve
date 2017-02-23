@@ -93,10 +93,54 @@ object class
   ;m method get-a-piece
   m: ( pieces -- usize ) \ return the quantity of pieces in this piece list
     a-pieces-list @ [bind] double-linked-list ll-size@
-  ;m method pieces-quantity@
+  ;m overrides pieces-quantity@
 end-class pieces
 
+pieces heap-new constant puzzle-pieces
+piece heap-new constant working-piece
 
+include ./newpuzzle.def
+cr 
+puzzle-pieces pieces-quantity@ . ." pieces!" cr
+: seepieces
+  dup puzzle-pieces get-a-piece voxel-quantity@ 0 ?do
+     dup puzzle-pieces get-a-piece i swap get-voxel . . . cr
+  loop drop ;
+cr
+0 seepieces ." piece 0 " cr
+1 seepieces ." piece 1 " cr
+2 seepieces ." piece 2 " cr
+
+\\\
+pieces heap-new constant testpieces
+piece heap-new constant testpiece
+
+0 0 0 testpiece add-voxel
+1 0 0 testpiece add-voxel
+1 1 0 testpiece add-voxel
+2 1 0 testpiece add-voxel
+3 1 0 testpiece add-voxel
+testpiece testpieces add-a-piece
+
+0 0 0 testpiece add-voxel
+1 0 0 testpiece add-voxel
+1 1 0 testpiece add-voxel
+2 1 0 testpiece add-voxel
+3 1 0 testpiece add-voxel
+testpiece testpieces add-a-piece
+
+testpieces pieces-quantity@ . cr
+1 testpieces get-a-piece voxel-quantity@ dup . cr
+
+: seepieces
+  dup testpieces get-a-piece voxel-quantity@ 0 ?do
+     dup testpieces get-a-piece i swap get-voxel . . . cr
+  loop drop ;
+cr
+1 seepieces cr
+0 seepieces
+
+\\\
 voxel heap-new constant testvoxel
 cr
 10 20 30 testvoxel voxel! .s cr
