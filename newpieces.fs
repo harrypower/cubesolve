@@ -45,7 +45,7 @@ object class
     a-voxel cell a-voxel-list @ [bind] double-linked-list ll!
     voxel heap-new a-voxel !
   ;m method add-voxel
-  m: ( uindex piece -- ux uy uz ) \ retrieve voxel data from uindex voxel
+  m: ( uindex piece -- ux uy uz ) \ retrieve voxel data from uindex voxel in this piece
     this seek-voxel
     a-voxel-list @ [bind] double-linked-list ll@ drop @ [bind] voxel voxel@
   ;m method get-voxel
@@ -53,6 +53,49 @@ object class
     a-voxel-list @ [bind] double-linked-list ll-size@
   ;m overrides voxel-quantity@
 end-class piece
+
+object class
+  destruction implementation
+  selector pieces-quantity@
+  protected
+  cell% inst-var a-piece
+  cell% inst-var a-pieces-list
+  m: ( uindex piece -- ) \ seek to uindex piece in a-pieces-list
+    a-pieces-list @ [bind] double-linked-list ll-set-start
+    0 ?do a-pieces-list @ [bind] double-linked-list ll> drop loop
+  ;m method seek-piece
+  public
+  m: ( pieces -- ) \ construct
+    piece heap-new a-piece !
+    double-linked-list heap-new a-pieces-list !
+  ;m overrides construct
+  m: ( pieces -- ) \ destruct
+    a-piece @ [bind] piece destruct
+    a-piece @ free throw
+    this pieces-quantity@ 0 ?do
+      a-pieces-list @ [bind] double-linked-list ll@ drop @ [bind] piece destruct
+      a-pieces-list @ [bind] double-linked-list ll@ drop free throw
+    loop
+    a-pieces-list @ [bind] double-linked-list destruct
+    a-pieces-list @ free throw
+  ;m overrides destruct
+  m: ( upiece pieces -- ) \ copies contents of upiece object and puts the copied piece object in a-pieces-list
+    { upiece }
+    upiece [bind] piece voxel-quantity@ 0 ?do
+      i upiece [bind] piece get-voxel a-piece @ [bind] piece add-voxel
+    loop
+    a-piece cell a-pieces-list @ [bind] double-linked-list ll!
+    piece heap-new a-piece !
+  ;m method add-a-piece
+  m: ( uindex pieces -- upiece ) \ retrieve uindex piece from a-pieces-list
+    this seek-piece
+    a-pieces-list @ [bind] double-linked-list ll@ drop @
+  ;m method get-a-piece
+  m: ( pieces -- usize ) \ return the quantity of pieces in this piece list
+    a-pieces-list @ [bind] double-linked-list ll-size@
+  ;m method pieces-quantity@
+end-class pieces
+
 
 voxel heap-new constant testvoxel
 cr
@@ -75,4 +118,4 @@ testpiece voxel-quantity@ . cr .s cr
 
 testpiece destruct .s cr
 testpiece construct .s cr
-testpiece voxel-quantity@ . cr 
+testpiece voxel-quantity@ . cr
