@@ -8,30 +8,24 @@
 
 \ Puzzle pieces definitions
 \ x y z
-0 0 0 working-piece add-voxel
-1 0 0 working-piece add-voxel
-1 1 0 working-piece add-voxel
-2 1 0 working-piece add-voxel
-3 1 0 working-piece add-voxel
-working-piece puzzle-pieces add-a-piece
-working-piece destruct
-working-piece construct
+0 0 0 define-a-voxel
+1 0 0 define-a-voxel
+1 1 0 define-a-voxel
+2 1 0 define-a-voxel
+3 1 0 define-a-voxel
+define-a-piece
 
 \ \\\
 \ these are test pieces to work out bugs
-0 0 0 working-piece add-voxel
-1 0 0 working-piece add-voxel
-2 1 0 working-piece add-voxel
-3 1 0 working-piece add-voxel
-working-piece puzzle-pieces add-a-piece
-working-piece destruct
-working-piece construct
+0 0 0 define-a-voxel
+1 0 0 define-a-voxel
+2 1 0 define-a-voxel
+3 1 0 define-a-voxel
+define-a-piece
 
-0 0 0 working-piece add-voxel
-1 0 0 working-piece add-voxel
-1 1 0 working-piece add-voxel
-2 1 0 working-piece add-voxel
-3 1 0 working-piece add-voxel
-working-piece puzzle-pieces add-a-piece
-working-piece destruct
-working-piece construct
+0 0 0 define-a-voxel
+1 0 0 define-a-voxel
+1 1 0 define-a-voxel
+2 1 0 define-a-voxel
+3 1 0 define-a-voxel
+define-a-piece

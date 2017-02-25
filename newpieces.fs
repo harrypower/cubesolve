@@ -99,8 +99,18 @@ end-class pieces
 pieces heap-new constant puzzle-pieces
 piece heap-new constant working-piece
 
+: define-a-piece ( -- ) \ make a piece in working-piece  and place it into puzzle-pieces
+  working-piece puzzle-pieces add-a-piece
+  working-piece destruct
+  working-piece construct ;
+: define-a-voxel ( ux uy uz -- ) \ make a voxel and put it into working-piece
+  working-piece add-voxel ;
+
 include ./newpuzzle.def
-cr 
+
+
+\\\
+cr
 puzzle-pieces pieces-quantity@ . ." pieces!" cr
 : seepieces
   dup puzzle-pieces get-a-piece voxel-quantity@ 0 ?do
