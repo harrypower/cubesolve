@@ -109,13 +109,13 @@ piece heap-new constant working-piece
 object class
   destruction implementation
   selector set-board-dims
+  protected
   struct
     cell% field board-cell
   end-struct board-cell%
-  protected
   cell% inst-var board-array        \ pointer to cell sized array that contains index #'s refering to pieces in the board-pieces-list
   cell% inst-var board-pieces-list  \ pointer to a pieces objects that contain piece objects that are currently in the board-array
-  cell% inst-var a-voxel            \ pointer to a voxel object
+\  cell% inst-var a-voxel            \ pointer to a voxel object
   cell% inst-var a-piece            \ pointer to a piece object
   inst-value x-max                  \ values containing the x y and z max board dimensions
   inst-value y-max
@@ -150,17 +150,43 @@ object class
       loop
     loop
   ;m overrides set-board-dims
-  m: ( ux uy uz board -- uvalue ) \ test word to see board numbers at ux uy uz
-    this board-array@ ;m method see-board-x
-  m: ( uvalue ux uy uz board -- ) \ test word to uvalue board number at ux uy uz
-    this board-array! ;m method set-board-x
   m: ( board -- ux-max uy-max uz-max ) \ get dimensions of this board
     x-max y-max z-max ;m method get-board-dims
+  m: ( ux uy uz board -- nflag ) \ ux uy uz is a voxel to test if it can be placed on an empty board
+    \ nflag is true if ux uy uz can be on the board
+    \ nflag is false if ux uy uz can not be on the board
+    dup z-max < swap 0 >= and swap
+    dup y-max < swap 0 >= and and swap
+    dup x-max < swap 0 >= and and ;m method voxel-on-board?
+  m: ( upiece board -- nflag ) \ test if upiece can be placed on an empty board
+    { upiece } true
+    upiece [bind] piece voxel-quantity@ 0 ?do
+      i upiece [bind] piece get-voxel this voxel-on-board? and
+    loop ;m method piece-on-board?
+\  m: ( ux uy uz board -- uvalue ) \ test word to see board numbers at ux uy uz
+\    this board-array@ ;m method see-board-x
+\  m: ( uvalue ux uy uz board -- ) \ test word to uvalue board number at ux uy uz
+\    this board-array! ;m method set-board-x
 end-class board
 
 board heap-new constant puzzle-board
 
 include ./newpuzzle.def
+
+\\\
+puzzle-pieces pieces-quantity@ . ." pieces" cr .s cr
+0 puzzle-pieces get-a-piece puzzle-board piece-on-board? . ."  piece 0" cr
+1 puzzle-pieces get-a-piece puzzle-board piece-on-board? . ."  piece 1" cr
+2 puzzle-pieces get-a-piece puzzle-board piece-on-board? . ."  piece 2" cr
+3 puzzle-pieces get-a-piece puzzle-board piece-on-board? . ."  piece 3" cr
+4 puzzle-pieces get-a-piece puzzle-board piece-on-board? . ."  piece 4" cr
+5 puzzle-pieces get-a-piece puzzle-board piece-on-board? . ."  piece 5" cr
+
+\\\
+0 0 0 puzzle-board voxel-on-board? . .s cr
+4 4 4 puzzle-board voxel-on-board? . .s cr
+5 5 5 puzzle-board voxel-on-board? . .s cr
+-1 -1 0 puzzle-board voxel-on-board? . .s cr
 
 \\\
 board heap-new constant testboard
