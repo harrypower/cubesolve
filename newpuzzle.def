@@ -4,7 +4,7 @@
 
 \ Puzzle board definitions
 \ length width height
-\    5     5     5     puzzle-board-dimensions set-board-dims
+    5     5     5     puzzle-board set-board-dims
 
 \ Puzzle pieces definitions
 \ x y z
