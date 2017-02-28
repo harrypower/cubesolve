@@ -54,9 +54,11 @@ object class
     a-voxel cell a-voxel-list @ [bind] double-linked-list ll!
     voxel heap-new a-voxel !
   ;m method add-voxel
-  m: ( uindex piece -- ux uy uz ) \ retrieve voxel data from uindex voxel in this piece
+  m: ( uindex piece -- uvoxel ) \ return a voxel object at uindex
     this seek-voxel
-    a-voxel-list @ [bind] double-linked-list ll@ drop @ [bind] voxel voxel@
+    a-voxel-list @ [bind] double-linked-list ll@ drop @ ;m method get-voxel-object
+  m: ( uindex piece -- ux uy uz ) \ retrieve voxel data from uindex voxel in this piece
+    this get-voxel-object [bind] voxel voxel@
   ;m method get-voxel
   m: ( piece -- usize ) \ return voxel quantity
     a-voxel-list @ [bind] double-linked-list ll-size@
@@ -67,10 +69,9 @@ object class
     { upiece } 0
     upiece voxel-quantity@ 0 ?do
       this voxel-quantity@ 0 ?do
-        i this seek-voxel
-        a-voxel-list @ [bind] double-linked-list ll@ drop @
-        j upiece get-voxel a-voxel @ voxel!
-        a-voxel @ [bind] voxel intersect? or
+        i this get-voxel-object
+        j upiece get-voxel-object
+        [bind] voxel intersect? or
       loop
     loop
   ;m overrides intersect?
@@ -201,7 +202,10 @@ include ./newpuzzle.def
 piece heap-new constant working2
 working-piece voxel-quantity@ . cr
 1 2 3 working-piece add-voxel
-0 2 3 working2 add-voxel
+0 4 2 working-piece add-voxel
+1 3 3 working2 add-voxel
+0 7 2 working2 add-voxel
+0 4 2 working2 add-voxel
 
 working2 working-piece intersect? . cr
 
