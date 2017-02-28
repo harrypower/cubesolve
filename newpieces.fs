@@ -1,7 +1,12 @@
 require ./Gforth-Objects/objects.fs
 require ./Gforth-Objects/double-linked-list.fs
 
+interface
+  selector intersect? ( n n -- nflag )
+end-interface intersect
+
 object class
+  intersect implementation
   protected
   char% inst-var x \ voxels have a limit of 0 to 255 in dimentions
   char% inst-var y
@@ -13,13 +18,14 @@ object class
     0 0 0 this voxel! ;m overrides construct
   m: ( voxel -- ux uy uz ) \ retrieve voxel coordinates
     x c@ y c@ z c@ ;m method voxel@
-  m: ( uvoxel voxel -- nflag ) \ nflag is true if uvoxel is intersecting with voxel
+  m: ( uvoxel voxel -- nflag ) \ nflag is true if uvoxel is intersecting with voxel nflag is false if not intersecting
     { uvoxel }
-    uvoxel voxel@ z c@ = swap y c@ = and swap x c@ = and ;m method equivalent?
+    uvoxel voxel@ z c@ = swap y c@ = and swap x c@ = and ;m overrides intersect?
 end-class voxel
 
 object class
   destruction implementation
+  intersect implementation
   selector voxel-quantity@
   protected
   cell% inst-var a-voxel
@@ -55,6 +61,19 @@ object class
   m: ( piece -- usize ) \ return voxel quantity
     a-voxel-list @ [bind] double-linked-list ll-size@
   ;m overrides voxel-quantity@
+  m: ( upiece piece -- nflag ) \ test for intersection of upiece with this piece on any voxel
+    \ nflag is true if intersection happens
+    \ nflag is false if no intersection happens
+    { upiece } 0
+    upiece voxel-quantity@ 0 ?do
+      this voxel-quantity@ 0 ?do
+        i this seek-voxel
+        a-voxel-list @ [bind] double-linked-list ll@ drop @
+        j upiece get-voxel a-voxel @ voxel!
+        a-voxel @ [bind] voxel intersect? or
+      loop
+    loop
+  ;m overrides intersect?
 end-class piece
 
 object class
@@ -178,15 +197,13 @@ board heap-new constant puzzle-board
 
 include ./newpuzzle.def
 
-voxel heap-new value testvoxela
-voxel heap-new value testvoxelb
-0 5 7 testvoxela voxel!
-0 5 7 testvoxelb voxel!
-testvoxelb testvoxela equivalent? . cr
-testvoxela construct
-testvoxelb testvoxela equivalent? . cr
-7 5 0 testvoxela voxel!
-testvoxelb testvoxela equivalent? . cr
+\\\
+piece heap-new constant working2
+working-piece voxel-quantity@ . cr
+1 2 3 working-piece add-voxel
+0 2 3 working2 add-voxel
+
+working2 working-piece intersect? . cr
 
 \\\
 puzzle-pieces pieces-quantity@ . ." pieces" cr .s cr
@@ -196,6 +213,18 @@ puzzle-pieces pieces-quantity@ . ." pieces" cr .s cr
 3 puzzle-pieces get-a-piece puzzle-board piece-on-board? . ."  piece 3" cr
 4 puzzle-pieces get-a-piece puzzle-board piece-on-board? . ."  piece 4" cr
 5 puzzle-pieces get-a-piece puzzle-board piece-on-board? . ."  piece 5" cr
+
+0 puzzle-pieces
+\\\
+voxel heap-new value testvoxela
+voxel heap-new value testvoxelb
+0 5 7 testvoxela voxel!
+0 5 7 testvoxelb voxel!
+testvoxelb testvoxela equivalent? . cr
+testvoxela construct
+testvoxelb testvoxela equivalent? . cr
+7 5 0 testvoxela voxel!
+testvoxelb testvoxela equivalent? . cr
 
 \\\
 0 0 0 puzzle-board voxel-on-board? . .s cr
