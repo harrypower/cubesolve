@@ -148,8 +148,7 @@ object class
           true k j i this board-array! \ place true into array to show no pieces
         loop
       loop
-    loop
-  ;m overrides set-board-dims
+    loop ;m overrides set-board-dims
   m: ( board -- ux-max uy-max uz-max ) \ get dimensions of this board
     x-max y-max z-max ;m method get-board-dims
   m: ( ux uy uz board -- nflag ) \ ux uy uz is a voxel to test if it can be placed on an empty board
