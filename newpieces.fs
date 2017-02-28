@@ -13,6 +13,9 @@ object class
     0 0 0 this voxel! ;m overrides construct
   m: ( voxel -- ux uy uz ) \ retrieve voxel coordinates
     x c@ y c@ z c@ ;m method voxel@
+  m: ( uvoxel voxel -- nflag ) \ nflag is true if uvoxel is intersecting with voxel
+    { uvoxel }
+    uvoxel voxel@ z c@ = swap y c@ = and swap x c@ = and ;m method equivalent?
 end-class voxel
 
 object class
@@ -162,6 +165,9 @@ object class
     upiece [bind] piece voxel-quantity@ 0 ?do
       i upiece [bind] piece get-voxel this voxel-on-board? and
     loop ;m method piece-on-board?
+  m: ( upiece board -- nflag ) \ test if upiece could be placed on the current populated board
+
+  ;m method piece-on-this-board?
 \  m: ( ux uy uz board -- uvalue ) \ test word to see board numbers at ux uy uz
 \    this board-array@ ;m method see-board-x
 \  m: ( uvalue ux uy uz board -- ) \ test word to uvalue board number at ux uy uz
@@ -171,6 +177,16 @@ end-class board
 board heap-new constant puzzle-board
 
 include ./newpuzzle.def
+
+voxel heap-new value testvoxela
+voxel heap-new value testvoxelb
+0 5 7 testvoxela voxel!
+0 5 7 testvoxelb voxel!
+testvoxelb testvoxela equivalent? . cr
+testvoxela construct
+testvoxelb testvoxela equivalent? . cr
+7 5 0 testvoxela voxel!
+testvoxelb testvoxela equivalent? . cr
 
 \\\
 puzzle-pieces pieces-quantity@ . ." pieces" cr .s cr

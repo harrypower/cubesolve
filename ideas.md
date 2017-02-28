@@ -5,12 +5,14 @@
   * will manage all the things important to voxels
   * contains x y and z
   * methods to get x y z data in and out
+  * methods to test this voxel to a given voxel for intersecting
 
 * piece object
   * will be the base object that manage what constitutes a piece or a collection of voxels
   * will contain voxel objects
   * methods to put and get voxel objects into this piece and out of this piece
-  * method to get quantity of voxels in this piece 
+  * method to get quantity of voxels in this piece
+  * methods to test if this piece intersect with another given piece 
 
 * pieces object
   * will be the base object that manages what constitutes groups of pieces for any grouping purpose
