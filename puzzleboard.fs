@@ -24,6 +24,11 @@ object class
     this calc-board-array ! ;m method board-array!
   m: ( ux uy uz board -- uvalue ) \ retrieve uvalue from board-array at location ux uy uz
     this calc-board-array @ ;m method board-array@
+  m: ( upiece board -- ) \ add upiece to board piece list
+    board-pieces-list @ [bind] pieces add-a-piece ;m method add-piece-to-board
+  m: ( uindex board -- ) \ get uindex piece from board list
+    board-pieces-list @ [bind] pieces get-a-piece ;m method get-a-piece-from-board
+
   public
   m: ( board -- ) \ constructor
     pieces heap-new board-pieces-list !
@@ -80,7 +85,6 @@ puzzle-pieces pieces-quantity@ . ." pieces" cr .s cr
 4 puzzle-pieces get-a-piece puzzle-board piece-on-board? . ."  piece 4" cr
 5 puzzle-pieces get-a-piece puzzle-board piece-on-board? . ."  piece 5" cr
 
-0 puzzle-pieces
 
 \\\
 0 0 0 puzzle-board voxel-on-board? . .s cr

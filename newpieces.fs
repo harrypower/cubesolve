@@ -83,10 +83,6 @@ object class
   protected
   cell% inst-var a-piece
   cell% inst-var a-pieces-list
-  m: ( uindex piece -- ) \ seek to uindex piece in a-pieces-list
-    a-pieces-list @ [bind] double-linked-list ll-set-start
-    0 ?do a-pieces-list @ [bind] double-linked-list ll> drop loop
-  ;m method seek-piece
   public
   m: ( pieces -- ) \ construct
     piece heap-new a-piece !
@@ -111,8 +107,7 @@ object class
     piece heap-new a-piece !
   ;m method add-a-piece
   m: ( uindex pieces -- upiece ) \ retrieve uindex piece from a-pieces-list
-    this seek-piece
-    a-pieces-list @ [bind] double-linked-list ll@ drop @
+    a-pieces-list @ [bind] double-linked-list nll@ drop @
   ;m method get-a-piece
   m: ( pieces -- usize ) \ return the quantity of pieces in this piece list
     a-pieces-list @ [bind] double-linked-list ll-size@
