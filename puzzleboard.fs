@@ -24,6 +24,12 @@ object class
     this calc-board-array ! ;m method board-array!
   m: ( ux uy uz board -- uvalue ) \ retrieve uvalue from board-array at location ux uy uz
     this calc-board-array @ ;m method board-array@
+  m: ( uvalue upiece board -- ) \ place voxels of upiece onto board-array with the uvalue as a upiece reference
+    { uvalue upiece }
+    upiece [bind] piece voxel-quantity@ 0 ?do
+      uvalue i upiece [bind] piece get-voxel this board-array!
+    loop
+  ;m method piece-to-board-array!
   m: ( upiece board -- ) \ add upiece to board piece list
     board-pieces-list @ [bind] pieces add-a-piece ;m method board-pieces!
   m: ( uindex board -- upiece ) \ get uindex piece from board list
@@ -85,15 +91,15 @@ object class
     \ nflag is true if upiece was place on the board
     \ nflag is false if upiece either intersected with another piece or exceded the board boundrys
     dup this piece-on-this-board? true = if
-        \ dup \ need to update the board array here 
+        dup this board-piece-quantity@ swap this piece-to-board-array!
         this board-pieces! true
     else
       drop false
     then ;m method place-piece-on-board
   m: ( uindex board -- upiece ) \ retrieve uindex piece from this board in the form of a piece object
     this board-pieces@ ;m method nget-board-piece
-\  m: ( ux uy uz board -- uvalue ) \ test word to see board numbers at ux uy uz
-\    this board-array@ ;m method see-board-x
+  m: ( ux uy uz board -- uvalue ) \ test word to see board numbers at ux uy uz
+    this board-array@ ;m method see-board-x
 \  m: ( uvalue ux uy uz board -- ) \ test word to uvalue board number at ux uy uz
 \    this board-array! ;m method set-board-x
 end-class board
@@ -102,6 +108,8 @@ board heap-new constant puzzle-board
 
 include ./newpuzzle.def
 
+\ **********************************************************************************************************************
+\ \\\
 puzzle-pieces pieces-quantity@ . ." quantity" cr
 puzzle-board board-piece-quantity@ . ." b qnt " cr
 0 puzzle-pieces get-a-piece puzzle-board place-piece-on-board . ."  piece 0" cr
@@ -112,6 +120,15 @@ puzzle-board board-piece-quantity@ . ." b qnt " cr
 5 puzzle-pieces get-a-piece puzzle-board place-piece-on-board . ."  piece 5" cr
 puzzle-board board-piece-quantity@ . ." board pieces" space .s cr
 
+: seetheboard
+  5 0 ?do
+    5 0 ?do
+      5 0 ?do
+        i j k puzzle-board see-board-x . ." value " i . ." x " j . ." y " k . ." z " .s cr
+      loop
+    loop
+  loop ;
+seetheboard cr
 \\\
 puzzle-pieces pieces-quantity@ . ." pieces" space .s cr
 puzzle-board board-piece-quantity@ . ." board pieces" space .s cr

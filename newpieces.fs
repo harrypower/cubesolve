@@ -124,6 +124,8 @@ piece heap-new constant working-piece
 : define-a-voxel ( ux uy uz -- ) \ make a voxel and put it into working-piece
   working-piece add-voxel ;
 
+
+\ **********************************************************************************************************************
 \\\
 piece heap-new constant working2
 working-piece voxel-quantity@ . cr
