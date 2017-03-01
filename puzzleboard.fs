@@ -17,6 +17,9 @@ object class
   inst-value y-max
   inst-value z-max
   inst-value z-mult                 \ calculated value for the z multiplier used to find board-array memory location
+  inst-value x-display-size
+  inst-value y-display-size
+  inst-value z-display-size
   m: ( ux uy uz board -- uaddr ) \ calculated board-array address
     z-mult * swap x-max * + + board-cell% %size * board-cell board-array @ + ;m method calc-board-array
     \ z-mult * swap y-max * + + cell * board-array @ + ;m method calc-board-array
@@ -34,10 +37,23 @@ object class
     board-pieces-list @ [bind] pieces add-a-piece ;m method board-pieces!
   m: ( uindex board -- upiece ) \ get uindex piece from board list
     board-pieces-list @ [bind] pieces get-a-piece ;m method board-pieces@
+  m: ( board -- ) \ crude terminal board display
+    z-max 0 ?do
+      y-max 0 ?do
+        x-max 0 ?do
+          i x-display-size * j y-display-size * k z-display-size * + at-xy
+          i j k this board-array@ dup true = if drop ." *****" else u. then
+        loop
+      loop
+    loop
+  ;m method see-board
   public
   m: ( board -- ) \ constructor
     pieces heap-new board-pieces-list !
     0 0 0 this set-board-dims
+    6 [to-inst] x-display-size
+    1 [to-inst] y-display-size
+    x-display-size y-display-size * [to-inst] z-display-size
   ;m overrides construct
   m: ( board -- ) \ destructor
     board-array @ free throw
@@ -98,6 +114,8 @@ object class
     then ;m method place-piece-on-board
   m: ( uindex board -- upiece ) \ retrieve uindex piece from this board in the form of a piece object
     this board-pieces@ ;m method nget-board-piece
+  m: ( board -- ) \ crude board display
+    page this see-board ;m method seeit
   m: ( ux uy uz board -- uvalue ) \ test word to see board numbers at ux uy uz
     this board-array@ ;m method see-board-x
 \  m: ( uvalue ux uy uz board -- ) \ test word to uvalue board number at ux uy uz
@@ -129,6 +147,7 @@ puzzle-board board-piece-quantity@ . ." board pieces" space .s cr
     loop
   loop ;
 seetheboard cr
+puzzle-board seeit
 \\\
 puzzle-pieces pieces-quantity@ . ." pieces" space .s cr
 puzzle-board board-piece-quantity@ . ." board pieces" space .s cr

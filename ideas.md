@@ -12,7 +12,7 @@
   * will contain voxel objects
   * methods to put and get voxel objects into this piece and out of this piece
   * method to get quantity of voxels in this piece
-  * methods to test if this piece intersect with another given piece 
+  * methods to test if this piece intersect with another given piece
 
 * pieces object
   * will be the base object that manages what constitutes groups of pieces for any grouping purpose
@@ -33,5 +33,6 @@
 * translation and orientation object
   * will have the job of taking a piece and creating all the pieces that are derived from the translations and rotations of the piece in the board space
   * will contain piece and pieces objects and voxel objects
+  * will use board object to test piece voxel validity on the board 
   * may contain board objects to facilitate piece or voxel board placement testing of orientations translations and or rotations
   * methods to manipulate a piece as a translation and rotation to make other piece orientations
