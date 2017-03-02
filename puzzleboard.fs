@@ -37,16 +37,6 @@ object class
     board-pieces-list @ [bind] pieces add-a-piece ;m method board-pieces!
   m: ( uindex board -- upiece ) \ get uindex piece from board list
     board-pieces-list @ [bind] pieces get-a-piece ;m method board-pieces@
-  m: ( board -- ) \ crude terminal board display
-    z-max 0 ?do
-      y-max 0 ?do
-        x-max 0 ?do
-          i x-display-size * j y-display-size * k z-display-size * + at-xy
-          i j k this board-array@ dup true = if drop ." *****" else u. then
-        loop
-      loop
-    loop
-  ;m method see-board
   public
   m: ( board -- ) \ constructor
     pieces heap-new board-pieces-list !
@@ -114,12 +104,17 @@ object class
     then ;m method place-piece-on-board
   m: ( uindex board -- upiece ) \ retrieve uindex piece from this board in the form of a piece object
     this board-pieces@ ;m method nget-board-piece
-  m: ( board -- ) \ crude board display
-    page this see-board ;m method seeit
-  m: ( ux uy uz board -- uvalue ) \ test word to see board numbers at ux uy uz
-    this board-array@ ;m method see-board-x
-\  m: ( uvalue ux uy uz board -- ) \ test word to uvalue board number at ux uy uz
-\    this board-array! ;m method set-board-x
+  m: ( board -- ) \ crude terminal board display
+    page
+    z-max 0 ?do
+      y-max 0 ?do
+        x-max 0 ?do
+          i x-display-size * j y-display-size * k z-display-size * + at-xy
+          i j k this board-array@ dup true = if drop ." *****" else u. then
+        loop
+      loop
+    loop
+  ;m method see-board
 end-class board
 
 board heap-new constant puzzle-board
@@ -138,16 +133,7 @@ puzzle-board board-piece-quantity@ . ." b qnt " cr
 5 puzzle-pieces get-a-piece puzzle-board place-piece-on-board . ."  piece 5" cr
 puzzle-board board-piece-quantity@ . ." board pieces" space .s cr
 
-: seetheboard
-  5 0 ?do
-    5 0 ?do
-      5 0 ?do
-        i j k puzzle-board see-board-x . ." value " i . ." x " j . ." y " k . ." z " .s cr
-      loop
-    loop
-  loop ;
-seetheboard cr
-puzzle-board seeit
+puzzle-board see-board
 \\\
 puzzle-pieces pieces-quantity@ . ." pieces" space .s cr
 puzzle-board board-piece-quantity@ . ." board pieces" space .s cr
