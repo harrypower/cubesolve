@@ -11,8 +11,6 @@ object class
   end-struct board-cell%
   cell% inst-var board-array        \ pointer to cell sized array that contains index #'s refering to pieces in the board-pieces-list
   cell% inst-var board-pieces-list  \ pointer to a pieces objects that contain piece objects that are currently in the board-array
-\  cell% inst-var a-voxel            \ pointer to a voxel object
-\  cell% inst-var a-piece            \ pointer to a piece object
   inst-value x-max                  \ values containing the x y and z max board dimensions
   inst-value y-max
   inst-value z-max
@@ -122,7 +120,7 @@ board heap-new constant puzzle-board
 include ./newpuzzle.def
 
 \ **********************************************************************************************************************
-\ \\\
+\\\
 puzzle-pieces pieces-quantity@ . ." quantity" cr
 puzzle-board board-piece-quantity@ . ." b qnt " cr
 0 puzzle-pieces get-a-piece puzzle-board place-piece-on-board . ."  piece 0" cr
