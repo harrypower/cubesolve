@@ -12,11 +12,11 @@ object class
   cell% inst-var working-piece      \ piece object used to process or temporary holder of a piece
   cell% inst-var rotated-pieces     \ pieces object containing all the rotated pieces working on before adding to all-pieces list
   cell% inst-var translated-pieces  \ pieces object conatining all the translated pieces working on before adding to all-pieces list
-  public
-  m: ( upiece make-all-pieces -- ) \ upiece is a piece object that is used to create translated pieces and place them in translated-pieces
-  ;m method translate
-  m: ( upiece make-all-pieces -- ) \ upiece is a piece object that is used to create rotated pieces and place them in rotated-pieces
-  ;m method rotate
+  m: ( make-all-pieces -- ) \ reset working-board that points to a piece object
+    working-board @ [bind] board destruct
+    working-board @ [bind] board construct
+    puzzle-board [bind] board get-board-dims working-board @ [bind] board set-board-dims
+  ;m method reset-working-board
   m: ( upieces make-all-pieces -- ) \ upieces is a pieces object containing the all the start puzzle pieces
     \ this method takes those start pieces and puts the non intersecting pieces that fit on board into start-pieces pieces list
     { upieces }
@@ -26,10 +26,13 @@ object class
     working-board @ [bind] board board-piece-quantity@  0 ?do
       i working-board @ [bind] board nget-board-piece start-pieces @ [bind] pieces add-a-piece
     loop
-    working-board @ [bind] board destruct
-    working-board @ [bind] board construct
-    puzzle-board [bind] board get-board-dims working-board @ [bind] board set-board-dims
+    this reset-working-board
   ;m method the-start-pieces
+  public
+  m: ( upiece make-all-pieces -- ) \ upiece is a piece object that is used to create translated pieces and place them in translated-pieces
+  ;m method translate
+  m: ( upiece make-all-pieces -- ) \ upiece is a piece object that is used to create rotated pieces and place them in rotated-pieces
+  ;m method rotate
   m: ( make-all-pieces -- ) \ constructor
     board heap-new working-board !
     puzzle-board [bind] board get-board-dims working-board @ [bind] board set-board-dims
@@ -38,6 +41,7 @@ object class
     piece heap-new working-piece !
     pieces heap-new rotated-pieces !
     pieces heap-new translated-pieces !
+    puzzle-pieces this the-start-pieces   \ create the start pieces then go from there
   ;m overrides construct
   m: ( make-all-pieces -- ) \ destructor
     working-board @ dup [bind] board destruct free throw
@@ -52,13 +56,14 @@ object class
       i start-pieces @ [bind] pieces get-a-piece working-board @ [bind] board place-piece-on-board drop
     loop
     working-board @ [bind] board see-board
-    working-board @ [bind] board destruct
-    working-board @ [bind] board construct
-    puzzle-board [bind] board get-board-dims working-board @ [bind] board set-board-dims
+    cr start-pieces @ [bind] pieces pieces-quantity@ . ." qnt" cr
+    this reset-working-board
   ;m method test-start
 end-class make-all-pieces
 
+
+\ ********************************************************************************************************************************
+\ \\\
 make-all-pieces heap-new constant testmap
-puzzle-pieces testmap the-start-pieces
 
 testmap test-start
