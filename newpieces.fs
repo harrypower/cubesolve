@@ -91,9 +91,11 @@ object class
   m: ( pieces -- ) \ destruct
     a-piece @ [bind] piece destruct
     a-piece @ free throw
+    a-pieces-list @ [bind] double-linked-list ll-set-start
     this pieces-quantity@ 0 ?do
       a-pieces-list @ [bind] double-linked-list ll@ drop @ [bind] piece destruct
-      a-pieces-list @ [bind] double-linked-list ll@ drop free throw
+      a-pieces-list @ [bind] double-linked-list ll@ drop @ free throw
+      a-pieces-list @ [bind] double-linked-list ll> drop
     loop
     a-pieces-list @ [bind] double-linked-list destruct
     a-pieces-list @ free throw
@@ -126,6 +128,21 @@ piece heap-new constant working-piece
 
 
 \ **********************************************************************************************************************
+\\\
+0 0 0 define-a-voxel
+1 0 0 define-a-voxel
+1 1 0 define-a-voxel
+2 1 0 define-a-voxel
+3 1 0 define-a-voxel
+define-a-piece
+
+0 0 0 define-a-voxel
+1 0 0 define-a-voxel
+2 1 0 define-a-voxel
+3 1 0 define-a-voxel
+define-a-piece
+puzzle-pieces bind pieces destruct
+
 \\\
 piece heap-new constant working2
 working-piece voxel-quantity@ . cr
