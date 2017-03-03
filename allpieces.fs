@@ -18,13 +18,11 @@ object class
     puzzle-board [bind] board get-board-dims working-board @ [bind] board set-board-dims
   ;m method reset-working-board
   m: ( upieces make-all-pieces -- ) \ upieces is a pieces object containing the all the start puzzle pieces
-    \ this method takes those start pieces and puts the non intersecting pieces that fit on board into start-pieces pieces list
+    \ this method takes those start pieces and puts the pieces that fit on board into start-pieces pieces list
     { upieces }
     upieces [bind] pieces pieces-quantity@ 0 ?do
-      i upieces [bind] pieces get-a-piece working-board @ [bind] board place-piece-on-board drop
-    loop
-    working-board @ [bind] board board-piece-quantity@  0 ?do
-      i working-board @ [bind] board nget-board-piece start-pieces @ [bind] pieces add-a-piece
+      i upieces [bind] pieces get-a-piece working-board @ [bind] board piece-on-board? true =
+      if i upieces [bind] pieces get-a-piece start-pieces @ [bind] pieces add-a-piece then
     loop
     this reset-working-board
   ;m method the-start-pieces
