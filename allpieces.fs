@@ -28,6 +28,20 @@ object class
   ;m method the-start-pieces
   public
   m: ( upiece make-all-pieces -- ) \ upiece is a piece object that is used to create translated pieces and place them in translated-pieces
+    puzzle-board [bind] board get-board-dims 0 0 0 { upiece x-max y-max z-max x y z }
+    x-max 0 ?do i to x
+      y-max 0 ?do i to y
+        z-max 0 ?do i to z
+          upiece [bind] piece voxel-quantity@ 0 ?do
+            i upiece [bind] piece get-voxel z + swap y + swap rot x + rot rot
+            working-piece @ [bind] piece add-voxel
+          loop
+          working-piece @ translated-pieces @ [bind] pieces add-a-piece
+          working-piece @ [bind] piece destruct
+          working-piece @ [bind] piece construct
+        loop
+      loop
+    loop
   ;m method translate
   m: ( upiece make-all-pieces -- ) \ upiece is a piece object that is used to create rotated pieces and place them in rotated-pieces
   ;m method rotate
@@ -49,7 +63,7 @@ object class
     rotated-pieces @ dup [bind] pieces destruct free throw
     translated-pieces @ dup [bind] pieces destruct free throw
   ;m overrides destruct
-  m: ( make-all-pieces -- ) \ test word
+  m: ( make-all-pieces -- ) \ test start
     start-pieces @ [bind] pieces pieces-quantity@ 0 ?do
       i start-pieces @ [bind] pieces get-a-piece working-board @ [bind] board place-piece-on-board drop
     loop
@@ -57,6 +71,16 @@ object class
     cr start-pieces @ [bind] pieces pieces-quantity@ . ." qnt" cr
     this reset-working-board
   ;m method test-start
+  m: ( uindexT uindexS make-all-pieces -- ) \ test translate
+    start-pieces @ [bind] pieces get-a-piece this [current] translate
+    translated-pieces @ [bind] pieces get-a-piece
+    working-board @ [bind] board place-piece-on-board drop
+    working-board @ [bind] board see-board
+    translated-pieces @ [bind] pieces pieces-quantity@ . ." translated pieces qnt" cr
+    this [current] reset-working-board
+    translated-pieces @ [bind] pieces destruct
+    translated-pieces @ [bind] pieces construct
+  ;m method test-translate
 end-class make-all-pieces
 
 
@@ -64,4 +88,5 @@ end-class make-all-pieces
 \ \\\
 make-all-pieces heap-new constant testmap
 
-testmap test-start
+testmap test-start page
+1 0 testmap test-translate

@@ -35,6 +35,10 @@ define-a-piece
 4 4 4 define-a-voxel
 define-a-piece
 
+0 0 0 define-a-voxel
+1 0 0 define-a-voxel
+define-a-piece
+
 3 3 3 define-a-voxel
 4 4 4 define-a-voxel
 define-a-piece
