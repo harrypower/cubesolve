@@ -26,6 +26,25 @@ object class
     loop
     this reset-working-board
   ;m method the-start-pieces
+  m: ( udim1 udim2 uaxis -- udim3 udim4 ) \ uaxis is 0 to 7 which axis rotation to perform
+    CASE
+      0 of ENDOF
+      1 of swap negate ENDOF
+      2 of negate swap ENDOF
+      3 of negate swap negate ENDOF
+      4 of swap negate swap ENDOF
+      5 of negate endof
+      6 of swap ENDOF
+      7 of negate swap negate swap ENDOF
+    ENDCASE ;m method do-axis-rotation
+  m: ( x y z uaxis utype -- x1 y1 z1 ) \ uaxis is 0 to 7 for rotation axis .. utype is 0 to 2 for x y or z type
+    { x y z uaxis utype }
+    utype CASE
+      0 of x y uaxis this [current] do-axis-rotation z ENDOF
+      1 of x z uaxis this [current] do-axis-rotation y swap ENDOF
+      2 of y z uaxis this [current] do-axis-rotation x rot rot ENDOF
+    ENDCASE ;m method do-rotation
+
   public
   m: ( upiece make-all-pieces -- ) \ upiece is a piece object that is used to create translated pieces and place them in translated-pieces
     puzzle-board [bind] board get-board-dims 0 0 0 { upiece x-max y-max z-max x y z }
@@ -44,6 +63,18 @@ object class
     loop
   ;m method translate
   m: ( upiece make-all-pieces -- ) \ upiece is a piece object that is used to create rotated pieces and place them in rotated-pieces
+    { upiece }
+    3 0 do
+      8 0 do
+        upiece [bind] piece voxel-quantity@ 0 ?do
+          i upiece [bind] piece get-voxel j k this [current] do-rotation
+          working-piece @ [bind] piece add-voxel
+        loop
+        working-piece @ rotated-pieces @ [bind] pieces add-a-piece
+        working-piece @ [bind] piece destruct
+        working-piece @ [bind] piece construct
+      loop
+    loop
   ;m method rotate
   m: ( make-all-pieces -- ) \ constructor
     board heap-new working-board !
@@ -81,6 +112,17 @@ object class
     translated-pieces @ [bind] pieces destruct
     translated-pieces @ [bind] pieces construct
   ;m method test-translate
+  m: ( uindexR uindexS make-all-pieces -- ) \ test rotate pieces
+    start-pieces @ [bind] pieces get-a-piece this [current] rotate
+    rotated-pieces @ [bind] pieces get-a-piece
+    dup [bind] piece voxel-quantity@ 0 ?do
+      dup i swap [bind] piece get-voxel rot . swap . . ."  x y z" cr
+    loop
+    drop
+    rotated-pieces @ [bind] pieces pieces-quantity@ . ." rotated quantity!" cr
+    rotated-pieces @ [bind] pieces destruct
+    rotated-pieces @ [bind] pieces construct
+  ;m method test-rotate
 end-class make-all-pieces
 
 
@@ -88,5 +130,6 @@ end-class make-all-pieces
 \ \\\
 make-all-pieces heap-new constant testmap
 
-testmap test-start page
-1 0 testmap test-translate
+\ testmap test-start page
+\ 1 0 testmap test-translate
+0 0 testmap test-rotate
