@@ -8,19 +8,19 @@ end-interface intersect
 object class
   intersect implementation
   protected
-  char% inst-var x \ voxels have a limit of 0 to 255 in dimentions
-  char% inst-var y
-  char% inst-var z
+  cell% inst-var x \ voxels have a limit of 0 to 255 in dimentions
+  cell% inst-var y
+  cell% inst-var z
   public
   m: ( ux uy uz voxel -- ) \ store the voxel coordinates
-    z c! y c! x c! ;m method voxel!
+    z ! y ! x ! ;m method voxel!
   m: ( -- ) \ constructed
     0 0 0 this voxel! ;m overrides construct
   m: ( voxel -- ux uy uz ) \ retrieve voxel coordinates
-    x c@ y c@ z c@ ;m method voxel@
+    x @ y @ z @ ;m method voxel@
   m: ( uvoxel voxel -- nflag ) \ nflag is true if uvoxel is intersecting with voxel nflag is false if not intersecting
     { uvoxel }
-    uvoxel voxel@ z c@ = swap y c@ = and swap x c@ = and ;m overrides intersect?
+    uvoxel voxel@ z @ = swap y @ = and swap x @ = and ;m overrides intersect?
 end-class voxel
 
 object class

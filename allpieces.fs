@@ -60,8 +60,7 @@ object class
           working-piece @ [bind] piece construct
         loop
       loop
-    loop
-  ;m method translate
+    loop ;m method translate
   m: ( upiece make-all-pieces -- ) \ upiece is a piece object that is used to create rotated pieces and place them in rotated-pieces
     { upiece }
     3 0 do
@@ -74,8 +73,7 @@ object class
         working-piece @ [bind] piece destruct
         working-piece @ [bind] piece construct
       loop
-    loop
-  ;m method rotate
+    loop ;m method rotate
   m: ( make-all-pieces -- ) \ constructor
     board heap-new working-board !
     puzzle-board [bind] board get-board-dims working-board @ [bind] board set-board-dims
@@ -113,6 +111,10 @@ object class
     translated-pieces @ [bind] pieces construct
   ;m method test-translate
   m: ( uindexR uindexS make-all-pieces -- ) \ test rotate pieces
+    cr dup
+    start-pieces @ [bind] pieces get-a-piece dup [bind] piece voxel-quantity@ 0 ?do
+      dup i swap [bind] piece get-voxel rot . swap . . ." start xyz" cr
+    loop drop
     start-pieces @ [bind] pieces get-a-piece this [current] rotate
     rotated-pieces @ [bind] pieces get-a-piece
     dup [bind] piece voxel-quantity@ 0 ?do
@@ -132,4 +134,6 @@ make-all-pieces heap-new constant testmap
 
 \ testmap test-start page
 \ 1 0 testmap test-translate
-0 0 testmap test-rotate
+0 0 testmap test-rotate ." 0 0 " cr
+1 0 testmap test-rotate ." 1 0 " cr
+23 0 testmap test-rotate ." 23 0 " cr
