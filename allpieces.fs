@@ -74,6 +74,8 @@ object class
         working-piece @ [bind] piece construct
       loop
     loop ;m method rotate
+  m: ( make-all-pieces -- ) \ will take start-pieces and create all rotations and translated pieces then add to all-pieces if not there already
+  ;m method all-rotations-translations
   m: ( make-all-pieces -- ) \ constructor
     board heap-new working-board !
     puzzle-board [bind] board get-board-dims working-board @ [bind] board set-board-dims
@@ -129,7 +131,19 @@ end-class make-all-pieces
 
 
 \ ********************************************************************************************************************************
-\ \\\
+0 puzzle-pieces get-a-piece
+0 puzzle-pieces get-a-piece same? . ." should be true " cr
+
+0 puzzle-pieces get-a-piece
+1 puzzle-pieces get-a-piece same? . ." should be false" cr
+
+0 puzzle-pieces get-a-piece
+2 puzzle-pieces get-a-piece same? . ." should be false" cr
+
+0 puzzle-pieces get-a-piece
+7 puzzle-pieces get-a-piece same? . ." should be true" cr
+
+\\\
 make-all-pieces heap-new constant testmap
 
 \ testmap test-start page

@@ -76,6 +76,26 @@ object class
       loop
     loop
   ;m overrides intersect?
+  m: ( upiece piece -- nflag ) \ test upiece agains this piece for exact voxels match forward or backward
+    \ nflag is true if all voxels match either forward or backward
+    \ nflag is false if there is no complete match forward or backward
+    0 0 { upiece forwardtest backwardtest }
+    upiece voxel-quantity@ this voxel-quantity@ = if
+      upiece voxel-quantity@ 0 ?do
+        i this get-voxel-object
+        i upiece get-voxel-object
+        [bind] voxel intersect? true = if forwardtest 1 + to forwardtest then
+      loop
+      upiece voxel-quantity@ 0 ?do
+        upiece voxel-quantity@ 1 - i - upiece get-voxel-object
+        i this get-voxel-object
+        [bind] voxel intersect? true = if backwardtest 1 + to backwardtest then
+      loop
+      upiece voxel-quantity@ dup forwardtest = swap backwardtest = or \ true if either backward or forward finds all voxels match
+    else
+      false
+    then
+  ;m method same?
 end-class piece
 
 object class
