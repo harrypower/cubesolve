@@ -74,8 +74,34 @@ object class
         working-piece @ [bind] piece construct
       loop
     loop ;m method rotate
+  m: ( upieces make-all-pieces -- ) \ will add all the uniqu upieces to all-pieces list
+    0 0 { upieces testpiece result }
+    upieces [bind] pieces pieces-quantity@ 0 ?do
+      i upieces [bind] pieces get-a-piece to testpiece 0 to result
+      all-pieces @ [bind] pieces pieces-quantity@ 0 ?do
+        testpiece i all-pieces @ [bind] pieces get-a-piece
+        [bind] piece same? result or to result
+      loop
+      result false = if testpiece all-pieces @ [bind] pieces add-a-piece then 
+     loop
+  ;m method add-to-all-pieces
   m: ( make-all-pieces -- ) \ will take start-pieces and create all rotations and translated pieces then add to all-pieces if not there already
+    start-pieces @ [bind] pieces pieces-quantity@ 0 ?do
+      i start-pieces @ [bind] pieces get-a-piece
+      this [current] rotate
+      rotated-pieces @ [bind] pieces pieces-quantity@ 0 ?do
+        i rotated-pieces @ [bind] pieces get-a-piece
+        this [current] translate
+        translated-pieces @ this [current] add-to-all-pieces
+        translated-pieces @ [bind] piece destruct
+        translated-pieces @ [bind] piece construct
+      loop
+      rotated-pieces @ [bind] piece destruct
+      rotated-pieces @ [bind] piece construct
+    loop
   ;m method all-rotations-translations
+  m: ( make-all-pieces -- upieces ) \ return all-pieces object address
+    all-pieces @ ;m method all@
   m: ( make-all-pieces -- ) \ constructor
     board heap-new working-board !
     puzzle-board [bind] board get-board-dims working-board @ [bind] board set-board-dims
@@ -131,6 +157,20 @@ end-class make-all-pieces
 
 
 \ ********************************************************************************************************************************
+
+\ \\\
+make-all-pieces heap-new constant testmap
+
+testmap all-rotations-translations
+testmap all@ bind pieces pieces-quantity@ . ." the size of all! " cr
+\\\
+testmap test-start
+\ 1 0 testmap test-translate
+0 0 testmap test-rotate ." 0 0 " cr
+1 0 testmap test-rotate ." 1 0 " cr
+23 0 testmap test-rotate ." 23 0 " cr
+
+\\\
 0 puzzle-pieces get-a-piece
 0 puzzle-pieces get-a-piece same? . ." should be true " cr
 
@@ -142,12 +182,3 @@ end-class make-all-pieces
 
 0 puzzle-pieces get-a-piece
 7 puzzle-pieces get-a-piece same? . ." should be true" cr
-
-\\\
-make-all-pieces heap-new constant testmap
-
-\ testmap test-start page
-\ 1 0 testmap test-translate
-0 0 testmap test-rotate ." 0 0 " cr
-1 0 testmap test-rotate ." 1 0 " cr
-23 0 testmap test-rotate ." 23 0 " cr
