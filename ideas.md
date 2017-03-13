@@ -38,7 +38,9 @@
   * methods to manipulate a piece as a translation and rotation to make other piece orientations
 
 * Next additions or bugs to work on
-  * in allpieces.fs make-all-pieces object has a method called all-rotations-translations.
-  * this method needs to have added the removal of pieces that can not be placed on the board.  
-  * this process of removal may not be done in all-rotations-translations method but a method that is used in that method could do the work!
-  * i think this should be done in method add-to-all-pieces ... this method generates the additions and should screen non board fitting pieces.
+  * now clean up allpieces.fs to make all methods protected that need to be !
+  * the make-all-pieces object needs to simply do the job of making all the possible pieces from the newpuzzle.def pieces and return that list!
+  * make test words to see all the pieces created in make-all-pieces object to ensure it is producing the correct stuff.
+  * start on the ideas for using the list generated in make-all-pieces as this list is the total valid pieces for the puzzle solution!
+  * maybe a new object for the solution or maybe just some words putting the parts together to solve the puzzle from the make-all-pieces list!
+  
