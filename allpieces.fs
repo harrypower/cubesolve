@@ -78,12 +78,14 @@ object class
     0 0 { upieces testpiece result }
     upieces [bind] pieces pieces-quantity@ 0 ?do
       i upieces [bind] pieces get-a-piece to testpiece 0 to result
-      all-pieces @ [bind] pieces pieces-quantity@ 0 ?do
-        testpiece i all-pieces @ [bind] pieces get-a-piece
-        [bind] piece same? result or to result
-      loop
-      result false = if testpiece all-pieces @ [bind] pieces add-a-piece then
-     loop
+      testpiece working-board @ [bind] board piece-on-board? true = if
+        all-pieces @ [bind] pieces pieces-quantity@ 0 ?do
+          testpiece i all-pieces @ [bind] pieces get-a-piece
+          [bind] piece same? result or to result
+        loop
+        result false = if testpiece all-pieces @ [bind] pieces add-a-piece then
+      then
+    loop
   ;m method add-to-all-pieces
   m: ( make-all-pieces -- ) \ will take start-pieces and create all rotations and translated pieces then add to all-pieces if not there already
     start-pieces @ [bind] pieces pieces-quantity@ 0 ?do
