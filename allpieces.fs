@@ -82,7 +82,7 @@ object class
         testpiece i all-pieces @ [bind] pieces get-a-piece
         [bind] piece same? result or to result
       loop
-      result false = if testpiece all-pieces @ [bind] pieces add-a-piece then 
+      result false = if testpiece all-pieces @ [bind] pieces add-a-piece then
      loop
   ;m method add-to-all-pieces
   m: ( make-all-pieces -- ) \ will take start-pieces and create all rotations and translated pieces then add to all-pieces if not there already
@@ -93,11 +93,12 @@ object class
         i rotated-pieces @ [bind] pieces get-a-piece
         this [current] translate
         translated-pieces @ this [current] add-to-all-pieces
-        translated-pieces @ [bind] piece destruct
-        translated-pieces @ [bind] piece construct
+\        all-pieces @ [bind] pieces pieces-quantity@ . ." the current size of all! " cr
+        translated-pieces @ [bind] pieces destruct
+        translated-pieces @ [bind] pieces construct
       loop
-      rotated-pieces @ [bind] piece destruct
-      rotated-pieces @ [bind] piece construct
+      rotated-pieces @ [bind] pieces destruct
+      rotated-pieces @ [bind] pieces construct
     loop
   ;m method all-rotations-translations
   m: ( make-all-pieces -- upieces ) \ return all-pieces object address
@@ -161,10 +162,12 @@ end-class make-all-pieces
 \ \\\
 make-all-pieces heap-new constant testmap
 
-testmap all-rotations-translations
+ testmap all-rotations-translations
+\ puzzle-pieces testmap bind make-all-pieces add-to-all-pieces
 testmap all@ bind pieces pieces-quantity@ . ." the size of all! " cr
 \\\
 testmap test-start
+\\\
 \ 1 0 testmap test-translate
 0 0 testmap test-rotate ." 0 0 " cr
 1 0 testmap test-rotate ." 1 0 " cr

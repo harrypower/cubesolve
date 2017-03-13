@@ -33,6 +33,11 @@
 * translation and orientation object
   * will have the job of taking a piece and creating all the pieces that are derived from the translations and rotations of the piece in the board space
   * will contain piece and pieces objects and voxel objects
-  * will use board object to test piece voxel validity on the board 
+  * will use board object to test piece voxel validity on the board
   * may contain board objects to facilitate piece or voxel board placement testing of orientations translations and or rotations
   * methods to manipulate a piece as a translation and rotation to make other piece orientations
+
+* Next additions or bugs to work on
+  * in allpieces.fs make-all-pieces object has a method called all-rotations-translations.
+  * this method needs to have added the removal of pieces that can not be placed on the board.  
+  * this process of removal may not be done in all-rotations-translations method but a method that is used in that method could do the work!
