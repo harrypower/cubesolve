@@ -105,7 +105,10 @@ object class
   ;m method all-rotations-translations
   m: ( make-all-pieces -- upieces ) \ return all-pieces object address
     all-pieces @ ;m method all@
-  m: ( make-all-pieces -- ) \ constructor
+  m: ( uindex upieces make-all-pieces -- upieces2 ) \ constructor
+    \ uindex is the reference to the pieces object piece defined in newpuzzle.def file
+    \ upieces2 is the returned pieces object that contains the total list of pieces that can be in board as defined by upieces and puzzle-board
+    \ note puzzle-board contains the dimentions of the board used here
     board heap-new working-board !
     puzzle-board [bind] board get-board-dims working-board @ [bind] board set-board-dims
     pieces heap-new start-pieces !
@@ -113,7 +116,10 @@ object class
     piece heap-new working-piece !
     pieces heap-new rotated-pieces !
     pieces heap-new translated-pieces !
-    puzzle-pieces this the-start-pieces   \ create the start pieces then go from there
+    \ puzzle-pieces
+    this the-start-pieces   \ create the start pieces then go from there
+    this all-rotations-translations
+    all-pieces @ \ return the total list of pieces
   ;m overrides construct
   m: ( make-all-pieces -- ) \ destructor
     working-board @ dup [bind] board destruct free throw
@@ -162,8 +168,11 @@ end-class make-all-pieces
 \ ********************************************************************************************************************************
 
 \ \\\
-make-all-pieces heap-new constant testmap
+puzzle-pieces make-all-pieces heap-new constant testmap
 
+bind pieces pieces-quantity@ . ." the size of all!" cr
+
+\\\
  testmap all-rotations-translations
 \ puzzle-pieces testmap bind make-all-pieces add-to-all-pieces
 testmap all@ bind pieces pieces-quantity@ . ." the size of all! " cr
