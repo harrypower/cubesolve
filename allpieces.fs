@@ -45,7 +45,6 @@ object class
       2 of y z uaxis this [current] do-axis-rotation x rot rot ENDOF
     ENDCASE ;m method do-rotation
 
-  public
   m: ( upiece make-all-pieces -- ) \ upiece is a piece object that is used to create translated pieces and place them in translated-pieces
     puzzle-board [bind] board get-board-dims 0 0 0 { upiece x-max y-max z-max x y z }
     x-max 0 ?do i to x
@@ -95,7 +94,6 @@ object class
         i rotated-pieces @ [bind] pieces get-a-piece
         this [current] translate
         translated-pieces @ this [current] add-to-all-pieces
-\        all-pieces @ [bind] pieces pieces-quantity@ . ." the current size of all! " cr
         translated-pieces @ [bind] pieces destruct
         translated-pieces @ [bind] pieces construct
       loop
@@ -103,8 +101,7 @@ object class
       rotated-pieces @ [bind] pieces construct
     loop
   ;m method all-rotations-translations
-\  m: ( make-all-pieces -- upieces ) \ return all-pieces object address
-\    all-pieces @ ;m method all@
+  public
   m: ( uindex upieces make-all-pieces -- upieces2 ) \ constructor
     \ uindex is the reference to the pieces object piece defined in newpuzzle.def file
     \ upieces2 is the returned pieces object that contains the total list of pieces that can be in board as defined by upieces and puzzle-board
@@ -129,39 +126,6 @@ object class
     rotated-pieces @ dup [bind] pieces destruct free throw
     translated-pieces @ dup [bind] pieces destruct free throw
   ;m overrides destruct
-  m: ( make-all-pieces -- ) \ test start
-    start-pieces @ [bind] pieces pieces-quantity@ 0 ?do
-      i start-pieces @ [bind] pieces get-a-piece working-board @ [bind] board place-piece-on-board drop
-    loop
-    working-board @ [bind] board see-board
-    cr start-pieces @ [bind] pieces pieces-quantity@ . ." qnt" cr
-    this reset-working-board
-  ;m method test-start
-  m: ( uindexT uindexS make-all-pieces -- ) \ test translate
-    start-pieces @ [bind] pieces get-a-piece this [current] translate
-    translated-pieces @ [bind] pieces get-a-piece
-    working-board @ [bind] board place-piece-on-board drop
-    working-board @ [bind] board see-board
-    translated-pieces @ [bind] pieces pieces-quantity@ . ." translated pieces qnt" cr
-    this [current] reset-working-board
-    translated-pieces @ [bind] pieces destruct
-    translated-pieces @ [bind] pieces construct
-  ;m method test-translate
-  m: ( uindexR uindexS make-all-pieces -- ) \ test rotate pieces
-    cr dup
-    start-pieces @ [bind] pieces get-a-piece dup [bind] piece voxel-quantity@ 0 ?do
-      dup i swap [bind] piece get-voxel rot . swap . . ." start xyz" cr
-    loop drop
-    start-pieces @ [bind] pieces get-a-piece this [current] rotate
-    rotated-pieces @ [bind] pieces get-a-piece
-    dup [bind] piece voxel-quantity@ 0 ?do
-      dup i swap [bind] piece get-voxel rot . swap . . ."  x y z" cr
-    loop
-    drop
-    rotated-pieces @ [bind] pieces pieces-quantity@ . ." rotated quantity!" cr
-    rotated-pieces @ [bind] pieces destruct
-    rotated-pieces @ [bind] pieces construct
-  ;m method test-rotate
 end-class make-all-pieces
 
 
@@ -171,28 +135,3 @@ end-class make-all-pieces
 0 puzzle-pieces make-all-pieces heap-new constant testmap
 
 bind pieces pieces-quantity@ . ." the size of all!" cr
-
-\\\
- testmap all-rotations-translations
-\ puzzle-pieces testmap bind make-all-pieces add-to-all-pieces
-testmap all@ bind pieces pieces-quantity@ . ." the size of all! " cr
-\\\
-testmap test-start
-\\\
-\ 1 0 testmap test-translate
-0 0 testmap test-rotate ." 0 0 " cr
-1 0 testmap test-rotate ." 1 0 " cr
-23 0 testmap test-rotate ." 23 0 " cr
-
-\\\
-0 puzzle-pieces get-a-piece
-0 puzzle-pieces get-a-piece same? . ." should be true " cr
-
-0 puzzle-pieces get-a-piece
-1 puzzle-pieces get-a-piece same? . ." should be false" cr
-
-0 puzzle-pieces get-a-piece
-2 puzzle-pieces get-a-piece same? . ." should be false" cr
-
-0 puzzle-pieces get-a-piece
-7 puzzle-pieces get-a-piece same? . ." should be true" cr
