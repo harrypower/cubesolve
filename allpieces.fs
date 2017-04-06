@@ -19,11 +19,11 @@ object class
   ;m method reset-working-board
   m: ( upieces make-all-pieces -- ) \ upieces is a pieces object containing the all the start puzzle pieces
     \ this method takes those start pieces and puts the pieces that fit on board into start-pieces pieces list
-    { upieces }
-    upieces [bind] pieces pieces-quantity@ 0 ?do
-      i upieces [bind] pieces get-a-piece working-board @ [bind] board piece-on-board? true =
-      if i upieces [bind] pieces get-a-piece start-pieces @ [bind] pieces add-a-piece then
-    loop
+    { uindex upieces }
+    \ upieces [bind] pieces pieces-quantity@ 0 ?do
+      uindex upieces [bind] pieces get-a-piece working-board @ [bind] board piece-on-board? true =
+      if uindex upieces [bind] pieces get-a-piece start-pieces @ [bind] pieces add-a-piece then
+    \ loop
     this reset-working-board
   ;m method the-start-pieces
   m: ( udim1 udim2 uaxis -- udim3 udim4 ) \ uaxis is 0 to 7 which axis rotation to perform
@@ -103,8 +103,8 @@ object class
       rotated-pieces @ [bind] pieces construct
     loop
   ;m method all-rotations-translations
-  m: ( make-all-pieces -- upieces ) \ return all-pieces object address
-    all-pieces @ ;m method all@
+\  m: ( make-all-pieces -- upieces ) \ return all-pieces object address
+\    all-pieces @ ;m method all@
   m: ( uindex upieces make-all-pieces -- upieces2 ) \ constructor
     \ uindex is the reference to the pieces object piece defined in newpuzzle.def file
     \ upieces2 is the returned pieces object that contains the total list of pieces that can be in board as defined by upieces and puzzle-board
@@ -116,7 +116,6 @@ object class
     piece heap-new working-piece !
     pieces heap-new rotated-pieces !
     pieces heap-new translated-pieces !
-    \ puzzle-pieces
     this the-start-pieces   \ create the start pieces then go from there
     this all-rotations-translations
     all-pieces @ \ return the total list of pieces
@@ -124,7 +123,8 @@ object class
   m: ( make-all-pieces -- ) \ destructor
     working-board @ dup [bind] board destruct free throw
     start-pieces @ dup [bind] pieces destruct free throw
-    \ note all-pieces is make in constructor but given out by this object so not destroyed here!
+    all-pieces @ dup [bind] pieces destruct free throw
+    \ note all-pieces is made in constructor but given out by this object so its handle might be out in the wild and invalid after destruct called
     working-piece @ dup [bind] piece destruct free throw
     rotated-pieces @ dup [bind] pieces destruct free throw
     translated-pieces @ dup [bind] pieces destruct free throw
@@ -168,7 +168,7 @@ end-class make-all-pieces
 \ ********************************************************************************************************************************
 
 \ \\\
-puzzle-pieces make-all-pieces heap-new constant testmap
+0 puzzle-pieces make-all-pieces heap-new constant testmap
 
 bind pieces pieces-quantity@ . ." the size of all!" cr
 
