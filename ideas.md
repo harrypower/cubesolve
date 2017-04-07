@@ -38,9 +38,7 @@
   * methods to manipulate a piece as a translation and rotation to make other piece orientations
 
 * Next additions or bugs to work on
-  * now clean up allpieces.fs to make all methods protected that need to be !
-  * the make-all-pieces object needs to simply do the job of making all the possible pieces from the newpuzzle.def pieces and return that list!
-  * make test words to see all the pieces created in make-all-pieces object to ensure it is producing the correct stuff.
   * start on the ideas for using the list generated in make-all-pieces as this list is the total valid pieces for the puzzle solution!
   * maybe a new object for the solution or maybe just some words putting the parts together to solve the puzzle from the make-all-pieces list!
+  * make a pair object a triad object and a five piece grouping object ... the idea here is to find all the total five piece groupings list that is possible and then to solve the puzzle simply five five piece groupings need to be put together for the final solution!  So if a list of all the five piece groups was made that would be used for the final solution!
   
