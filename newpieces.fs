@@ -156,15 +156,3 @@ piece heap-new constant working-piece
 
 
 \ **********************************************************************************************************************
-
-0 0 0 define-a-voxel
-1 0 0 define-a-voxel
-1 1 0 define-a-voxel
-2 1 0 define-a-voxel
-3 1 0 define-a-voxel
-define-a-piece
-
-0 puzzle-pieces get-a-piece
-working-piece bind piece copy
-0 puzzle-pieces get-a-piece
-working-piece same? . 
