@@ -96,6 +96,13 @@ object class
       false
     then
   ;m method same?
+  m: ( upiece piece -- ) \ exact copy upiece to this piece
+    { upiece }
+    this destruct this construct
+    upiece voxel-quantity@ 0 ?do
+      i upiece get-voxel this add-voxel
+    loop
+  ;m method copy
 end-class piece
 
 object class
@@ -149,3 +156,15 @@ piece heap-new constant working-piece
 
 
 \ **********************************************************************************************************************
+
+0 0 0 define-a-voxel
+1 0 0 define-a-voxel
+1 1 0 define-a-voxel
+2 1 0 define-a-voxel
+3 1 0 define-a-voxel
+define-a-piece
+
+0 puzzle-pieces get-a-piece
+working-piece bind piece copy
+0 puzzle-pieces get-a-piece
+working-piece same? . 
