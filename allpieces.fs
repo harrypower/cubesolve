@@ -131,7 +131,7 @@ end-class make-all-pieces
 
 \ ********************************************************************************************************************************
 
-\ \\\
+\\\
 0 puzzle-pieces make-all-pieces heap-new constant testmap
 
 bind pieces pieces-quantity@ . ." the size of all!" cr
