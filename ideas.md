@@ -41,5 +41,26 @@
   * start on the ideas for using the list generated in make-all-pieces as this list is the total valid pieces for the puzzle solution!
   * maybe a new object for the solution or maybe just some words putting the parts together to solve the puzzle from the make-all-pieces list!
   * make a pair object a triad object and a five piece grouping object ... the idea here is to find all the total five piece groupings list that is possible and then to solve the puzzle simply five five piece groupings need to be put together for the final solution!  So if a list of all the five piece groups was made that would be used for the final solution!
-  * make a pieces-array object that will contain a fast index able fixed size array of pieces to use in pair object and the info from make-all-pieces object 
-  * maybe try using the existing pieces object that uses linked list to do that job of pieces-array object indicated above.  this will be slower then the fixed array but try it anyways to see how much slower!
+  * storage ideas
+    ```
+    struct
+      cell% field pair-a
+      cell% field pair-b
+    end-struct pieces-pair%
+    struct
+      cell% field three-a
+      cell% field three-b
+      cell% field three-c
+    end-struct pieces-three%
+    struct
+      cell% field five-a
+      cell% field five-b
+      cell% field five-c
+      cell% field five-d
+      cell% field five-e
+    end-struct pieces-five%  
+    ```
+  * the struff stored in these fields are the reference index numbers of the pieces found will allpieces.fs object and put into the piece-array.fs object.
+  * ok so make object to find all the pairs and store as pieces-pair% above .. link list will work i think here because when used random pair seeking is not done rather starting at first pair and then seeking to next pair is what will happen.
+  * Then from pairs list find the pieces-three% list or what pieces go with the pairs list to make three that do not intersect.  again a link list i think will be the way to go.
+  * i need to know if making these pairs, three's and fives are possible in memory .... aka will they grow too large or will the intersections be significant that this is doable in memory?
