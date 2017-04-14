@@ -30,12 +30,22 @@
   * methods to display the board at the command line showing both pieces on the board or the voxels that are placed on the board from pieces
   * methods to test a piece or voxel to see if it can be placed on the board
 
-* translation and orientation object 
+* translation and orientation object
   * will have the job of taking a piece and creating all the pieces that are derived from the translations and rotations of the piece in the board space
   * will contain piece and pieces objects and voxel objects
   * will use board object to test piece voxel validity on the board
   * may contain board objects to facilitate piece or voxel board placement testing of orientations translations and or rotations
   * methods to manipulate a piece as a translation and rotation to make other piece orientations
+
+* piece array object
+  * this is a fixed array object that will contain the reference piece array
+  * this will allow the total pieces found in the translation and orientation object to be indexed
+  * this array and indexing of all the pieces for puzzle board are used in puzzle solution
+  * when then array is created it is of fixed size
+  * at array creation the pieces list that is to be stored is given to this array and placed in the array at this time.
+  * method to retrieve a given indexed piece that is stored already
+  * method to retrieve the total size of piece array
+  * indexed piece retrieval should be fast not stored in a linked list!
 
 * group list object
   * will be a general purpose list to group numbers or index values for example.
