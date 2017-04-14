@@ -30,37 +30,28 @@
   * methods to display the board at the command line showing both pieces on the board or the voxels that are placed on the board from pieces
   * methods to test a piece or voxel to see if it can be placed on the board
 
-* translation and orientation object
+* translation and orientation object 
   * will have the job of taking a piece and creating all the pieces that are derived from the translations and rotations of the piece in the board space
   * will contain piece and pieces objects and voxel objects
   * will use board object to test piece voxel validity on the board
   * may contain board objects to facilitate piece or voxel board placement testing of orientations translations and or rotations
   * methods to manipulate a piece as a translation and rotation to make other piece orientations
 
+* group list object
+  * will be a general purpose list to group numbers or index values for example.
+  * will be configurable to handle any size group with any amount of lists of this group!
+  * to do this the link list object should be used as the list will be added to in quantity's that are unknown at time of use.
+  * method to store new groups
+  * method to retrieve an indexed group values
+  * method to retrieve the current size of the list of groups.
+
 * Next additions or bugs to work on
   * start on the ideas for using the list generated in make-all-pieces as this list is the total valid pieces for the puzzle solution!
   * maybe a new object for the solution or maybe just some words putting the parts together to solve the puzzle from the make-all-pieces list!
-  * make a pair object a triad object and a five piece grouping object ... the idea here is to find all the total five piece groupings list that is possible and then to solve the puzzle simply five five piece groupings need to be put together for the final solution!  So if a list of all the five piece groups was made that would be used for the final solution!
-  * storage ideas
-    ```
-    struct
-      cell% field pair-a
-      cell% field pair-b
-    end-struct pieces-pair%
-    struct
-      cell% field three-a
-      cell% field three-b
-      cell% field three-c
-    end-struct pieces-three%
-    struct
-      cell% field five-a
-      cell% field five-b
-      cell% field five-c
-      cell% field five-d
-      cell% field five-e
-    end-struct pieces-five%  
-    ```
-  * the struff stored in these fields are the reference index numbers of the pieces found will allpieces.fs object and put into the piece-array.fs object.
-  * ok so make object to find all the pairs and store as pieces-pair% above .. link list will work i think here because when used random pair seeking is not done rather starting at first pair and then seeking to next pair is what will happen.
-  * Then from pairs list find the pieces-three% list or what pieces go with the pairs list to make three that do not intersect.  again a link list i think will be the way to go.
-  * i need to know if making these pairs, three's and fives are possible in memory .... aka will they grow too large or will the intersections be significant that this is doable in memory?
+  * take group-list object and use to make a pair list from the make-all-pieces object that contains all the 480 piece combinations.
+  * then make another list with pair list to find all the three pieces that work together.
+  * then make another list to find all the four pieces that work together.
+  * then make another list to find all the five pieces that work together.
+  * now with the list of five pieces that work together all that is needed is to find five groups of five that work for the final solution.
+  * then from this try to generalize this process to work for other size puzzles with other size pieces as starting point.
+  * These steps are an attempt to see if these groups can be placed in memory.  I am not sure how many group lists can be stored in memory so these steps may start to answer this question.
