@@ -47,7 +47,7 @@ object class
     0 swap this calc-array-addr { addr }
     fields @ 0 ?do
       addr cell i * + @
-    loop
+    loop fields @
   ;m method xcell-array@
 
   m: ( cell-array -- ufields urecords )
@@ -56,11 +56,15 @@ end-class cell-array
 
 \ ***************************************************************************************************************************************
 
-\ \\\
+\\\
 3 10 cell-array heap-new constant testarray
 88 2 3 testarray ncell-array!
 2 3 testarray ncell-array@ . ." should be 88!" cr
 testarray size@ swap . . ." should be 3 10!" cr
 
 7 8 9 0 testarray xcell-array!
-0 testarray xcell-array@ . . . ." should be 9 8 7!" cr
+0 testarray xcell-array@ . . . . ." should be 3 9 8 7!" cr
+
+testarray destruct
+5 20 testarray construct
+testarray destruct
