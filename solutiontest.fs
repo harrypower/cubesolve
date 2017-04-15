@@ -19,5 +19,76 @@ ref-piece-list piece-array heap-new constant ref-piece-array \ this object takes
     loop drop
   loop ;
 
-makepairs
-piece-pair-list group-dims@ drop . ." total pairs !" cr
+\ makepairs
+\ piece-pair-list group-dims@ drop . ." total pairs !" cr
+
+: findthree ( -- )
+  0 0 0 0 { p0 p1 p2 total }
+  ref-piece-array [bind] piece-array quantity@ 0 ?do
+    i ref-piece-array [bind] piece-array upiece@ to p0
+    ref-piece-array [bind] piece-array quantity@ 0 ?do
+      p0 i ref-piece-array [bind] piece-array upiece@ dup to p1
+      intersect? false = if
+        ref-piece-array [bind] piece-array quantity@ 0 ?do
+          p0 i ref-piece-array [bind] piece-array upiece@ dup to p2
+          intersect? p1 p2 intersect? or false = if
+            total dup 1 + to total . ." current three total .. current k " k . cr
+          then
+        loop
+      then
+    loop
+  loop total ;
+
+\ findthree . ." three group total !" cr
+
+: uref-piece@ ( uindex -- upiece )
+  ref-piece-array [bind] piece-array upiece@ ;
+
+ref-piece-array bind piece-array quantity@ constant refqty@
+
+: test-intersect? ( upiece0 upiece1 upiece2 upiece3 upiece4 -- nflag )
+  { p0 p1 p2 p3 p4 }
+  try
+    p0 p1 intersect? throw
+    p0 p2 intersect? throw
+    p0 p3 intersect? throw
+    p0 p4 intersect? throw
+    p1 p2 intersect? throw
+    p1 p3 intersect? throw
+    p1 p4 intersect? throw
+    p2 p3 intersect? throw
+    p2 p4 intersect? throw
+    p3 p4 intersect? throw
+    false
+  restore
+  endtry ;
+
+: findfive ( -- total )
+  0 0 0 0 0 0 { p0 p1 p2 p3 p4 total }
+  refqty@ 0 ?do
+    i uref-piece@ to p0
+    0 0 at-xy i . ." m"
+    refqty@ 0 ?do
+      i uref-piece@ to p1
+      0 2 at-xy i . ." l"
+      refqty@ 0 ?do
+        i uref-piece@ to p2
+        0 4 at-xy i . ." k"
+        refqty@ 0 ?do
+          i uref-piece@ to p3
+          refqty@ 0 ?do
+            i uref-piece@ to p4
+            p0 p1 p2 p3 p4 test-intersect? false = if
+              total 1 + dup to total
+              0 6 at-xy . ." total"
+              0 8 at-xy i . ." i"
+              0 10 at-xy j . ." j"
+            then
+          loop
+        loop
+      loop
+    loop
+  loop total ;
+
+page
+findfive . ." total for five grouped !" cr
