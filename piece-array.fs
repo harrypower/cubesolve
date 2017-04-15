@@ -51,6 +51,7 @@ end-class piece-array
 
 
 \ ********************************************************************************************************************************
+\\\
 require ./allpieces.fs
 
 0 puzzle-pieces make-all-pieces heap-new constant testmap
