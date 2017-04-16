@@ -12,6 +12,7 @@ ref-piece-list piece-array heap-new constant ref-piece-array \ this object takes
   \ nflag is true if both uindex0 and uindex1 show up in piece-pair-list in that order
   { uindex0 uindex1 }
   try
+  piece-pair-list [bind] group-list group-list-start
   piece-pair-list [bind] group-list group-dims@ drop 0 ?do
     i piece-pair-list [bind] group-list group@ drop
     uindex1 = swap uindex0 = and throw
@@ -25,8 +26,8 @@ ref-piece-list piece-array heap-new constant ref-piece-array \ this object takes
     i ref-piece-array [bind] piece-array upiece@
     ref-piece-array [bind] piece-array quantity@ 0 ?do
       dup i ref-piece-array [bind] piece-array upiece@
-\      intersect? j i testdup? or false = if
-      intersect? false = if 
+      intersect? j i testdup? or false = if
+\      intersect? false = if
         i j piece-pair-list [bind] group-list group!
         piece-pair-list [bind] group-list group-dims@ drop 0 0 at-xy .
       then

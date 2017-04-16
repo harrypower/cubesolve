@@ -44,13 +44,17 @@ object class
   ;m method group@
 
   m: ( group-list -- upieceindex0 ... upieceindexx nflag ) \ return next group data nflag is true when at the end of the data
-    \ the data will reset to beginning for next call
+    \ the data will reset to beginning for next call when nflag is true
+    \ nflag is false when data is normal retrieved and list internal index updated to next item
     list-storage @ [bind] double-linked-list ll@> swap drop { nflag }
     group-size @ 0 ?do
       dup i cell * + @ swap
     loop drop
-    nflag 
-    ;m method group@>
+    nflag
+  ;m method group@>
+
+  m: ( group-list -- ) \ reset the list to the beggining for group@> usage
+    list-storage @ [bind] double-linked-list ll-set-start ;m method group-list-start
 
   m: ( group-list -- uquantity ugroup-size ) \ quantity of the current group list recores and its group-size per record
     list-storage @ [bind] double-linked-list ll-size@
