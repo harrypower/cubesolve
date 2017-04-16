@@ -43,6 +43,15 @@ object class
     group-size @
   ;m method group@
 
+  m: ( group-list -- upieceindex0 ... upieceindexx nflag ) \ return next group data nflag is true when at the end of the data
+    \ the data will reset to beginning for next call
+    list-storage @ [bind] double-linked-list ll@> swap drop { nflag }
+    group-size @ 0 ?do
+      dup i cell * + @ swap
+    loop drop
+    nflag 
+    ;m method group@>
+
   m: ( group-list -- uquantity ugroup-size ) \ quantity of the current group list recores and its group-size per record
     list-storage @ [bind] double-linked-list ll-size@
     group-size @

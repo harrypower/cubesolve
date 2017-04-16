@@ -8,20 +8,35 @@ ref-piece-list piece-array heap-new constant ref-piece-array \ this object takes
 2 group-list heap-new constant piece-pair-list \ this object will contain the reference pair list of all pieces
 2 group-list heap-new constant pair-list \ this object will contain the reference piar list from piece-pair-list with duplicates removed
 
+: testdup? ( uindex0 uindex1 -- nflag ) \ nflag is false if uindex0 and uindex1 do not show up in piece-pair-list in that order
+  \ nflag is true if both uindex0 and uindex1 show up in piece-pair-list in that order
+  { uindex0 uindex1 }
+  try
+  piece-pair-list [bind] group-list group-dims@ drop 0 ?do
+    i piece-pair-list [bind] group-list group@ drop
+    uindex1 = swap uindex0 = and throw
+  loop
+  false
+  restore
+  endtry ;
+
 : makepairs ( -- )
   ref-piece-array [bind] piece-array quantity@ 0 ?do
     i ref-piece-array [bind] piece-array upiece@
     ref-piece-array [bind] piece-array quantity@ 0 ?do
       dup i ref-piece-array [bind] piece-array upiece@
-      intersect? false = if
+\      intersect? j i testdup? or false = if
+      intersect? false = if 
         i j piece-pair-list [bind] group-list group!
-        \ store the pairs into piece-pair-list here
+        piece-pair-list [bind] group-list group-dims@ drop 0 0 at-xy .
       then
     loop drop
   loop ;
 
+page 0 0 at-xy ." 0           current pairs"
 makepairs
-piece-pair-list group-dims@ drop . ." total pairs !" cr
+piece-pair-list group-dims@ drop 0 5 at-xy . ." total pairs !" cr
+\\\
 : remove-dups ( -- )
   0 0 0 { p0 p1 testvalue }
   piece-pair-list group-dims@ drop 0 ?do
