@@ -6,6 +6,7 @@ require ./group-list.fs
 constant ref-piece-list \ this is the reference list of piece created above
 ref-piece-list piece-array heap-new constant ref-piece-array \ this object takes reference list and makes a reference array of list for indexing faster
 2 group-list heap-new constant piece-pair-list \ this object will contain the reference pair list of all pieces
+2 group-list heap-new constant pair-list \ this object will contain the reference piar list from piece-pair-list with duplicates removed
 
 : makepairs ( -- )
   ref-piece-array [bind] piece-array quantity@ 0 ?do
@@ -19,9 +20,25 @@ ref-piece-list piece-array heap-new constant ref-piece-array \ this object takes
     loop drop
   loop ;
 
-\ makepairs
-\ piece-pair-list group-dims@ drop . ." total pairs !" cr
+makepairs
+piece-pair-list group-dims@ drop . ." total pairs !" cr
+: remove-dups ( -- )
+  0 0 0 { p0 p1 testvalue }
+  piece-pair-list group-dims@ drop 0 ?do
+    i piece-pair-list group@ drop to p1 to p0
+    0 to testvalue
+    i . ." currnet test" cr
+    pair-list group-dims@ drop 0 ?do
+      i pair-list group@ drop p0 = swap p1 = and testvalue or to testvalue
+    loop
+    testvalue false = if
+      p0 p1 pair-list group!
+    then
+  loop ;
+remove-dups
+pair-list group-dims@ drop . ." pairs with duplicates removed!" cr
 
+\\\
 : findthree ( -- )
   0 0 0 0 { p0 p1 p2 total }
   ref-piece-array [bind] piece-array quantity@ 0 ?do
@@ -65,10 +82,10 @@ ref-piece-array bind piece-array quantity@ constant refqty@
 
 : findfive ( -- total )
   0 0 0 0 0 0 { p0 p1 p2 p3 p4 total }
-  refqty@ 0 ?do
+  refqty@ 3 ?do
     i uref-piece@ to p0
     0 0 at-xy i . ." m"
-    refqty@ 0 ?do
+    refqty@ 2 ?do
       i uref-piece@ to p1
       0 2 at-xy i . ." l"
       refqty@ 0 ?do
