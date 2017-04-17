@@ -56,12 +56,6 @@
   * method to retrieve the current size of the list of groups.
 
 * Next additions or bugs to work on
-  * start on the ideas for using the list generated in make-all-pieces as this list is the total valid pieces for the puzzle solution!
-  * maybe a new object for the solution or maybe just some words putting the parts together to solve the puzzle from the make-all-pieces list!
-  * take group-list object and use to make a pair list from the make-all-pieces object that contains all the 480 piece combinations.
-  * then make another list with pair list to find all the three pieces that work together.
-  * then make another list to find all the four pieces that work together.
-  * then make another list to find all the five pieces that work together.
-  * now with the list of five pieces that work together all that is needed is to find five groups of five that work for the final solution.
-  * then from this try to generalize this process to work for other size puzzles with other size pieces as starting point.
-  * These steps are an attempt to see if these groups can be placed in memory.  I am not sure how many group lists can be stored in memory so these steps may start to answer this question.
+  * speed up the intersect? method of piece.
+  * come up with another method to solve as the pair grouping method is not feasable in memory
+  * maybe make a list of all the pieces and have that array able to find intersections faster by pre solving that in the array and make it a lookup rather then a calculation for later test of intersection.
