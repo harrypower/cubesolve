@@ -67,14 +67,18 @@ object class
   m: ( upiece piece -- nflag ) \ test for intersection of upiece with this piece on any voxel
     \ nflag is true if intersection happens
     \ nflag is false if no intersection happens
-    { upiece } 0
-    upiece voxel-quantity@ 0 ?do
-      this voxel-quantity@ 0 ?do
-        i this get-voxel-object
-        j upiece get-voxel-object
-        [bind] voxel intersect? or
+    { upiece }
+    try
+      upiece voxel-quantity@ 0 ?do
+        this voxel-quantity@ 0 ?do
+          i this get-voxel-object
+          j upiece get-voxel-object
+          [bind] voxel intersect? throw
+        loop
       loop
-    loop
+      false
+    restore
+    endtry
   ;m overrides intersect?
   m: ( upiece piece -- nflag ) \ test upiece agains this piece for exact voxels match forward or backward
     \ nflag is true if all voxels match either forward or backward

@@ -52,16 +52,16 @@ ref-piece-array bind piece-array quantity@ constant refqty@
 : test-intersect? ( upiece0 upiece1 upiece2 upiece3 upiece4 -- nflag )
   { p0 p1 p2 p3 p4 }
   try
-    p0 p1 intersect? throw
-    p0 p2 intersect? throw
-    p0 p3 intersect? throw
-    p0 p4 intersect? throw
-    p1 p2 intersect? throw
-    p1 p3 intersect? throw
-    p1 p4 intersect? throw
-    p2 p3 intersect? throw
-    p2 p4 intersect? throw
-    p3 p4 intersect? throw
+    p0 p1 [bind] piece intersect? throw
+    p0 p2 [bind] piece intersect? throw
+    p0 p3 [bind] piece intersect? throw
+    p0 p4 [bind] piece intersect? throw
+    p1 p2 [bind] piece intersect? throw
+    p1 p3 [bind] piece intersect? throw
+    p1 p4 [bind] piece intersect? throw
+    p2 p3 [bind] piece intersect? throw
+    p2 p4 [bind] piece intersect? throw
+    p3 p4 [bind] piece intersect? throw
     false
   restore
   endtry ;
@@ -71,15 +71,15 @@ ref-piece-array bind piece-array quantity@ constant refqty@
   refqty@ 0 ?do
     i uref-piece@ to p0
     0 0 at-xy i . ." m"
-    refqty@ i 1 - ?do
+    refqty@ i 1 + ?do
       i uref-piece@ to p1
       0 2 at-xy i . ." l"
-      refqty@ i 1 - ?do
+      refqty@ i 1 + ?do
         i uref-piece@ to p2
         0 4 at-xy i . ." k"
-        refqty@ i 1 - ?do
+        refqty@ i 1 + ?do
           i uref-piece@ to p3
-          refqty@ i 1 - ?do
+          refqty@ i 1 + ?do
             i uref-piece@ to p4
             p0 p1 p2 p3 p4 test-intersect? false = if
               total 1 + dup to total
