@@ -66,9 +66,14 @@ object class
   m: ( ux uy uz board -- nflag ) \ ux uy uz is a voxel to test if it can be placed on an empty board
     \ nflag is true if ux uy uz can be on the board
     \ nflag is false if ux uy uz can not be on the board
-    dup z-max < swap 0 >= and swap
-    dup y-max < swap 0 >= and and swap
-    dup x-max < swap 0 >= and and ;m method voxel-on-board?
+    try
+    dup z-max < swap 0 >= and invert throw
+    dup y-max < swap 0 >= and invert throw
+    dup x-max < swap 0 >= and invert throw
+    false
+    restore if drop drop drop false else true then
+    endtry
+  ;m method voxel-on-board?
   m: ( upiece board -- nflag ) \ test if upiece can be placed on an empty board nflag is true if piece can be placed false if not
     { upiece } true
     upiece [bind] piece voxel-quantity@ 0 ?do
