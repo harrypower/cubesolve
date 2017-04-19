@@ -3,31 +3,6 @@ require ./Gforth-Objects/double-linked-list.fs
 require ./newpieces.fs
 require ./puzzleboard.fs
 
-[ifundef] board-dimentions
-  interface
-     selector set-board-dims ( ux uy uz uobject -- )
-     selector get-board-dims ( uobject -- ux uy uz )
-  end-interface board-dimentions
-[endif]
-
-object class
-  board-dimentions implementation
-  protected
-  cell% inst-var max-board-x
-  cell% inst-var max-board-y
-  cell% inst-var max-board-z
-  public
-  m: ( ux uy uz board-dims -- ) \ constructor
-    max-board-z !
-    max-board-y !
-    max-board-x ! ;m overrides set-board-dims
-  m: ( board-dims -- ) \ retrieve board dimentions
-    max-board-x @
-    max-board-y @
-    max-board-z @ ;m overrides get-board-dims
-end-class board-dims 
-
-
 object class
   destruction implementation
   protected

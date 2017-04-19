@@ -2,16 +2,9 @@ require ./Gforth-Objects/objects.fs
 require ./Gforth-Objects/double-linked-list.fs
 require ./newpieces.fs
 
-[ifundef] board-dimentions
-  interface
-     selector set-board-dims ( ux uy uz uobject -- )
-     selector get-board-dims ( uobject -- ux uy uz )
-  end-interface board-dimentions
-[endif]
-
 object class
   destruction implementation
-  board-dimentions implementation
+  selector set-board-dims
   protected
   struct
     cell% field board-cell
@@ -67,7 +60,7 @@ object class
       loop
     loop ;m overrides set-board-dims
   m: ( board -- ux-max uy-max uz-max ) \ get dimensions of this board
-    x-max y-max z-max ;m overrides get-board-dims
+    x-max y-max z-max ;m method get-board-dims
   m: ( board -- uquantity ) \ return how many pieces are currently on the board
     board-pieces-list @ [bind] pieces pieces-quantity@ ;m method board-piece-quantity@
   m: ( ux uy uz board -- nflag ) \ ux uy uz is a voxel to test if it can be placed on an empty board
