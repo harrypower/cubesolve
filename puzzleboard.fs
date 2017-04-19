@@ -75,10 +75,15 @@ object class
     endtry
   ;m method voxel-on-board?
   m: ( upiece board -- nflag ) \ test if upiece can be placed on an empty board nflag is true if piece can be placed false if not
-    { upiece } true
-    upiece [bind] piece voxel-quantity@ 0 ?do
-      i upiece [bind] piece get-voxel this voxel-on-board? and
-    loop ;m method piece-on-board?
+    { upiece }
+    try
+      upiece [bind] piece voxel-quantity@ 0 ?do
+      i upiece [bind] piece get-voxel this voxel-on-board? invert throw
+    loop
+    false
+    restore invert
+    endtry
+  ;m method piece-on-board?
   m: ( upiece board -- nflag ) \ test if upiece could be placed on the current populated board
     \ nflag is true if upiece can be placed on the current board
     \ nflag is flase if upiece could not be placed on current board due to a piece intersection or a board boundry issue.
