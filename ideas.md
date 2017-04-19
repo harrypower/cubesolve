@@ -56,6 +56,6 @@
   * method to retrieve the current size of the list of groups.
 
 * Next additions or bugs to work on
-  * speed up the intersect? method of piece.
-  * come up with another method to solve as the pair grouping method is not feasable in memory
-  * maybe make a list of all the pieces and have that array able to find intersections faster by pre solving that in the array and make it a lookup rather then a calculation for later test of intersection.
+  * make an object that groups the reference list into all pieces that fill voxel holes ... list is ok because each voxel hole will have a varing list of pieces that fill it.
+  * solution for now will be just fill the holes.  Use the above mentioned object to cycle through the list of pieces for the list of holes.
+  * the current board object needs to be made into a new board object that uses the fast intersect? test from the reference list... *** note however the old board object and the created puzzle-board need to stay because the reference list is created from that object.  The new board could inherit from the old board object but changes should include all the fast intersect? test methods and should use the reference pieces object populated with the complete list of pieces.
