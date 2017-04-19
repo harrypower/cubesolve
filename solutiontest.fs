@@ -1,10 +1,31 @@
 require ./allpieces.fs
 require ./piece-array.fs
 require ./group-list.fs
-
+cr
 0 puzzle-pieces make-all-pieces heap-new constant map \ this object is used to make reference lists from start pieces
 constant ref-piece-list \ this is the reference list of piece created above
 ref-piece-list piece-array heap-new constant ref-piece-array \ this object takes reference list and makes a reference array of list for indexing faster
+
+ref-piece-array bind piece-array quantity@ . ." pieces in the reference!" cr
+
+: slow ( -- )
+  ref-piece-array [bind] piece-array quantity@ 0 ?do
+    ref-piece-array [bind] piece-array quantity@ 0 ?do
+      i ref-piece-array [bind] piece-array upiece@
+      j ref-piece-array [bind] piece-array upiece@
+      intersect? drop
+    loop
+  loop ;
+
+: fast ( -- )
+ref-piece-array [bind] piece-array quantity@ 0 ?do
+  ref-piece-array [bind] piece-array quantity@ 0 ?do
+    i j ref-piece-array [bind] piece-array fast-intersect? drop
+  loop
+loop ;
+
+utime slow utime 2swap d- d. ." slow time" cr
+utime fast utime 2swap d- d. ." fast time" cr
 
 
 \\\
