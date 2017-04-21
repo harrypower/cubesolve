@@ -127,6 +127,6 @@ end-class board
 
 board heap-new constant puzzle-board
 
-include ./newpuzzle.def
+require ./newpuzzle.def
 
 \ **********************************************************************************************************************

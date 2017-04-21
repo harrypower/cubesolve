@@ -6,7 +6,7 @@ require ./Gforth-Objects/objects.fs
   end-interface destruction
 [endif]
 
-object class
+object class \ this is just a 2d cell array
   destruction implementation
   protected
   cell% inst-var storage-location
@@ -54,7 +54,91 @@ object class
     fields @ records @ ;m method size@
 end-class cell-array
 
+object class \ this is a multi dimension cell array
+  destruction implementation
+  protected
+  cell% inst-var storage-location
+  cell% inst-var dimensions
+  cell% inst-var dimension-sizes
+  cell% inst-var dimension-multiply
+  m: ( udim0 ... udimx multi-cell-array -- )
+    dimensions @ 0 ?do
+      dimension-sizes @ i cells + !
+    loop
+  ;m method dimension-sizes!
+  m: ( multi-cell-array -- udim0 ... udimx )
+    dimensions @ 0 ?do
+      dimension-sizes @ i cells + @
+    loop
+  ;m method dimension-sizes@
+
+  m: ( multi-cell-array -- )
+\    1 dimensions @ 0 ?do
+\      cells
+\      i cells dimension-multiply @ + !
+\    loop drop \ now dimension-multiply contains list of uncorrected multiplyers
+    \ now to correct those values
+    cell dimension-multiply @ !
+    dimensions @ 0 > if
+    dimensions @ 1 ?do
+      dimension-sizes @ i 1 - cells + @
+      dimension-multiply @ i 1 - cells + @ *
+      dimension-multiply @ i cells + !
+    loop then
+  ;m method dimension-multiply!
+
+  m: ( multi-cell-array -- umult0 ... umultx )
+    dimensions @ 0 ?do
+      i cells dimension-multiply @ + @
+    loop
+  ;m method dimension-multiply@
+  public
+  m: ( udim0 ... udimx multi-cell-array -- uaddr )
+    storage-location @ { uaddr }
+    dimensions @ 0 ?do
+      dimension-multiply @ i cells + @ * uaddr + to uaddr
+    loop uaddr
+  ;m method array-addr@
+  public
+  m: ( umaxdim0 ... umaxdimx udimension-quantity multi-cell-array -- )
+    dup dimensions !
+    cells allocate throw dimension-sizes !
+    this dimension-sizes!
+    this dimension-sizes@ dimensions @ 1 ?do * loop cells allocate throw storage-location !
+    dimensions @ cells allocate throw dimension-multiply !
+    this dimension-multiply!
+  ;m overrides construct
+
+  m: ( multi-cell-array -- )
+
+  ;m overrides destruct
+
+  m: ( nvalue udim0 ... udimx multi-cell-array -- )
+    this array-addr@ !
+  ;m method cell-array!
+
+  m: ( udim0 ... udimx multi-cell-array -- nvalue )
+    this array-addr@ @
+  ;m method cell-array@
+
+  m: ( multi-cell-array -- )
+    cr this [parent] print cr
+    storage-location @ . ." storage-location @" cr
+    dimensions @ . ." dimensions @ " cr
+    this dimension-multiply@ .s ." dimension-multiply@ " cr
+    this dimension-sizes@ .s ." dimension-sizes@" cr
+  ;m overrides print
+end-class multi-cell-array
 \ ***************************************************************************************************************************************
+3 3 4 3 multi-cell-array heap-new constant testmulti
+\ testmulti bind multi-cell-array print
+.s cr
+
+783 0 0 0 testmulti bind multi-cell-array cell-array!
+0 0 0 testmulti bind multi-cell-array cell-array@ . .s
+1 0 0 testmulti bind multi-cell-array cell-array@ .
+999 1 0 0 testmulti bind multi-cell-array cell-array!
+1 0 0 testmulti bind multi-cell-array cell-array@ .
 
 \\\
 3 10 cell-array heap-new constant testarray
