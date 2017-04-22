@@ -73,11 +73,6 @@ object class \ this is a multi dimension cell array
   ;m method dimension-sizes@
 
   m: ( multi-cell-array -- )
-\    1 dimensions @ 0 ?do
-\      cells
-\      i cells dimension-multiply @ + !
-\    loop drop \ now dimension-multiply contains list of uncorrected multiplyers
-    \ now to correct those values
     cell dimension-multiply @ !
     dimensions @ 0 > if
     dimensions @ 1 ?do
@@ -85,14 +80,14 @@ object class \ this is a multi dimension cell array
       dimension-multiply @ i 1 - cells + @ *
       dimension-multiply @ i cells + !
     loop then
-  ;m method dimension-multiply!
+  ;m method dimension-multiply-make
 
   m: ( multi-cell-array -- umult0 ... umultx )
     dimensions @ 0 ?do
       i cells dimension-multiply @ + @
     loop
   ;m method dimension-multiply@
-  public
+
   m: ( udim0 ... udimx multi-cell-array -- uaddr )
     storage-location @ { uaddr }
     dimensions @ 0 ?do
@@ -106,7 +101,7 @@ object class \ this is a multi dimension cell array
     this dimension-sizes!
     this dimension-sizes@ dimensions @ 1 ?do * loop cells allocate throw storage-location !
     dimensions @ cells allocate throw dimension-multiply !
-    this dimension-multiply!
+    this dimension-multiply-make
   ;m overrides construct
 
   m: ( multi-cell-array -- )
@@ -131,7 +126,6 @@ object class \ this is a multi dimension cell array
 end-class multi-cell-array
 \ ***************************************************************************************************************************************
 3 3 4 3 multi-cell-array heap-new constant testmulti
-\ testmulti bind multi-cell-array print
 .s cr
 
 783 0 0 0 testmulti bind multi-cell-array cell-array!
