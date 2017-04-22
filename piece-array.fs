@@ -23,7 +23,7 @@ object class
     piece-cell% %size * pieces-array-start @ + piece-cell !
   ;m method upiece!
   m: ( nflag uindex0 uindex1 piece-array -- ) \ store nflag in 2d intersect-array for fast intersect testing
-    intersect-array @ [bind] cell-array ncell-array!
+    intersect-array @ [bind] multi-cell-array cell-array!
   ;m method uintersect-array!
   public
   m: ( upieces piece-array -- ) \ construct the array from the contents of upieces!  Note the size is fixed at construct time!
@@ -35,7 +35,7 @@ object class
       piece heap-new dup i this upiece!
       [bind] piece copy
     loop
-    pieces-array-quantity @ dup cell-array heap-new intersect-array !
+    pieces-array-quantity @ dup 2 multi-cell-array heap-new intersect-array !
     pieces-array-quantity @ 0 ?do
       pieces-array-quantity @ 0 ?do
         i this upiece@
@@ -52,7 +52,7 @@ object class
     pieces-array-start @ free throw
     0 pieces-array-start !
     0 pieces-array-quantity !
-    intersect-array @ [bind] cell-array destruct
+    intersect-array @ [bind] multi-cell-array destruct
     intersect-array @ free throw
     0 intersect-array !
   ;m overrides destruct
@@ -61,7 +61,7 @@ object class
     piece-cell% %size * pieces-array-start @ + piece-cell @ ;m overrides upiece@
 
   m: ( uindex0 uindex1 piece-array -- nflag ) \ return nflag from intersect-array to get fast intersect detection for uindex0 and uindex1 pieces
-    intersect-array @ [bind] cell-array ncell-array@
+    intersect-array @ [bind] multi-cell-array cell-array@
   ;m method fast-intersect?
 
   m: ( piece-array -- nquantity ) \ return the array size

@@ -134,6 +134,7 @@ object class \ this is a multi dimension cell array
 end-class multi-cell-array
 
 \ ***************************************************************************************************************************************
+\\\
 8 1 multi-cell-array heap-new constant testmulti
 : singletest
   8 0 ?do i i testmulti [bind] multi-cell-array cell-array! loop
@@ -182,25 +183,3 @@ cr .s cr ." tripletest start " cr cr
 tripletest
 testmulti bind multi-cell-array print
 testmulti bind multi-cell-array destruct
-\\\
-3 3 4 3 multi-cell-array heap-new constant testmulti
-.s cr
-
-783 0 0 0 testmulti bind multi-cell-array cell-array!
-0 0 0 testmulti bind multi-cell-array cell-array@ . .s
-1 0 0 testmulti bind multi-cell-array cell-array@ .
-999 1 0 0 testmulti bind multi-cell-array cell-array!
-1 0 0 testmulti bind multi-cell-array cell-array@ .
-
-\\\
-3 10 cell-array heap-new constant testarray
-88 2 3 testarray ncell-array!
-2 3 testarray ncell-array@ . ." should be 88!" cr
-testarray size@ swap . . ." should be 3 10!" cr
-
-7 8 9 0 testarray xcell-array!
-0 testarray xcell-array@ . . . . ." should be 3 9 8 7!" cr
-
-testarray destruct
-5 20 testarray construct
-testarray destruct
