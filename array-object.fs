@@ -105,7 +105,13 @@ object class \ this is a multi dimension cell array
   ;m overrides construct
 
   m: ( multi-cell-array -- )
-
+    dimension-sizes @ free throw
+    storage-location @ free throw
+    dimension-multiply @ free throw
+    0 dimensions !
+    0 dimension-sizes !
+    0 storage-location !
+    0 dimension-multiply !
   ;m overrides destruct
 
   m: ( nvalue udim0 ... udimx multi-cell-array -- )
@@ -120,11 +126,63 @@ object class \ this is a multi dimension cell array
     cr this [parent] print cr
     storage-location @ . ." storage-location @" cr
     dimensions @ . ." dimensions @ " cr
-    this dimension-multiply@ .s ." dimension-multiply@ " cr
-    this dimension-sizes@ .s ." dimension-sizes@" cr
+    this dimension-multiply@ dimensions @ 0 ?do . loop
+     ." dimension-multiply@ in backward order!" cr
+    this dimension-sizes@ dimensions @ 0 ?do . loop
+    ." dimension-sizes@ in backward order!" cr
   ;m overrides print
 end-class multi-cell-array
+
 \ ***************************************************************************************************************************************
+8 1 multi-cell-array heap-new constant testmulti
+: singletest
+  8 0 ?do i i testmulti [bind] multi-cell-array cell-array! loop
+  8 0 ?do i dup . testmulti [bind] multi-cell-array cell-array@ . cr loop ;
+singletest
+testmulti bind multi-cell-array destruct
+5 4 2 testmulti bind multi-cell-array construct
+20 value stuff
+: doubletest
+  4 0 ?do
+    5 0 ?do
+      stuff dup 1 + to stuff i j testmulti [bind] multi-cell-array cell-array!
+    loop
+  loop
+  4 0 ?do
+    5 0 ?do
+      i j testmulti [bind] multi-cell-array cell-array@
+      . ." stored " i . ." i " j . ." j " cr
+    loop
+  loop
+  ;
+
+doubletest
+testmulti bind multi-cell-array destruct
+cr .s cr ." tripletest start " cr cr
+5 4 3 3 testmulti bind multi-cell-array construct
+: tripletest
+  3 0 ?do
+    4 0 ?do
+      5 0 ?do
+        stuff dup 1 + to stuff i j k testmulti [bind] multi-cell-array cell-array!
+      loop
+    loop
+  loop
+  cr .s ." here" cr
+  3 0 ?do
+    4 0 ?do
+      5 0 ?do
+        i j k testmulti [bind] multi-cell-array cell-array@
+        . ." stored " i . ." i " j . ." j " k . ." k " cr
+      loop
+    loop
+  loop
+  ;
+
+tripletest
+testmulti bind multi-cell-array print
+testmulti bind multi-cell-array destruct
+\\\
 3 3 4 3 multi-cell-array heap-new constant testmulti
 .s cr
 
