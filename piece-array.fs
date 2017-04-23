@@ -16,9 +16,6 @@ object class
   cell% inst-var pieces-array \ pieces array object holding the array
   cell% inst-var pieces-array-quantity \ quantity of pieces in array
   cell% inst-var intersect-array \ will be the object to contain the 2d reference intersect array ( uses array-object )
-  struct
-    cell% field piece-cell
-  end-struct piece-cell%
   m: ( upiece uindex piece-array -- ) \ store piece object into array
     pieces-array @ [bind] multi-cell-array cell-array!
   ;m method upiece!
@@ -71,7 +68,7 @@ end-class piece-array
 
 
 \ ********************************************************************************************************************************
-\ \\\
+\\\
 require ./allpieces.fs
 
 0 puzzle-pieces make-all-pieces heap-new constant testmap

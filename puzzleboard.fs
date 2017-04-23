@@ -20,7 +20,6 @@ object class
   inst-value z-display-size
   m: ( ux uy uz board -- uaddr ) \ calculated board-array address
     z-mult * swap x-max * + + board-cell% %size * board-cell board-array @ + ;m method calc-board-array
-    \ z-mult * swap y-max * + + cell * board-array @ + ;m method calc-board-array
   m: ( uvalue ux uy uz board -- ) \ place uvalue into the board-array at location ux uy uz
     this calc-board-array ! ;m method board-array!
   m: ( ux uy uz board -- uvalue ) \ retrieve uvalue from board-array at location ux uy uz

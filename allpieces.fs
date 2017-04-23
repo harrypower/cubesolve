@@ -105,7 +105,7 @@ object class
   m: ( uindex upieces make-all-pieces -- upieces2 ) \ constructor
     \ uindex is the reference to the pieces object piece defined in newpuzzle.def file
     \ upieces2 is the returned pieces object that contains the total list of pieces that can be in board as defined by upieces and puzzle-board
-    \ note puzzle-board contains the dimentions of the board used here
+    \ note puzzle-board contains the dimensions of the board used here
     board heap-new working-board !
     puzzle-board [bind] board get-board-dims working-board @ [bind] board set-board-dims
     pieces heap-new start-pieces !
