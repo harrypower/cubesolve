@@ -56,6 +56,6 @@
   * method to retrieve the current size of the list of groups.
 
 * Next additions or bugs to work on
-  * make an object that groups the reference list into all pieces that fill voxel holes ... list is ok because each voxel hole will have a varing list of pieces that fill it.
+  * make an object that groups the reference list into all pieces that fill voxel holes ... list is ok because each voxel hole will have a varing list of pieces that fill it. so this will be structured as an array of lists.  the array will be the size of the reference pieces found.  the array will contain the list object that contains lists of the reference pieces that can be used to fill the voxel hole.
   * solution for now will be just fill the holes.  Use the above mentioned object to cycle through the list of pieces for the list of holes.
-  * the current board object needs to be made into a new board object that uses the fast intersect? test from the reference list... *** note however the old board object and the created puzzle-board need to stay because the reference list is created from that object.  The new board could inherit from the old board object but changes should include all the fast intersect? test methods and should use the reference pieces object populated with the complete list of pieces.
+  * use the fast intersect method to find list of pieces to fill the array of list up with.
