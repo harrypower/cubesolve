@@ -2,7 +2,7 @@ require ./Gforth-Objects/objects.fs
 
 [ifundef] destruction
   interface
-     selector destruct ( -- ) \ to free allocated memory in objects that use this
+     selector destruct ( object-name -- ) \ to free allocated memory in objects that use this
   end-interface destruction
 [endif]
 
@@ -73,6 +73,11 @@ object class \ this is a multi dimension cell array
   m: ( udim0 ... udimx multi-cell-array -- nvalue )
     this array-addr@ @
   ;m method cell-array@
+
+  m: ( multi-cell-array -- udim0 ... udimx udimension-quantity )
+    this dimension-sizes
+    dimensions @
+  ;m method cell-array-dimensions@
 
   m: ( multi-cell-array -- )
     cr this [parent] print cr

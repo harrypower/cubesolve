@@ -2,7 +2,7 @@ require ./Gforth-Objects/objects.fs
 require ./Gforth-Objects/double-linked-list.fs
 
 interface
-  selector intersect? ( n n -- nflag )
+  selector intersect? ( n object-name -- nflag )
 end-interface intersect
 
 object class
@@ -16,7 +16,7 @@ object class
   public
   m: ( ux uy uz voxel -- ) \ store the voxel coordinates
     z c! y c! x c! ;m method voxel!
-  m: ( -- ) \ constructed
+  m: ( voxel -- ) \ constructed
     0 0 0 this voxel! ;m overrides construct
   m: ( voxel -- ux uy uz ) \ retrieve voxel coordinates
     x c@ this adjust y c@ this adjust z c@ this adjust ;m method voxel@

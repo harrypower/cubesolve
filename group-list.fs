@@ -3,7 +3,7 @@ require ./Gforth-Objects/double-linked-list.fs
 
 [ifundef] destruction
   interface
-     selector destruct ( -- ) \ to free allocated memory in objects that use this
+     selector destruct ( object-name -- ) \ to free allocated memory in objects that use this
   end-interface destruction
 [endif]
 
