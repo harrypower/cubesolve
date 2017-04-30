@@ -56,8 +56,7 @@
   * method to retrieve the current size of the list of groups.
 
 * Next additions or bugs to work on
-  * working on the constructor for the below referenced object !
-  * still some bug in multi-cell-array object or not.. mmmm !
+  * working on the constructor for the below referenced object ... has a bug at the moment !
   * make an object that groups the reference list into all pieces that fill voxel holes ... list is ok because each voxel hole will have a varing list of pieces that fill it. so this will be structured as an array of lists.  the array will be the size of the reference pieces found.  the array will contain the list object that contains lists of the reference pieces that can be used to fill the voxel hole.
   * solution for now will be just fill the holes.  Use the above mentioned object to cycle through the list of pieces for the list of holes.
   * use the fast intersect method to find list of pieces to fill the array of list up with.

@@ -46,9 +46,10 @@ object class
 
   m: ( hole-array-piece-list -- ) \ populate the hole-array with lists of reference pieces that fit in each hole
     this hole-address@
-    0 ?do \ z
-      0 ?do \ y
-        0 ?do \ x
+    { ux uy uz }
+    uz 0 ?do \ z
+      uy 0 ?do \ y
+        ux 0 ?do \ x
           i j k \ x y z
           this do-populate-holes
         loop
@@ -63,14 +64,12 @@ object class
     the-puzzle-board !
     a-ref-piece-array !
     this hole-address@ 3 multi-cell-array heap-new hole-array !
-    this hole-address@ .s ." the addresses!" cr
-    0 ?do \ z
-      0 ?do \ y
-        0 ?do \ x
-          .s ." loop " cr
-          i . j . k . ." loop indexes" cr
+    this hole-address@
+    { ux uy uz }
+    uz 0 ?do \ z
+      uy 0 ?do \ y
+        ux 0 ?do \ x
           double-linked-list heap-new i j k hole-array @ [bind] multi-cell-array cell-array!
-          .s ." after storage" cr
         loop
       loop
     loop
