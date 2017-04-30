@@ -5,9 +5,9 @@ require ./puzzleboard.fs
 require ./allpieces.fs
 require ./piece-array.fs
 
-\ 0 puzzle-pieces make-all-pieces heap-new constant map         \ this object is used to make reference lists from start pieces
-\ constant ref-piece-list                                       \ this is the reference list of piece`s created above
-\ ref-piece-list piece-array heap-new constant ref-piece-array  \ this object takes reference list from above and makes a reference array of list for indexing faster
+0 puzzle-pieces make-all-pieces heap-new constant map         \ this object is used to make reference lists from start pieces
+constant ref-piece-list                                       \ this is the reference list of piece`s created above
+ref-piece-list piece-array heap-new constant ref-piece-array  \ this object takes reference list from above and makes a reference array of list for indexing faster
 
 [ifundef] destruction
   interface
@@ -50,6 +50,7 @@ object class
       0 ?do \ y
         0 ?do \ x
           i j k \ x y z
+          this do-populate-holes
         loop
       loop
     loop
@@ -57,20 +58,23 @@ object class
 
   public
   m: ( upiece-array uboard hole-array-piece-list -- ) \ constructor
-    \ takes upiece-array that should contain the reference pieces and oranizes them for hole indexing or voxel indexing
+    \ takes upiece-array that should contain the reference pieces and organizes them for hole indexing or voxel indexing
     \ uboard should be puzzle-board that contains the size of the current puzzle being solved for
     the-puzzle-board !
     a-ref-piece-array !
     this hole-address@ 3 multi-cell-array heap-new hole-array !
-    this hole-address@
+    this hole-address@ .s ." the addresses!" cr
     0 ?do \ z
       0 ?do \ y
         0 ?do \ x
+          .s ." loop " cr
+          i . j . k . ." loop indexes" cr
           double-linked-list heap-new i j k hole-array @ [bind] multi-cell-array cell-array!
+          .s ." after storage" cr
         loop
       loop
     loop
-    this populate-holes
+    \ this populate-holes
   ;m overrides construct
 
   m: ( hole-array-piece-list -- ) \ destructor
@@ -83,8 +87,8 @@ object class
     \ nflag is true when for givin hole address the piece list is at the end
     \ note when nflag is true the piece list at that hole address will reset to begining of list
     hole-array @ [bind] multi-cell-array cell-array@
-    dup rot swap [bind] double-linked-list ll@>
-    dup true = if swap [bind] double-linked-list ll-set-start else swap drop then
+    dup [bind] double-linked-list ll@> ( uaddr uref nflag -- )
+    dup true = if rot [bind] double-linked-list ll-set-start else rot drop then ( uref nflag -- )
   ;m method next-ref-piece-in-hole@
 
   m: ( uholex uholey uholez hole-array-piece-list -- uhole-list-quantity ) \ returns the quantity of pieces in a given hole
@@ -95,3 +99,11 @@ object class
   m: ( hole-array-piece-list -- uholex uholey uholez )  \ returns the total hole addresses for this reference puzzle passed to construct
     this hole-address@ ;m method hole-max-address@
 end-class hole-array-piece-list
+
+\ ***************************************************************************************************************************************
+
+ref-piece-array puzzle-board hole-array-piece-list heap-new constant testapl
+
+\ 0 0 0 testapl hole-max-address@ .s cr
+
+\ 0 0 0 testapl hole-list-quantity@ .s cr

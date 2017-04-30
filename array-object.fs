@@ -75,7 +75,7 @@ object class \ this is a multi dimension cell array
   ;m method cell-array@
 
   m: ( multi-cell-array -- udim0 ... udimx udimension-quantity )
-    this dimension-sizes
+    this dimension-sizes@
     dimensions @
   ;m method cell-array-dimensions@
 
@@ -93,10 +93,15 @@ end-class multi-cell-array
 \ ***************************************************************************************************************************************
 \\\
 8 1 multi-cell-array heap-new constant testmulti
+\ testmulti bind multi-cell-array cell-array-dimensions@ .s ." before single" cr
+
 : singletest
   8 0 ?do i i testmulti [bind] multi-cell-array cell-array! loop
   8 0 ?do i dup . testmulti [bind] multi-cell-array cell-array@ . cr loop ;
 singletest
+
+\ testmulti bind multi-cell-array cell-array-dimensions@ .s ." after single " cr
+
 testmulti bind multi-cell-array destruct
 5 4 2 testmulti bind multi-cell-array construct
 20 value stuff
@@ -117,18 +122,20 @@ testmulti bind multi-cell-array destruct
 doubletest
 testmulti bind multi-cell-array destruct
 cr .s cr ." tripletest start " cr cr
-5 4 3 3 testmulti bind multi-cell-array construct
+5 5 5 3 testmulti bind multi-cell-array construct
+testmulti bind multi-cell-array cell-array-dimensions@ .s ." before " cr
+
 : tripletest
-  3 0 ?do
-    4 0 ?do
+  5 0 ?do
+    5 0 ?do
       5 0 ?do
         stuff dup 1 + to stuff i j k testmulti [bind] multi-cell-array cell-array!
       loop
     loop
   loop
   cr .s ." here" cr
-  3 0 ?do
-    4 0 ?do
+  5 0 ?do
+    5 0 ?do
       5 0 ?do
         i j k testmulti [bind] multi-cell-array cell-array@
         . ." stored " i . ." i " j . ." j " k . ." k " cr
@@ -137,6 +144,7 @@ cr .s cr ." tripletest start " cr cr
   loop
   ;
 
+testmulti bind multi-cell-array cell-array-dimensions@ .s ." final " cr
 tripletest
 testmulti bind multi-cell-array print
 testmulti bind multi-cell-array destruct
