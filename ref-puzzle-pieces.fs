@@ -18,6 +18,7 @@ ref-piece-list piece-array heap-new constant ref-piece-array  \ this object take
 object class
   destruction implementation
   protected
+  cell% inst-var number-buffer  \ a place to put a number from stack to retrieve it simply
   cell% inst-var hole-array     \ address of the array that holds the hole reference lists
   cell% inst-var a-ref-piece-array  \ the upiece-array object passed to constructor used as the reference
   cell% inst-var the-puzzle-board   \ the board oject that is passed to construct used to size the hole-array and hole-size values
@@ -28,6 +29,7 @@ object class
 
   m: ( uref-piece uholex uholey uholez hole-array-piece-list -- ) \ store uref-piece into hole list at uholex uholey uholez address
     hole-array @ [bind] multi-cell-array cell-array@
+    swap number-buffer ! number-buffer swap cell swap
     [bind] double-linked-list ll!
   ;m method next-piece-in-hole!
 
@@ -36,8 +38,9 @@ object class
     a-ref-piece-array @ [bind] piece-array quantity@ 0 ?do
       i a-ref-piece-array @ [bind] piece-array upiece@ to upiece
       upiece [bind] piece voxel-quantity@ 0 ?do
-        i upiece [bind] piece get-voxel
-        uholez = swap uholey = and swap uholex = and true = if
+        i upiece [bind] piece get-voxel ( ux uy uz )
+        uholez = swap uholey = and swap uholex = and true =
+        if
           j uholex uholey uholez this next-piece-in-hole!
         then
       loop
@@ -73,7 +76,7 @@ object class
         loop
       loop
     loop
-    \ this populate-holes
+    this populate-holes
   ;m overrides construct
 
   m: ( hole-array-piece-list -- ) \ destructor
@@ -85,9 +88,18 @@ object class
     \ nflag is false normaly after upiece retrieval
     \ nflag is true when for givin hole address the piece list is at the end
     \ note when nflag is true the piece list at that hole address will reset to begining of list
-    hole-array @ [bind] multi-cell-array cell-array@
-    dup [bind] double-linked-list ll@> ( uaddr uref nflag -- )
-    dup true = if rot [bind] double-linked-list ll-set-start else rot drop then ( uref nflag -- )
+    hole-array @ [bind] multi-cell-array cell-array@ { uobject }
+    uobject [bind] double-linked-list ll@> ( uaddr usize nflag -- )
+    true = if
+      uobject [bind] double-linked-list ll-set-start
+      number-buffer swap move
+      number-buffer @
+      true
+    else
+      number-buffer swap move
+      number-buffer @
+      false
+    then ( uref nflag -- )
   ;m method next-ref-piece-in-hole@
 
   m: ( uholex uholey uholez hole-array-piece-list -- uhole-list-quantity ) \ returns the quantity of pieces in a given hole
@@ -102,7 +114,7 @@ end-class hole-array-piece-list
 \ ***************************************************************************************************************************************
 
 ref-piece-array puzzle-board hole-array-piece-list heap-new constant testapl
+0 0 0 testapl next-ref-piece-in-hole@ .s cr
+testapl hole-max-address@ .s cr
 
-\ 0 0 0 testapl hole-max-address@ .s cr
-
-\ 0 0 0 testapl hole-list-quantity@ .s cr
+0 0 0 testapl hole-list-quantity@ .s cr
