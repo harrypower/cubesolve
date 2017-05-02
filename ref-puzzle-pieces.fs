@@ -112,9 +112,24 @@ object class
 end-class hole-array-piece-list
 
 \ ***************************************************************************************************************************************
-
+\\\
 ref-piece-array puzzle-board hole-array-piece-list heap-new constant testapl
 0 0 0 testapl next-ref-piece-in-hole@ .s cr
 testapl hole-max-address@ .s cr
 
 0 0 0 testapl hole-list-quantity@ .s cr
+
+: seeallholes ( -- )
+  testapl hole-max-address@
+  { ux uy uz }
+  ux 0 ?do
+    uy 0 ?do
+      uz 0 ?do
+        k j i testapl hole-list-quantity@ . space
+        k . ."  x " j . ." y " i . ." z" cr
+      loop
+    loop
+  loop
+;
+
+seeallholes
