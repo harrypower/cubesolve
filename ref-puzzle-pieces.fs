@@ -80,6 +80,21 @@ object class
   ;m overrides construct
 
   m: ( hole-array-piece-list -- ) \ destructor
+    this hole-address@
+    { ux uy uz }
+    uz 0 ?do \ z
+      uy 0 ?do \ y
+        ux 0 ?do \ x
+          i j k hole-array @ [bind] multi-cell-array cell-array@
+          dup [bind] double-linked-list destruct
+          free throw
+        loop
+      loop
+    loop
+    hole-array @ [bind] multi-cell-array destruct
+    hole-array @ free throw
+    0 the-puzzle-board !
+    0 a-ref-piece-array !
   ;m overrides destruct
 
   m: ( uholex uholey uholez hole-array-piece-list -- uref-piece nflag )
@@ -133,3 +148,5 @@ testapl hole-max-address@ .s cr
 ;
 
 seeallholes
+
+testapl destruct
