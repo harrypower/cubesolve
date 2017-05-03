@@ -104,7 +104,7 @@ object class
     \ nflag is true when for givin hole address the piece list is at the end
     \ note when nflag is true the piece list at that hole address will reset to begining of list
     hole-array @ [bind] multi-cell-array cell-array@ { uobject }
-    uobject [bind] double-linked-list ll@> ( uaddr usize nflag -- )
+    uobject [bind] double-linked-list ll@> ( uaddr usize nflag )
     true = if
       uobject [bind] double-linked-list ll-set-start
       number-buffer swap move
@@ -114,7 +114,7 @@ object class
       number-buffer swap move
       number-buffer @
       false
-    then ( uref nflag -- )
+    then ( uref nflag )
   ;m method next-ref-piece-in-hole@
 
   m: ( uholex uholey uholez hole-array-piece-list -- uhole-list-quantity ) \ returns the quantity of pieces in a given hole
@@ -127,13 +127,38 @@ object class
 end-class hole-array-piece-list
 
 \ ***************************************************************************************************************************************
-\\\
+\ \\\
 ref-piece-array puzzle-board hole-array-piece-list heap-new constant testapl
-0 0 0 testapl next-ref-piece-in-hole@ .s cr
-testapl hole-max-address@ .s cr
+\ 0 0 0 testapl next-ref-piece-in-hole@ .s cr
+\ testapl hole-max-address@ .s cr
 
-0 0 0 testapl hole-list-quantity@ .s cr
+\ 0 0 0 testapl hole-list-quantity@ .s cr
 
+board heap-new constant testboard
+
+: keypause ( -- )
+  begin key? until key drop ;
+
+: seeholeonboard ( ux uy uz -- )
+  testapl next-ref-piece-in-hole@ drop
+  ref-piece-array [bind] piece-array upiece@
+  testboard place-piece-on-board drop
+  testboard see-board ;
+
+: putholeonboard { ux uy uz -- }
+  ux uy uz testapl hole-list-quantity@ 0 ?do
+    puzzle-board [bind] board get-board-dims
+    testboard [bind] board destruct
+    testboard [bind] board construct
+    testboard [bind] board set-board-dims
+    ux uy uz seeholeonboard
+    0 40 at-xy i . ." < index of >" ux . uy . uz .
+    keypause
+  loop ;
+
+0 0 0 putholeonboard
+
+\\\
 : seeallholes ( -- )
   testapl hole-max-address@
   { ux uy uz }
