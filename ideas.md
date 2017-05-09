@@ -55,7 +55,16 @@
   * method to retrieve an indexed group values
   * method to retrieve the current size of the list of groups.
 
+* hole-array-piece-list object
+  * this takes ref-piece-array object and puzzle-board object to create an array of pieces in a list that are representing holes or voxels of the board for this puzzle.
+  * methods for getting the size of the list in each hole.
+  * methods for getting the next reference piece in a given hole
+
+* solution object
+  * will take ref-piece-array object and hole-array-piece-list object and puzzle-board
+  * will store a working puzzle board array to fast access pieces on board in a reference form
+  * will use the fast intersect method from ref-piece-array to solve intersections.
+  * will mechanize the sequential hole filling to solve puzzle 
+
 * Next additions or bugs to work on
-  * make an object that groups the reference list into all pieces that fill voxel holes ... list is ok because each voxel hole will have a varing list of pieces that fill it. so this will be structured as an array of lists.  the array will be the size of the reference pieces found.  the array will contain the list object that contains lists of the reference pieces that can be used to fill the voxel hole.
   * solution for now will be just fill the holes.  Use the above mentioned object to cycle through the list of pieces for the list of holes.
-  * use the fast intersect method to find list of pieces to fill the array of list up with.
