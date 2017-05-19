@@ -35,20 +35,26 @@ object class
 
   m: ( uref-piece hole-solution -- nflag ) \ test if uref-piece can be placed into current board
   \ this test will look through the current pieces in solution-piece-list using a-ref-piece-array object fast-intersect? test!
+  \ nflag is true if uref-piece can be placed into current board and false if uref-piece can not be placed into current board
     { uref-piece }
-\    this solution-size@
     solution-piece-list @ [bind] double-linked-list ll-set-start
     begin
-      solution-piece-list @ [bind] double-linked-list ll@> rot rot anumberbuffer swap move
-      anumberbuffer @ uref-piece a-ref-piece-array @ [bind] piece-array fast-intersect? ( nflag-listdone nflag-intersect )
-
+      solution-piece-list @ [bind] double-linked-list ll@> rot rot anumberbuffer swap move if
+      true true \ leaves loop with true on stack
+      else
+        anumberbuffer @ uref-piece a-ref-piece-array @ [bind] piece-array fast-intersect?
+        if false true else false then \ if an intersection is found leave loop with false on stack otherwise continue loop
+      then
     until
   ;m method intersect-test?
   m: ( uref-piece hole-solution -- ) \ add uref-piece to solution-piece-list at last in list possition
   \ also add uref-piece to board-array multi-cell-array object to allow fast display
+    anumberbuffer !
+    anumberbuffer cell solution-piece-list @ [bind] double-linked-list ll!
   ;m method add-solution-piece
   m: ( hole-solution -- ) \ delete the last reference added to solution-piece-list
   \ remove the last reference added from the board-array to ensure it is updated
+    solution-piece-list @ [bind] double-linked-list delete-last
   ;m method del-solution-piece
   m: ( hole-solution -- usize ) \ return the current size of solution-piece-list
     solution-piece-list @ [bind] double-linked-list ll-size@
