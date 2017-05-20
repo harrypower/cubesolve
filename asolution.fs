@@ -91,6 +91,9 @@ object class
     true = if this add-solution-piece true else drop false then
   ;m method test-intersect
 
+  m: ( hole-solution -- )  \ test del-solution-piece
+    this del-solution-piece ;m method removeit
+
   m: ( hole-solution -- usize ) \ return current size of solution
     this solution-size@ ;m method  currentsize@
 end-class hole-solution
@@ -98,4 +101,13 @@ end-class hole-solution
 \ ***************************************************************************************************************************************
 
 ref-piece-array hapl hole-solution heap-new constant testsolution
-0 testsolution test-intersect .
+cr 0 testsolution test-intersect . cr
+testsolution currentsize@ . cr
+0 59 ref-piece-array fast-intersect? . cr
+testsolution removeit
+0 testsolution test-intersect . cr
+testsolution currentsize@ . cr
+5 testsolution test-intersect . cr
+testsolution currentsize@ . cr
+59 testsolution test-intersect . cr
+testsolution currentsize@ . cr
