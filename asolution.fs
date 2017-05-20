@@ -39,9 +39,16 @@ object class
     { uref-piece }
     solution-piece-list @ [bind] double-linked-list ll-set-start
     begin
-      solution-piece-list @ [bind] double-linked-list ll@> rot rot anumberbuffer swap move if
-      true true \ leaves loop with true on stack
-      else
+      solution-piece-list @ [bind] double-linked-list ll@> rot rot anumberbuffer swap move
+      if \ at beginning of list
+        solution-piece-list @ [bind] double-linked-list ll-size@ 0 >
+        if \ only one item in solution-piece-list
+          anumberbuffer @ uref-piece a-ref-piece-array @ [bind] piece-array fast-intersect?
+          if false true else true true then \ if an intersection is found leave loop with false on stack if no intersection leave loop with true on stack
+        else  \ no items in solution-piece-list
+          true true \ leave loop with true on stack
+        then
+      else \ list is larger then one item so test if they intersect or not
         anumberbuffer @ uref-piece a-ref-piece-array @ [bind] piece-array fast-intersect?
         if false true else false then \ if an intersection is found leave loop with false on stack otherwise continue loop
       then
@@ -78,8 +85,17 @@ object class
 
   m: ( hole-solution -- ) \ solve puzzle and display partial solutions and steps working on along the way
   ;m method solveit
+
+  m: ( uref-piece hole-solution -- nflag ) \ test intersect-test? method
+    dup this intersect-test?
+    true = if this add-solution-piece true else drop false then
+  ;m method test-intersect
+
+  m: ( hole-solution -- usize ) \ return current size of solution
+    this solution-size@ ;m method  currentsize@
 end-class hole-solution
 
 \ ***************************************************************************************************************************************
 
 ref-piece-array hapl hole-solution heap-new constant testsolution
+0 testsolution test-intersect .
