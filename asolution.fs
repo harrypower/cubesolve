@@ -38,21 +38,23 @@ object class
   \ nflag is true if uref-piece can be placed into current board and false if uref-piece can not be placed into current board
     { uref-piece }
     solution-piece-list @ [bind] double-linked-list ll-set-start
-    begin
-      solution-piece-list @ [bind] double-linked-list ll@> rot rot anumberbuffer swap move
-      if \ at beginning of list
-        solution-piece-list @ [bind] double-linked-list ll-size@ 0 >
-        if \ only one item in solution-piece-list
-          anumberbuffer @ uref-piece a-ref-piece-array @ [bind] piece-array fast-intersect?
-          if false true else true true then \ if an intersection is found leave loop with false on stack if no intersection leave loop with true on stack
-        else  \ no items in solution-piece-list
-          true true \ leave loop with true on stack
-        then
-      else \ list is larger then one item so test if they intersect or not
+    solution-piece-list @ [bind] double-linked-list ll-size@
+    case
+      0 of true endof \ list empty so can be added to
+      1 of  \ test if first item in list intersects or not
+        solution-piece-list @ [bind] double-linked-list ll@> drop anumberbuffer swap move
         anumberbuffer @ uref-piece a-ref-piece-array @ [bind] piece-array fast-intersect?
-        if false true else false then \ if an intersection is found leave loop with false on stack otherwise continue loop
-      then
-    until
+        if false else true then \ if an intersection is found place false on stack if no intersection place true on stack
+      endof
+      begin
+        solution-piece-list @ [bind] double-linked-list ll@> rot rot anumberbuffer swap move true =
+        if true true \ at end of list and no intersections found so return true
+        else
+          anumberbuffer @ uref-piece a-ref-piece-array @ [bind] piece-array fast-intersect?
+          if false true else false then \ if an intersection is found leave loop with false on stack otherwise continue loop
+        then
+      until
+    endcase
   ;m method intersect-test?
   m: ( uref-piece hole-solution -- ) \ add uref-piece to solution-piece-list at last in list possition
   \ also add uref-piece to board-array multi-cell-array object to allow fast display
