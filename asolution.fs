@@ -31,6 +31,9 @@ object class
   inst-value x-display-size         \ contains constants that are used to display the board in a terminal
   inst-value y-display-size
   inst-value z-display-size
+  inst-value x-max
+  inst-value y-max
+  inst-value z-max
   cell% inst-var anumberbuffer      \ used to store and retrieve a number
 
   m: ( uref-piece hole-solution -- nflag ) \ test if uref-piece can be placed into current board
@@ -61,20 +64,36 @@ object class
     board-array @ [bind] multi-cell-array cell-array! ;m method board-array!
   m: ( ux uy uz hole-solution -- unumber ) \ retrieve unumber from board-array at ux uy uz board-array address
     board-array @ [bind] multi-cell-array cell-array@ ;m method board-array@
+  m: ( uvoxel uref-piece hole-solution -- ux uy uz ) \ get voxel address from uref-pieces
+    a-ref-piece-array @ [bind] piece-array upiece@ [bind] piece get-voxel
+  ;m method voxel-address@
   m: ( uref-piece hole-solution -- ) \ store uref-piece in board-array as defined by the voxels in the piece that uref-piece defines
-
+    { uref-piece } uref-piece a-ref-piece-array @ [bind] piece-array upiece@ [bind] piece voxel-quantity@ 0 ?do
+      uref-piece \ store the reference piece in board-array
+      i uref-piece this voxel-address@
+      this board-array!
+    loop
   ;m method add-board-piece
   m: ( uref-piece hole-solution -- ) \ remove uref-piece from board-array as defined by the voxels in the piece that uref-piece defines
-
+    { uref-piece } uref-piece a-ref-piece-array @ [bind] piece-array upiece@ [bind] piece voxel-quantity@ 0 ?do
+      true \ true is the place holder for no piece in board-array
+      i uref-piece this voxel-address@
+      this board-array!
+    loop
   ;m method del-board-piece
 
   m: ( uref-piece hole-solution -- ) \ add uref-piece to solution-piece-list at last in list possition
   \ also add uref-piece to board-array multi-cell-array object to allow fast display
+    dup
     anumberbuffer !
     anumberbuffer cell solution-piece-list @ [bind] double-linked-list ll!
+    this add-board-piece
   ;m method add-solution-piece
   m: ( hole-solution -- ) \ delete the last reference added to solution-piece-list
   \ remove the last reference added from the board-array to ensure it is updated
+    solution-piece-list @ [bind] double-linked-list ll-set-end
+    solution-piece-list @ [bind] double-linked-list ll@ anumberbuffer swap move
+    anumberbuffer @ this del-board-piece
     solution-piece-list @ [bind] double-linked-list delete-last
   ;m method del-solution-piece
   m: ( hole-solution -- usize ) \ return the current size of solution-piece-list
@@ -88,11 +107,11 @@ object class
     x-display-size y-display-size * [to-inst] z-display-size
     a-hapl !
     a-ref-piece-array !
-    a-hapl @ [bind] hole-array-piece-list hole-max-address@ { ux uy uz }
-    ux uy uz 3 multi-cell-array heap-new board-array !
-    uz 0 ?do
-      uy 0 ?do
-        ux 0 ?do
+    a-hapl @ [bind] hole-array-piece-list hole-max-address@ [to-inst] z-max [to-inst] y-max [to-inst] x-max
+    x-max y-max z-max 3 multi-cell-array heap-new board-array !
+    z-max 0 ?do
+      y-max 0 ?do
+        y-max 0 ?do
           true i j k this board-array!
         loop
       loop
@@ -103,6 +122,15 @@ object class
   ;m overrides destruct
 
   m: ( hole-solution -- ) \ basic terminal view of the board-array reference pieces solution
+    page
+    z-max 0 ?do
+      y-max 0 ?do
+        x-max 0 ?do
+          i x-display-size * j y-display-size * k z-display-size * + at-xy
+          i j k this board-array@ dup true = if drop ." *****" else u. then
+        loop
+      loop
+    loop
   ;m method see-solution
 
   m: ( hole-solution -- ) \ solve puzzle and display partial solutions and steps working on along the way
@@ -142,3 +170,5 @@ testsolution currentsize@ . cr
 testsolution currentsize@ . cr
 59 testsolution test-intersect . cr
 testsolution currentsize@ . cr
+
+testsolution see-solution
