@@ -56,6 +56,18 @@ object class
       until
     endcase
   ;m method intersect-test?
+
+  m: ( unumber ux uy uz hole-solution -- ) \ place unumber in board-array at ux uy uz board-array address
+    board-array @ [bind] multi-cell-array cell-array! ;m method board-array!
+  m: ( ux uy uz hole-solution -- unumber ) \ retrieve unumber from board-array at ux uy uz board-array address
+    board-array @ [bind] multi-cell-array cell-array@ ;m method board-array@
+  m: ( uref-piece hole-solution -- ) \ store uref-piece in board-array as defined by the voxels in the piece that uref-piece defines
+
+  ;m method add-board-piece
+  m: ( uref-piece hole-solution -- ) \ remove uref-piece from board-array as defined by the voxels in the piece that uref-piece defines
+
+  ;m method del-board-piece
+
   m: ( uref-piece hole-solution -- ) \ add uref-piece to solution-piece-list at last in list possition
   \ also add uref-piece to board-array multi-cell-array object to allow fast display
     anumberbuffer !
@@ -76,7 +88,15 @@ object class
     x-display-size y-display-size * [to-inst] z-display-size
     a-hapl !
     a-ref-piece-array !
-    a-hapl @ [bind] hole-array-piece-list hole-max-address@ 3 multi-cell-array heap-new board-array !
+    a-hapl @ [bind] hole-array-piece-list hole-max-address@ { ux uy uz }
+    ux uy uz 3 multi-cell-array heap-new board-array !
+    uz 0 ?do
+      uy 0 ?do
+        ux 0 ?do
+          true i j k this board-array!
+        loop
+      loop
+    loop
     double-linked-list heap-new solution-piece-list !
   ;m overrides construct
   m: ( hole-solution -- ) \ destructor
@@ -86,6 +106,15 @@ object class
   ;m method see-solution
 
   m: ( hole-solution -- ) \ solve puzzle and display partial solutions and steps working on along the way
+  \ is solution-piece-list full for this puzzle for a solution ... if so done if not continue below
+  \ next hole address ...
+  \ get reference from a-hapl for above given hole address
+  \ test above given reference for intersection
+  \ if no intersection add reference to solution-piece-list and board-array for display purposes
+  \   go to top to test if puzzle solved and continue
+  \ if interesection then get next reference from a-hapl for given hole address above
+  \   if at end of reference list for a given hole address then step back one hole address and continue above
+
   ;m method solveit
 
   m: ( uref-piece hole-solution -- nflag ) \ test intersect-test? method
