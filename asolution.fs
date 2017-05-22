@@ -34,6 +34,9 @@ object class
   inst-value x-max
   inst-value y-max
   inst-value z-max
+  inst-value x-now
+  inst-value y-now
+  inst-value z-now
   cell% inst-var anumberbuffer      \ used to store and retrieve a number
 
   m: ( uref-piece hole-solution -- nflag ) \ test if uref-piece can be placed into current board
@@ -57,49 +60,70 @@ object class
           if false true else false then \ if an intersection is found leave loop with false on stack otherwise continue loop
         then
       until
-    endcase
-  ;m method intersect-test?
+    endcase ;m method intersect-test?
 
   m: ( unumber ux uy uz hole-solution -- ) \ place unumber in board-array at ux uy uz board-array address
     board-array @ [bind] multi-cell-array cell-array! ;m method board-array!
   m: ( ux uy uz hole-solution -- unumber ) \ retrieve unumber from board-array at ux uy uz board-array address
     board-array @ [bind] multi-cell-array cell-array@ ;m method board-array@
   m: ( uvoxel uref-piece hole-solution -- ux uy uz ) \ get voxel address from uref-pieces
-    a-ref-piece-array @ [bind] piece-array upiece@ [bind] piece get-voxel
-  ;m method voxel-address@
+    a-ref-piece-array @ [bind] piece-array upiece@ [bind] piece get-voxel ;m method voxel-address@
   m: ( uref-piece hole-solution -- ) \ store uref-piece in board-array as defined by the voxels in the piece that uref-piece defines
     { uref-piece } uref-piece a-ref-piece-array @ [bind] piece-array upiece@ [bind] piece voxel-quantity@ 0 ?do
       uref-piece \ store the reference piece in board-array
       i uref-piece this voxel-address@
       this board-array!
-    loop
-  ;m method add-board-piece
+    loop ;m method add-board-piece
   m: ( uref-piece hole-solution -- ) \ remove uref-piece from board-array as defined by the voxels in the piece that uref-piece defines
     { uref-piece } uref-piece a-ref-piece-array @ [bind] piece-array upiece@ [bind] piece voxel-quantity@ 0 ?do
       true \ true is the place holder for no piece in board-array
       i uref-piece this voxel-address@
       this board-array!
-    loop
-  ;m method del-board-piece
+    loop ;m method del-board-piece
 
   m: ( uref-piece hole-solution -- ) \ add uref-piece to solution-piece-list at last in list possition
   \ also add uref-piece to board-array multi-cell-array object to allow fast display
     dup
     anumberbuffer !
     anumberbuffer cell solution-piece-list @ [bind] double-linked-list ll!
-    this add-board-piece
-  ;m method add-solution-piece
+    this add-board-piece ;m method add-solution-piece
   m: ( hole-solution -- ) \ delete the last reference added to solution-piece-list
   \ remove the last reference added from the board-array to ensure it is updated
     solution-piece-list @ [bind] double-linked-list ll-set-end
     solution-piece-list @ [bind] double-linked-list ll@ anumberbuffer swap move
     anumberbuffer @ this del-board-piece
-    solution-piece-list @ [bind] double-linked-list delete-last
-  ;m method del-solution-piece
+    solution-piece-list @ [bind] double-linked-list delete-last ;m method del-solution-piece
   m: ( hole-solution -- usize ) \ return the current size of solution-piece-list
-    solution-piece-list @ [bind] double-linked-list ll-size@
-  ;m overrides solution-size@
+    solution-piece-list @ [bind] double-linked-list ll-size@ ;m overrides solution-size@
 
+  m: ( uref-piece hole-solution -- nflag ) \ test intersecting for uref-piece and place piece in solution-piece-list
+  \ nflag is true if uref-piece can be placed in solution-piece-list
+  \ nflag is false if uref-piece can not be placed in solution-piece-list
+  \ note uref-piece is placed into solution-piece-list and put on the board-array for display purposes if it can be placed at all
+    dup this intersect-test? if this add-solution-piece true else drop false then ;m method place-piece?
+
+  m: ( hole-solution -- ux uy uz ) \ return current hole address to fill with out changing it
+    x-now y-now z-now ;m method current-hole
+  m: ( hole-solution -- ux uy uz ) \ return next hole address to fill
+    x-now 1 + dup [to-inst] x-now
+    x-max = if 0 [to-inst] x-now
+      y-now 1 + dup [to-inst] y-now
+      y-max = if 0 [to-inst] y-now
+        z-now 1 + dup [to-inst] z-now
+        z-max = if 0 [to-inst] z-now
+        then
+      then
+    then ;m method next-hole
+  m: ( hole-solution -- ux uy uz ) \ step back to last hole and return its address to fill
+    x-now 1 - dup [to-inst] x-now
+    0< if x-max 1 - [to-inst] x-now
+      y-now 1 - dup [to-inst] y-now
+      0< if y-max 1 - [to-inst] y-now
+        z-now 1 - dup [to-inst] z-now
+        0< if z-max 1 - [to-inst] z-now
+        then
+      then
+    then ;m method last-hole
   public
   m: ( uref-piece-array uhapl hole-solution -- ) \ constructor
     6 [to-inst] x-display-size
@@ -117,6 +141,7 @@ object class
       loop
     loop
     double-linked-list heap-new solution-piece-list !
+    0 [to-inst] x-now 0 [to-inst] y-now 0 [to-inst] z-now
   ;m overrides construct
   m: ( hole-solution -- ) \ destructor
   ;m overrides destruct
@@ -146,15 +171,22 @@ object class
   ;m method solveit
 
   m: ( uref-piece hole-solution -- nflag ) \ test intersect-test? method
-    dup this intersect-test?
-    true = if this add-solution-piece true else drop false then
-  ;m method test-intersect
+    \ dup this intersect-test?
+    \ true = if this add-solution-piece true else drop false then
+    this place-piece? ;m method test-intersect
 
   m: ( hole-solution -- )  \ test del-solution-piece
     this del-solution-piece ;m method removeit
 
   m: ( hole-solution -- usize ) \ return current size of solution
     this solution-size@ ;m method  currentsize@
+
+  m: ( hole-solution -- ux uy uz ) \ test next hole solution
+    this next-hole
+    this current-hole ;m method nexthole@
+  m: ( hole-solution -- uz uy uz ) \ test last hole solution
+    this last-hole
+    this current-hole ;m method lasthole@
 end-class hole-solution
 
 \ ***************************************************************************************************************************************
@@ -172,3 +204,4 @@ testsolution currentsize@ . cr
 testsolution currentsize@ . cr
 
 testsolution see-solution
+testsolution nexthole@ . . .
