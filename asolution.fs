@@ -38,7 +38,15 @@ object class
   inst-value y-now
   inst-value z-now
   cell% inst-var anumberbuffer      \ used to store and retrieve a number
+  inst-value final-solution         \ holds the number of pieces needed that constitutes a solution
 
+  m: ( hole-solution -- nflag ) \ test if puzzle can be solved and if so place piece count needed for soulution in final-solution
+  \ nflag is true if puzzle can be solved and false if the pieces do not add up to a solution
+    x-max y-max * z-max *
+    0 a-ref-piece-array @ [bind] piece-array upiece@ [bind] piece voxel-quantity@
+    2dup / [to-inst] final-solution
+    mod 0= if true else false then
+  ;m method test-solvable?
   m: ( uref-piece hole-solution -- nflag ) \ test if uref-piece can be placed into current board
   \ this test will look through the current pieces in solution-piece-list using a-ref-piece-array object fast-intersect? test!
   \ nflag is true if uref-piece can be placed into current board and false if uref-piece can not be placed into current board
@@ -104,7 +112,7 @@ object class
 
   m: ( hole-solution -- ux uy uz ) \ return current hole address to fill with out changing it
     x-now y-now z-now ;m method current-hole
-  m: ( hole-solution -- ux uy uz ) \ return next hole address to fill
+  m: ( hole-solution -- ) \ increment to next hole address to fill
     x-now 1 + dup [to-inst] x-now
     x-max = if 0 [to-inst] x-now
       y-now 1 + dup [to-inst] y-now
@@ -114,7 +122,7 @@ object class
         then
       then
     then ;m method next-hole
-  m: ( hole-solution -- ux uy uz ) \ step back to last hole and return its address to fill
+  m: ( hole-solution -- ux uy uz ) \ step back to last hole filled
     x-now 1 - dup [to-inst] x-now
     0< if x-max 1 - [to-inst] x-now
       y-now 1 - dup [to-inst] y-now
@@ -167,7 +175,14 @@ object class
   \   go to top to test if puzzle solved and continue
   \ if interesection then get next reference from a-hapl for given hole address above
   \   if at end of reference list for a given hole address then step back one hole address and continue above
-
+    this test-solvable? if
+      this current-hole
+      a-hapl @ [bind] hole-array-piece-list next-ref-piece-in-hole@ drop
+      this place-piece? drop \ at this moment the first piece is placed in the first hole
+      this next-hole
+    else
+      ." The puzzle board can not hold the puzzle pieces in an even quantity!  Puzzle is not solvable!" cr
+    then
   ;m method solveit
 
   m: ( uref-piece hole-solution -- nflag ) \ test intersect-test? method
@@ -192,6 +207,11 @@ end-class hole-solution
 \ ***************************************************************************************************************************************
 
 ref-piece-array hapl hole-solution heap-new constant testsolution
+testsolution solveit
+testsolution currentsize@ ." should be 1" cr
+testsolution see-solution
+
+\\\
 cr 0 testsolution test-intersect . cr
 testsolution currentsize@ . cr
 0 59 ref-piece-array fast-intersect? . cr
