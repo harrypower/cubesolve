@@ -6,6 +6,17 @@ require ./allpieces.fs
 require ./piece-array.fs
 require ./ref-puzzle-pieces.fs
 
+: pause-for-key ( -- ) \ halt until a key is pressed then continue
+  begin key? until
+  key drop 10 ms ;
+
+: key-test-wait ( -- ) \ if keyboard is pressed pause until it is pressed again
+  key?
+  if
+    key drop 10 ms
+    pause-for-key
+  then ;
+
 \ puzzle-board - a board object for the basic puzzle
 \ this board object can be used with puzzle-board to hold pieces
 \ ref-piece-array - a make-all-pieces object containing all the reference pieces for basic puzzle
@@ -22,8 +33,9 @@ ref-piece-array puzzle-board hole-array-piece-list heap-new constant hapl
 
 object class
   destruction implementation  \ ( hole-solution -- )
-  selector solution-size@     \ ( hole-solution -- usize )
   protected
+  selector next-hole          \ ( hole-solution -- )
+  selector solution-size@     \ ( hole-solution -- usize )
   cell% inst-var board-array        \ multi-cell-array object containing current puzzle board in this hole-solution
   cell% inst-var a-ref-piece-array  \ piece-array object containing the reference piece array passed to this hole-solution
   cell% inst-var a-hapl             \ hole-array-piece-list object containing the reference hapl passed to this hole-solution
@@ -53,22 +65,25 @@ object class
     { uref-piece }
     solution-piece-list @ [bind] double-linked-list ll-set-start
     solution-piece-list @ [bind] double-linked-list ll-size@
-    case
-      0 of true endof \ list empty so can be added to
-      1 of  \ test if first item in list intersects or not
-        solution-piece-list @ [bind] double-linked-list ll@> drop anumberbuffer swap move
-        anumberbuffer @ uref-piece a-ref-piece-array @ [bind] piece-array fast-intersect?
-        if false else true then \ if an intersection is found place false on stack if no intersection place true on stack
-      endof
+    \ .s ." size of list in test" cr
+    0 =
+    if
+      true \ list empty so no intersection
+    else
       begin
         solution-piece-list @ [bind] double-linked-list ll@> rot rot anumberbuffer swap move true =
-        if true true \ at end of list and no intersections found so return true
-        else
-          anumberbuffer @ uref-piece a-ref-piece-array @ [bind] piece-array fast-intersect?
+        if \ at end of list
+          anumberbuffer @ uref-piece \ .s ." data into fast test at end" cr
+          a-ref-piece-array @ [bind] piece-array fast-intersect?
+          if false true else true true then \ if intersection found leave loop with false on stack otherwise leave loop with true on stack
+        else \ in middle of list
+          anumberbuffer @ uref-piece \ .s ." data into fast test in middle" cr
+          a-ref-piece-array @ [bind] piece-array fast-intersect?
           if false true else false then \ if an intersection is found leave loop with false on stack otherwise continue loop
         then
       until
-    endcase ;m method intersect-test?
+    then
+  ;m method intersect-test?
 
   m: ( unumber ux uy uz hole-solution -- ) \ place unumber in board-array at ux uy uz board-array address
     board-array @ [bind] multi-cell-array cell-array! ;m method board-array!
@@ -105,14 +120,14 @@ object class
     solution-piece-list @ [bind] double-linked-list ll-size@ ;m overrides solution-size@
 
   m: ( uref-piece hole-solution -- nflag ) \ test intersecting for uref-piece and place piece in solution-piece-list
-  \ nflag is true if uref-piece can be placed in solution-piece-list
-  \ nflag is false if uref-piece can not be placed in solution-piece-list
+  \ nflag is true if uref-piece can be placed in solution-piece-list and is placed in list and board array
+  \ nflag is false if uref-piece can not be placed in solution-piece-list and is not placed in list and board array
   \ note uref-piece is placed into solution-piece-list and put on the board-array for display purposes if it can be placed at all
     dup this intersect-test? if this add-solution-piece true else drop false then ;m method place-piece?
 
   m: ( hole-solution -- ux uy uz ) \ return current hole address to fill with out changing it
     x-now y-now z-now ;m method current-hole
-  m: ( hole-solution -- ) \ increment to next hole address to fill
+  m: ( hole-solution -- ) \ increment current hole address
     x-now 1 + dup [to-inst] x-now
     x-max = if 0 [to-inst] x-now
       y-now 1 + dup [to-inst] y-now
@@ -121,8 +136,8 @@ object class
         z-max = if 0 [to-inst] z-now
         then
       then
-    then ;m method next-hole
-  m: ( hole-solution -- ux uy uz ) \ step back to last hole filled
+    then ;m method hole+
+  m: ( hole-solution -- ) \ decrement current hole address
     x-now 1 - dup [to-inst] x-now
     0< if x-max 1 - [to-inst] x-now
       y-now 1 - dup [to-inst] y-now
@@ -131,7 +146,15 @@ object class
         0< if z-max 1 - [to-inst] z-now
         then
       then
-    then ;m method last-hole
+    then ;m method hole-
+  m: ( hole-solution -- ) \ increment to next hole address to fill
+    this hole+
+    this current-hole \ 40 30 at-xy .s ." after current-hole in next-hole"
+    this board-array@ \ 40 32 at-xy .s ." after board-array@ in next-hole" pause-for-key
+    true <> if this next-hole then
+  ;m overrides next-hole
+  m: ( hole-solution -- ) \ step back to last hole filled
+  ;m method last-hole
   public
   m: ( uref-piece-array uhapl hole-solution -- ) \ constructor
     6 [to-inst] x-display-size
@@ -155,7 +178,7 @@ object class
   ;m overrides destruct
 
   m: ( hole-solution -- ) \ basic terminal view of the board-array reference pieces solution
-    page
+  \  page
     z-max 0 ?do
       y-max 0 ?do
         x-max 0 ?do
@@ -176,18 +199,62 @@ object class
   \ if interesection then get next reference from a-hapl for given hole address above
   \   if at end of reference list for a given hole address then step back one hole address and continue above
     this test-solvable? if
+      page
       this current-hole
-      a-hapl @ [bind] hole-array-piece-list next-ref-piece-in-hole@ drop
-      this place-piece? drop \ at this moment the first piece is placed in the first hole
-      this next-hole
+      a-hapl @ [bind] hole-array-piece-list next-ref-piece-in-hole@ drop \ 40 20 at-xy . ." after first piece placed "
+      this place-piece? drop \ 40 21 at-xy . ." answer to first piece placed! " \ at this moment the first piece is placed in the first hole
+      \ 40 15 at-xy this solution-size@ . ." this should be 1 because at the beginning of solution process!"
+      this see-solution
+      \ pause-for-key
+      begin
+        this next-hole
+        begin
+          this current-hole \ 40 16 at-xy .s ." next hole address"
+          a-hapl @ [bind] hole-array-piece-list next-ref-piece-in-hole@
+          \ 40 15 at-xy .s ." next reference to place with flag"
+          if \ at end of hole references
+            \ 40 10 at-xy ." at end of hole references!           "
+            this place-piece?
+            if
+              \ next hole because hole was filled with last one .. now exit this begin until
+              true
+              \ 40 11 at-xy ." place-piece true for end of hole references!      "
+            else
+              \ last hole becasue hole was not filled with last one  .. now exit  this begin until
+              this del-solution-piece
+              true
+              \ 40 11 at-xy ." place-piece false for end of hole references!       "
+            then
+          else
+            \ not at end of hole references
+            this place-piece?
+            \ 40 10 at-xy .s ." not at end of hole references      "
+            if
+              \ next hole because hole was filled with last one .. now exit this begin until
+              true
+              \ 40 11 at-xy ." exiting inside loop because hole filed           "
+            else
+              \ next reference at same hole becasue hole was not filled ... do not exit this begin until
+              false
+              \ 40 11 at-xy ." repeating inside loop because hole not filed      "
+            then
+          then
+        until
+        page
+        this see-solution
+        40 0 at-xy this solution-size@ . ." solution-size"
+
+        \ pause-for-key
+        key-test-wait
+        this solution-size@ final-solution =
+      until
+      40 0 at-xy ." solution found!"
     else
       ." The puzzle board can not hold the puzzle pieces in an even quantity!  Puzzle is not solvable!" cr
     then
   ;m method solveit
 
   m: ( uref-piece hole-solution -- nflag ) \ test intersect-test? method
-    \ dup this intersect-test?
-    \ true = if this add-solution-piece true else drop false then
     this place-piece? ;m method test-intersect
 
   m: ( hole-solution -- )  \ test del-solution-piece
@@ -206,8 +273,18 @@ end-class hole-solution
 
 \ ***************************************************************************************************************************************
 
+\ 0 0 0 hapl next-ref-piece-in-hole@ .s ." < 0 0 0 " cr
+\ 1 0 0 hapl next-ref-piece-in-hole@ .s ." < 1 0 0 " cr
+\ \\\
 ref-piece-array hapl hole-solution heap-new constant testsolution
+\ 0 testsolution test-intersect . ." answer for ref 0" cr
+\ 376 testsolution test-intersect . ." answer for ref 376" cr
+\ 60 testsolution test-intersect . ." answer for ref 60" cr
+\ \\\
+page
 testsolution solveit
+
+\\\
 testsolution currentsize@ ." should be 1" cr
 testsolution see-solution
 
