@@ -51,6 +51,9 @@ object class
   inst-value z-now
   cell% inst-var anumberbuffer      \ used to store and retrieve a number
   inst-value final-solution         \ holds the number of pieces needed that constitutes a solution
+  inst-value solveloops             \ for display purposes the amount of loops between showing current solution
+  inst-value solvelow
+  inst-value solvehigh
 
   m: ( hole-solution -- nflag ) \ test if puzzle can be solved and if so place piece count needed for soulution in final-solution
   \ nflag is true if puzzle can be solved and false if the pieces do not add up to a solution
@@ -152,6 +155,7 @@ object class
     this current-hole \ 40 30 at-xy .s ." after current-hole in next-hole"
     this board-array@ \ 40 32 at-xy .s ." after board-array@ in next-hole" pause-for-key
     true <> if this next-hole then
+    \ note this is recursive and is done with use of selector for this method because recurse will not work here!
   ;m overrides next-hole
   m: ( hole-solution -- ) \ step back to last hole filled
   ;m method last-hole
@@ -173,6 +177,10 @@ object class
     loop
     double-linked-list heap-new solution-piece-list !
     0 [to-inst] x-now 0 [to-inst] y-now 0 [to-inst] z-now
+    0 [to-inst] solveloops
+    this test-solvable? drop
+    final-solution 1 - [to-inst] solvelow
+    0 [to-inst] solvehigh
   ;m overrides construct
   m: ( hole-solution -- ) \ destructor
   ;m overrides destruct
@@ -190,14 +198,6 @@ object class
   ;m method see-solution
 
   m: ( hole-solution -- ) \ solve puzzle and display partial solutions and steps working on along the way
-  \ is solution-piece-list full for this puzzle for a solution ... if so done if not continue below
-  \ next hole address ...
-  \ get reference from a-hapl for above given hole address
-  \ test above given reference for intersection
-  \ if no intersection add reference to solution-piece-list and board-array for display purposes
-  \   go to top to test if puzzle solved and continue
-  \ if interesection then get next reference from a-hapl for given hole address above
-  \   if at end of reference list for a given hole address then step back one hole address and continue above
     this test-solvable? if
       page
       this current-hole
@@ -240,10 +240,12 @@ object class
             then
           then
         until
-        page
-        this see-solution
+        this solution-size@ solvehigh > if this solution-size@ [to-inst] solvehigh then
+        this solution-size@ solvelow < if this solution-size@ [to-inst] solvelow then
+        solveloops 3000 > if 0 [to-inst] solveloops this see-solution else solveloops 1 + [to-inst] solveloops then
         40 0 at-xy this solution-size@ . ." solution-size"
-
+        40 1 at-xy solvehigh . ." highest"
+        40 2 at-xy solvelow . ." lowest"
         \ pause-for-key
         key-test-wait
         this solution-size@ final-solution =
