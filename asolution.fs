@@ -254,6 +254,7 @@ object class
         key-test-wait
         this solution-size@ final-solution =
       until
+      page this see-solution
       40 0 at-xy ." solution found!"
     else
       ." The puzzle board can not hold the puzzle pieces in an even quantity!  Puzzle is not solvable!" cr
