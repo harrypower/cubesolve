@@ -242,10 +242,14 @@ object class
         until
         this solution-size@ solvehigh > if this solution-size@ [to-inst] solvehigh then
         this solution-size@ solvelow < if this solution-size@ [to-inst] solvelow then
-        solveloops 3000 > if 0 [to-inst] solveloops this see-solution else solveloops 1 + [to-inst] solveloops then
-        40 0 at-xy this solution-size@ . ." solution-size"
-        40 1 at-xy solvehigh . ." highest"
-        40 2 at-xy solvelow . ." lowest"
+        solveloops 3000 > if
+          0 [to-inst] solveloops this see-solution
+          40 0 at-xy this solution-size@ . ." solution-size"
+          40 1 at-xy solvehigh . ." highest"
+          40 2 at-xy solvelow . ." lowest"
+        else
+          solveloops 1 + [to-inst] solveloops
+        then
         \ pause-for-key
         key-test-wait
         this solution-size@ final-solution =
