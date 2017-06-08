@@ -191,7 +191,7 @@ object class
       y-max 0 ?do
         x-max 0 ?do
           i x-display-size * j y-display-size * k z-display-size * + at-xy
-          i j k this board-array@ dup true = if drop ." *****" else u. then
+          i j k this board-array@ dup true = if drop ." *****" else 5 u.r then
         loop
       loop
     loop
