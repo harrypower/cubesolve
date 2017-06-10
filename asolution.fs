@@ -53,6 +53,7 @@ object class
   inst-value final-solution         \ holds the number of pieces needed that constitutes a solution
   inst-value solveloops             \ for display purposes the amount of loops between showing current solution
   inst-value solvelow
+  inst-value solvelow-flag
   inst-value solvehigh
 
   m: ( hole-solution -- nflag ) \ test if puzzle can be solved and if so place piece count needed for soulution in final-solution
@@ -127,6 +128,13 @@ object class
   \ nflag is false if uref-piece can not be placed in solution-piece-list and is not placed in list and board array
   \ note uref-piece is placed into solution-piece-list and put on the board-array for display purposes if it can be placed at all
     dup this intersect-test? if this add-solution-piece true else drop false then ;m method place-piece?
+  m: ( ux uy hole-solution -- ) \ display current solution reference numbers
+    solution-piece-list @ [bind] double-linked-list ll-set-start
+    begin
+      1 + 2dup at-xy
+      solution-piece-list @ [bind] double-linked-list ll@>
+      rot rot anumberbuffer swap move anumberbuffer @ .
+    until 2drop ;m method display-current-solution-list
 
   m: ( hole-solution -- ux uy uz ) \ return current hole address to fill with out changing it
     x-now y-now z-now ;m method current-hole
@@ -179,7 +187,8 @@ object class
     0 [to-inst] x-now 0 [to-inst] y-now 0 [to-inst] z-now
     0 [to-inst] solveloops
     this test-solvable? drop
-    final-solution 1 - [to-inst] solvelow
+    final-solution [to-inst] solvelow
+    false [to-inst] solvelow-flag
     0 [to-inst] solvehigh
   ;m overrides construct
   m: ( hole-solution -- ) \ destructor
@@ -201,55 +210,47 @@ object class
     this test-solvable? if
       page
       this current-hole
-      a-hapl @ [bind] hole-array-piece-list next-ref-piece-in-hole@ drop \ 40 20 at-xy . ." after first piece placed "
-      this place-piece? drop \ 40 21 at-xy . ." answer to first piece placed! " \ at this moment the first piece is placed in the first hole
-      \ 40 15 at-xy this solution-size@ . ." this should be 1 because at the beginning of solution process!"
+      a-hapl @ [bind] hole-array-piece-list next-ref-piece-in-hole@ drop
+      this place-piece? drop
       this see-solution
-      \ pause-for-key
       begin
         this next-hole
         begin
-          this current-hole \ 40 16 at-xy .s ." next hole address"
+          this current-hole
           a-hapl @ [bind] hole-array-piece-list next-ref-piece-in-hole@
-          \ 40 15 at-xy .s ." next reference to place with flag"
           if \ at end of hole references
-            \ 40 10 at-xy ." at end of hole references!           "
             this place-piece?
-            if
-              \ next hole because hole was filled with last one .. now exit this begin until
+            if \ next hole because hole was filled with last one .. now exit this begin until
               true
-              \ 40 11 at-xy ." place-piece true for end of hole references!      "
-            else
-              \ last hole becasue hole was not filled with last one  .. now exit  this begin until
+            else \ last hole becasue hole was not filled with last one  .. now exit  this begin until
               this del-solution-piece
+              \ possiblily need to reset the current hole to the start  to let next-hole find the first hole again
+              0 [to-inst] x-now 0 [to-inst] y-now 0 [to-inst] z-now
               true
-              \ 40 11 at-xy ." place-piece false for end of hole references!       "
             then
-          else
-            \ not at end of hole references
+          else \ not at end of hole references
             this place-piece?
-            \ 40 10 at-xy .s ." not at end of hole references      "
-            if
-              \ next hole because hole was filled with last one .. now exit this begin until
+            if \ next hole because hole was filled with last one .. now exit this begin until
               true
-              \ 40 11 at-xy ." exiting inside loop because hole filed           "
-            else
-              \ next reference at same hole becasue hole was not filled ... do not exit this begin until
+            else \ next reference at same hole becasue hole was not filled ... do not exit this begin until
               false
-              \ 40 11 at-xy ." repeating inside loop because hole not filed      "
             then
           then
         until
         this solution-size@ solvehigh > if this solution-size@ [to-inst] solvehigh then
-        this solution-size@ solvelow < if this solution-size@ [to-inst] solvelow then
+        solveloops 3000 > if true [to-inst] solvelow-flag then
+        this solution-size@ solvelow < solvelow-flag and if this solution-size@ [to-inst] solvelow then
         solveloops 3000 > if
           0 [to-inst] solveloops this see-solution
           40 0 at-xy this solution-size@ . ." solution-size"
           40 1 at-xy solvehigh . ." highest"
           40 2 at-xy solvelow . ." lowest"
+          this current-hole 40 3 at-xy rot . swap . . ." current-hole"
+          40 4 this display-current-solution-list
         else
           solveloops 1 + [to-inst] solveloops
         then
+        \ this display-current-solution-list
         \ pause-for-key
         key-test-wait
         this solution-size@ final-solution =
