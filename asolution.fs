@@ -129,12 +129,19 @@ object class
   \ note uref-piece is placed into solution-piece-list and put on the board-array for display purposes if it can be placed at all
     dup this intersect-test? if this add-solution-piece true else drop false then ;m method place-piece?
   m: ( ux uy hole-solution -- ) \ display current solution reference numbers
+    { ux uy }
     solution-piece-list @ [bind] double-linked-list ll-set-start
     begin
-      1 + 2dup at-xy
+      ux uy 1 + dup to uy at-xy
       solution-piece-list @ [bind] double-linked-list ll@>
       rot rot anumberbuffer swap move anumberbuffer @ .
-    until 2drop ;m method display-current-solution-list
+      ux 5 + uy at-xy
+      0 anumberbuffer @ a-ref-piece-array @ [bind] piece-array upiece@ [bind] piece get-voxel
+      rot . swap . .
+      0 anumberbuffer @ a-ref-piece-array @ [bind] piece-array upiece@ [bind] piece get-voxel
+      ux 15 + uy at-xy
+      a-hapl @ [bind] hole-array-piece-list hole-list-quantity@ .
+    until ;m method display-current-solution-list
 
   m: ( hole-solution -- ux uy uz ) \ return current hole address to fill with out changing it
     x-now y-now z-now ;m method current-hole
@@ -159,10 +166,9 @@ object class
       then
     then ;m method hole-
   m: ( hole-solution -- ) \ increment to next hole address to fill
-    this hole+
-    this current-hole \ 40 30 at-xy .s ." after current-hole in next-hole"
-    this board-array@ \ 40 32 at-xy .s ." after board-array@ in next-hole" pause-for-key
-    true <> if this next-hole then
+    this current-hole
+    this board-array@
+    true <> if this hole+ this next-hole then
     \ note this is recursive and is done with use of selector for this method because recurse will not work here!
   ;m overrides next-hole
   m: ( hole-solution -- ) \ step back to last hole filled
@@ -223,9 +229,13 @@ object class
             if \ next hole because hole was filled with last one .. now exit this begin until
               true
             else \ last hole becasue hole was not filled with last one  .. now exit  this begin until
+              solution-piece-list @ [bind] double-linked-list ll-set-end
+              solution-piece-list @ [bind] double-linked-list ll@ anumberbuffer swap move
+              0 anumberbuffer @ a-ref-piece-array @ [bind] piece-array upiece@ [bind] piece get-voxel
+              [to-inst] z-now [to-inst] y-now [to-inst] x-now
+              this current-hole 40 35 at-xy rot . swap . .
               this del-solution-piece
-              \ possiblily need to reset the current hole to the start  to let next-hole find the first hole again
-              0 [to-inst] x-now 0 [to-inst] y-now 0 [to-inst] z-now
+\              0 [to-inst] x-now 0 [to-inst] y-now 0 [to-inst] z-now
               true
             then
           else \ not at end of hole references
@@ -250,9 +260,14 @@ object class
         else
           solveloops 1 + [to-inst] solveloops
         then
-        \ this display-current-solution-list
-        \ pause-for-key
-        key-test-wait
+        0 [to-inst] solveloops this see-solution
+        40 0 at-xy this solution-size@ . ." solution-size"
+        40 1 at-xy solvehigh . ." highest"
+        40 2 at-xy solvelow . ." lowest"
+        this current-hole 40 3 at-xy rot . swap . . ." current-hole"
+        40 4 this display-current-solution-list
+        pause-for-key
+        \ key-test-wait
         this solution-size@ final-solution =
       until
       page this see-solution
