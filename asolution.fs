@@ -147,32 +147,35 @@ object class
     x-now y-now z-now ;m method current-hole
   m: ( hole-solution -- ) \ increment current hole address
     x-now 1 + dup [to-inst] x-now
-    x-max = if 0 [to-inst] x-now
+    x-max = if
+      0 [to-inst] x-now
       y-now 1 + dup [to-inst] y-now
-      y-max = if 0 [to-inst] y-now
+      y-max = if
+        0 [to-inst] y-now
         z-now 1 + dup [to-inst] z-now
-        z-max = if 0 [to-inst] z-now
+        z-max = if
+          0 [to-inst] z-now
         then
       then
     then ;m method hole+
-  m: ( hole-solution -- ) \ decrement current hole address
-    x-now 1 - dup [to-inst] x-now
-    0< if x-max 1 - [to-inst] x-now
-      y-now 1 - dup [to-inst] y-now
-      0< if y-max 1 - [to-inst] y-now
-        z-now 1 - dup [to-inst] z-now
-        0< if z-max 1 - [to-inst] z-now
-        then
-      then
-    then ;m method hole-
+\  m: ( hole-solution -- ) \ decrement current hole address
+\    x-now 1 - dup [to-inst] x-now
+\    0< if x-max 1 - [to-inst] x-now
+\      y-now 1 - dup [to-inst] y-now
+\      0< if y-max 1 - [to-inst] y-now
+\        z-now 1 - dup [to-inst] z-now
+\        0< if z-max 1 - [to-inst] z-now
+\        then
+\      then
+\    then ;m method hole-
   m: ( hole-solution -- ) \ increment to next hole address to fill
-    this current-hole
-    this board-array@
-    true <> if this hole+ this next-hole then
-    \ note this is recursive and is done with use of selector for this method because recurse will not work here!
+    begin
+      this current-hole \ 40 40 at-xy .s ."    "
+      this board-array@ \ 40 41 at-xy .s ."    "
+      \ pause-for-key
+      true = if true else this hole+ false then
+    until
   ;m overrides next-hole
-  m: ( hole-solution -- ) \ step back to last hole filled
-  ;m method last-hole
   public
   m: ( uref-piece-array uhapl hole-solution -- ) \ constructor
     6 [to-inst] x-display-size
@@ -229,13 +232,13 @@ object class
             if \ next hole because hole was filled with last one .. now exit this begin until
               true
             else \ last hole becasue hole was not filled with last one  .. now exit  this begin until
-              solution-piece-list @ [bind] double-linked-list ll-set-end
-              solution-piece-list @ [bind] double-linked-list ll@ anumberbuffer swap move
-              0 anumberbuffer @ a-ref-piece-array @ [bind] piece-array upiece@ [bind] piece get-voxel
-              [to-inst] z-now [to-inst] y-now [to-inst] x-now
-              this current-hole 40 35 at-xy rot . swap . .
+              \ solution-piece-list @ [bind] double-linked-list ll-set-end
+              \ solution-piece-list @ [bind] double-linked-list ll@ anumberbuffer swap move
+              \ 0 anumberbuffer @ a-ref-piece-array @ [bind] piece-array upiece@ [bind] piece get-voxel
+\              [to-inst] z-now [to-inst] y-now [to-inst] x-now
+\              this current-hole 40 35 at-xy rot . swap . .
               this del-solution-piece
-\              0 [to-inst] x-now 0 [to-inst] y-now 0 [to-inst] z-now
+              0 [to-inst] x-now 0 [to-inst] y-now 0 [to-inst] z-now
               true
             then
           else \ not at end of hole references
@@ -260,14 +263,14 @@ object class
         else
           solveloops 1 + [to-inst] solveloops
         then
-        0 [to-inst] solveloops this see-solution
-        40 0 at-xy this solution-size@ . ." solution-size"
-        40 1 at-xy solvehigh . ." highest"
-        40 2 at-xy solvelow . ." lowest"
-        this current-hole 40 3 at-xy rot . swap . . ." current-hole"
-        40 4 this display-current-solution-list
-        pause-for-key
-        \ key-test-wait
+\        0 [to-inst] solveloops this see-solution
+\        40 0 at-xy this solution-size@ . ." solution-size"
+\        40 1 at-xy solvehigh . ." highest"
+\        40 2 at-xy solvelow . ." lowest"
+\        this current-hole 40 3 at-xy rot . swap . . ." current-hole"
+\        40 4 this display-current-solution-list
+\        pause-for-key
+        key-test-wait
         this solution-size@ final-solution =
       until
       page this see-solution
@@ -289,9 +292,6 @@ object class
   m: ( hole-solution -- ux uy uz ) \ test next hole solution
     this next-hole
     this current-hole ;m method nexthole@
-  m: ( hole-solution -- uz uy uz ) \ test last hole solution
-    this last-hole
-    this current-hole ;m method lasthole@
 end-class hole-solution
 
 \ ***************************************************************************************************************************************
