@@ -1,5 +1,6 @@
 require ./Gforth-Objects/objects.fs
 require ./Gforth-Objects/double-linked-list.fs
+require ./stringobj.fs
 require ./newpieces.fs
 require ./puzzleboard.fs
 require ./allpieces.fs
@@ -30,7 +31,7 @@ ref-piece-array puzzle-board hole-array-piece-list heap-new constant hapl
      selector destruct ( object-name -- ) \ to free allocated memory in objects that use this
   end-interface destruction
 [endif]
-
+defer -hole-solution
 object class
   destruction implementation  \ ( hole-solution -- )
   protected
@@ -55,7 +56,51 @@ object class
   inst-value solvelow
   inst-value solvelow-flag
   inst-value solvehigh
-
+  inst-value save-file
+  inst-value save-file-size
+  inst-value save-fid
+  inst-value save-data
+  m: ( caddr u hole-solution -- xt ) \ from caddr u string is an instance data name and returns its xt
+    \ xt is false if caddr u string does not match any instance data names
+    \ this works by using a defered name that is later assigned this class name
+    -hole-solution push-order
+    find-name dup false = if drop false else name>int then
+    -hole-solution drop-order
+  ;m method $>xt
+  m: ( xt hole-solution -- caddr u ) \ from the xt of an instance data name return the caddr u string of that named instance data
+    \ caddr u is valid if xt is an instance data
+    >name dup false = if 0 0 else name>string then
+  ;m method xt>$
+  m: ( unumber caddr u hole-solution -- ) \ put unumber into the inst-value named in string caddr u
+    this $>xt dup false <> if <to-inst> else 2drop then
+  ;m method #$>value
+  m: ( unumber caddr u hole-solution -- ) \ put unumber into the inst-var named in string caddr u
+    this $>xt dup false <> if execute ! else 2drop then
+  ;m method #$>var
+  m: ( hole-solution -- ) \ create string of the data to be saved
+  ;m method make-save-data
+  m: ( hole-solution -- ) \ save the save data
+  ;m method do-save-data
+  m: ( hole-solution -- ) \ save the data to restart later
+    ." Enter the path and file name to save data > "
+    save-file 250 accept [to-inst] save-file-size
+    save-file save-file-size file-status swap drop
+    false = if \ directory and file name there so delete-file
+      save-file save-file-size delete-file
+    else false then
+    false = if
+      save-file save-file-size w/o create-file
+    else true then
+    false <> if
+      drop ." could not save file!"
+    else
+      [to-inst] save-fid
+      this make-save-data
+      this do-save-data
+      save-fid flush-file
+      save-fid close-file
+    then
+  ;m method save-data
   m: ( hole-solution -- nflag ) \ test if puzzle can be solved and if so place piece count needed for soulution in final-solution
   \ nflag is true if puzzle can be solved and false if the pieces do not add up to a solution
     x-max y-max * z-max *
@@ -199,6 +244,9 @@ object class
     final-solution [to-inst] solvelow
     false [to-inst] solvelow-flag
     0 [to-inst] solvehigh
+    250 allocate throw [to-inst] save-file
+    0 [to-inst] save-fid
+    strings heap-new [to-inst] save-data
   ;m overrides construct
   m: ( hole-solution -- ) \ destructor
   ;m overrides destruct
@@ -292,18 +340,22 @@ object class
   m: ( hole-solution -- ux uy uz ) \ test next hole solution
     this next-hole
     this current-hole ;m method nexthole@
+  m: ( hole-solution -- ) \ test data save
+    this save-data ;m method testsave
 end-class hole-solution
-
+' hole-solution is -hole-solution
 \ ***************************************************************************************************************************************
 
 \ 0 0 0 hapl next-ref-piece-in-hole@ .s ." < 0 0 0 " cr
 \ 1 0 0 hapl next-ref-piece-in-hole@ .s ." < 1 0 0 " cr
 \ \\\
 ref-piece-array hapl hole-solution heap-new constant testsolution
+cr testsolution testsave
+
 \ 0 testsolution test-intersect . ." answer for ref 0" cr
 \ 376 testsolution test-intersect . ." answer for ref 376" cr
 \ 60 testsolution test-intersect . ." answer for ref 60" cr
-\ \\\
+\\\
 page
 testsolution solveit
 
