@@ -1,6 +1,6 @@
 require ./Gforth-Objects/objects.fs
 require ./Gforth-Objects/double-linked-list.fs
-require ./stringobj.fs
+require ./Gforth-Objects/stringobj.fs
 require ./newpieces.fs
 require ./puzzleboard.fs
 require ./allpieces.fs
@@ -56,51 +56,6 @@ object class
   inst-value solvelow
   inst-value solvelow-flag
   inst-value solvehigh
-  inst-value save-file
-  inst-value save-file-size
-  inst-value save-fid
-  inst-value save-data
-  m: ( caddr u hole-solution -- xt ) \ from caddr u string is an instance data name and returns its xt
-    \ xt is false if caddr u string does not match any instance data names
-    \ this works by using a defered name that is later assigned this class name
-    -hole-solution push-order
-    find-name dup false = if drop false else name>int then
-    -hole-solution drop-order
-  ;m method $>xt
-  m: ( xt hole-solution -- caddr u ) \ from the xt of an instance data name return the caddr u string of that named instance data
-    \ caddr u is valid if xt is an instance data
-    >name dup false = if 0 0 else name>string then
-  ;m method xt>$
-  m: ( unumber caddr u hole-solution -- ) \ put unumber into the inst-value named in string caddr u
-    this $>xt dup false <> if <to-inst> else 2drop then
-  ;m method #$>value
-  m: ( unumber caddr u hole-solution -- ) \ put unumber into the inst-var named in string caddr u
-    this $>xt dup false <> if execute ! else 2drop then
-  ;m method #$>var
-  m: ( hole-solution -- ) \ create string of the data to be saved
-  ;m method make-save-data
-  m: ( hole-solution -- ) \ save the save data
-  ;m method do-save-data
-  m: ( hole-solution -- ) \ save the data to restart later
-    ." Enter the path and file name to save data > "
-    save-file 250 accept [to-inst] save-file-size
-    save-file save-file-size file-status swap drop
-    false = if \ directory and file name there so delete-file
-      save-file save-file-size delete-file
-    else false then
-    false = if
-      save-file save-file-size w/o create-file
-    else true then
-    false <> if
-      drop ." could not save file!"
-    else
-      [to-inst] save-fid
-      this make-save-data
-      this do-save-data
-      save-fid flush-file
-      save-fid close-file
-    then
-  ;m method save-data
   m: ( hole-solution -- nflag ) \ test if puzzle can be solved and if so place piece count needed for soulution in final-solution
   \ nflag is true if puzzle can be solved and false if the pieces do not add up to a solution
     x-max y-max * z-max *
@@ -244,9 +199,6 @@ object class
     final-solution [to-inst] solvelow
     false [to-inst] solvelow-flag
     0 [to-inst] solvehigh
-    250 allocate throw [to-inst] save-file
-    0 [to-inst] save-fid
-    strings heap-new [to-inst] save-data
   ;m overrides construct
   m: ( hole-solution -- ) \ destructor
   ;m overrides destruct
