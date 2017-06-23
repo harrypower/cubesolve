@@ -51,7 +51,7 @@ object class
 end-class save-instance-data
 
 \ ************************************************************************************************************************************************
-\\\
+\ \\\
 
 interface
   selector retrieve-some-stuff-test ( atest -- )
@@ -77,6 +77,7 @@ save-instance-data class
     somevara @ this #sto$ save$ [bind] strings !$x
   ;m overrides save-some-stuff-test
   m: ( atest -- )
+    save$ [bind] strings reset
     save$ [bind] strings @$x
     save$ [bind] strings @$x s>number? drop d>s
     rot rot -atest rot rot
@@ -104,10 +105,12 @@ atest class
   save-recall implementation
   protected
   cell% inst-var somevarb
+  inst-value somevaluea
   public
   m: ( atest -- ) \ constructor
     this [parent] construct
     8234 somevarb !
+    999 [to-inst] somevaluea
   ;m overrides construct
   m: ( atest -- ) \ destructor
     this [parent]  destruct
@@ -116,6 +119,8 @@ atest class
     this [parent] save-some-stuff-test
     ['] somevarb this xt>$ save$ [bind] strings !$x
     somevarb @ this #sto$ save$ [bind] strings !$x
+    ['] somevaluea this xt>$ save$ [bind] strings !$x
+    somevaluea this #sto$ save$ [bind] strings !$x
   ;m overrides save-some-stuff-test
   m: ( atest -- )
     this [parent] retrieve-some-stuff-test
@@ -123,11 +128,21 @@ atest class
     save$ [bind] strings @$x s>number? drop d>s
     rot rot -btest rot rot
     this #$>var
+    save$ [bind] strings @$x
+    save$ [bind] strings @$x s>number? drop d>s
+    rot rot -btest rot rot
+    this #$>value
   ;m overrides retrieve-some-stuff-test
   m: ( atest -- nvar )
     somevarb @ ;m method getvarb
+  m: ( atest -- nvalue )
+    somevaluea ;m method getvaluea
   m: ( atest -- )
     0 somevarb ! ;m method clearvarb
+  m: ( atest -- )
+    0 [to-inst] somevaluea ;m method clearvaluea
+  m: ( atest -- )
+    save$ ;m method getsave$
 end-class btest
 ' btest is -btest
 
@@ -136,11 +151,15 @@ cr
 
 nexttest getvarb . ." < b should be 8234" cr
 nexttest getvara . ." < a should be 923" cr
+nexttest getvaluea . ." < avalue should be 999" cr
 nexttest save-some-stuff-test ." saved it " cr
 nexttest clearvarb ." b cleared it!" cr
 nexttest clearvara ." a cleared it!" cr
+nexttest clearvaluea ." avalue cleard it!" cr
 nexttest getvarb . ." < b should be 0" cr
 nexttest getvara . ." < a should be 0" cr
+nexttest getvaluea . ." < avalue should be 0" cr
 nexttest retrieve-some-stuff-test ." retrieved it" cr
 nexttest getvarb . ." < should be 8234" cr
 nexttest getvara . ." < should be 923" cr
+nexttest getvaluea . ." < avalue should be 999" cr
