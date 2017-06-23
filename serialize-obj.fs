@@ -28,17 +28,33 @@ object class
     then ;m method $>xt
   m: ( nxt save-instance-data -- caddr u ) \ from the xt of an instance data name return the caddr u string of that named instance data
     \ caddr u is valid if xt is an instance data or method name
-    >name dup false = if 0 0 else name>string then
-  ;m method xt>$
+    >name dup false = if 0 0 else name>string then ;m method xt>$
   m: ( unumber nclass caddr u save-instance-data -- ) \ put unumber into the inst-value named in string caddr u
-    this $>xt dup false <> if <to-inst> else 2drop then
-  ;m method #$>value
+    this $>xt dup false <> if <to-inst> else 2drop then ;m method #$>value
   m: ( unumber nclass caddr u save-instance-data -- ) \ put unumber into the inst-var named in string caddr u
-    this $>xt dup false <> if execute ! else 2drop then
-  ;m method #$>var
+    this $>xt dup false <> if execute ! else 2drop then ;m method #$>var
   m: ( nclass caddr u save-instance-data -- ) \ caddr u is a method to be executed
-    this $>xt dup false <> if execute else 2drop then
-  ;m method $->method
+    this $>xt dup false <> if execute else 2drop then ;m method $->method
+  m: ( xt save-instance-data -- ) \ saves the xt name to save$
+    this xt>$ save$ [bind] strings !$x ;m method do-save-name
+  m: ( xt save-instance-data -- ) \ saves the instance value referenced by xt to save$
+    dup this do-save-name
+    execute this #sto$ save$ [bind] strings !$X ;m method do-save-inst-value
+  m: ( xt save-instance-data -- ) \ saves the instance var referenced by xt to save$
+    dup this do-save-name
+    execute @ this #sto$ save$ [bind] strings !$x ;m method do-save-inst-var
+  m: ( save-instance-data -- caddr u dnumber nflag ) \ retrieve string name and string number from save$
+    save$ [bind] strings @$x save$ [bind] strings @$x s>number? ;m  method do-retrieve-data
+  m: ( nclass save-instance-data -- ) \ restores instance var from save$
+    { nclass } this do-retrieve-data
+    true = if
+      d>s rot rot nclass rot rot this #$>var
+    else 2drop 2drop then ;m method do-retrieve-inst-var
+  m: ( nclass save-instance-data -- ) \ restores instance value from save$
+    { nclass } this do-retrieve-data
+    true = if
+      d>s rot rot nclass rot rot this #$>value
+    else 2drop 2drop then ;m method do-retrieve-inst-value
   public
   m: ( save-instance-data -- ) \ constructor
     strings heap-new [to-inst] save$
@@ -73,15 +89,10 @@ save-instance-data class
     this [parent]  destruct
   ;m overrides destruct
   m: ( atest -- )
-    ['] somevara this xt>$ save$ [bind] strings !$x
-    somevara @ this #sto$ save$ [bind] strings !$x
+    ['] somevara this do-save-inst-var
   ;m overrides save-some-stuff-test
   m: ( atest -- )
-    save$ [bind] strings reset
-    save$ [bind] strings @$x
-    save$ [bind] strings @$x s>number? drop d>s
-    rot rot -atest rot rot
-    this #$>var
+    -atest this do-retrieve-inst-var
   ;m overrides retrieve-some-stuff-test
   m: ( atest -- nvar )
     somevara @ ;m method getvara
@@ -117,21 +128,13 @@ atest class
   ;m overrides destruct
   m: ( atest -- )
     this [parent] save-some-stuff-test
-    ['] somevarb this xt>$ save$ [bind] strings !$x
-    somevarb @ this #sto$ save$ [bind] strings !$x
-    ['] somevaluea this xt>$ save$ [bind] strings !$x
-    somevaluea this #sto$ save$ [bind] strings !$x
+    ['] somevarb this do-save-inst-var
+    ['] somevaluea this do-save-inst-value
   ;m overrides save-some-stuff-test
   m: ( atest -- )
     this [parent] retrieve-some-stuff-test
-    save$ [bind] strings @$x
-    save$ [bind] strings @$x s>number? drop d>s
-    rot rot -btest rot rot
-    this #$>var
-    save$ [bind] strings @$x
-    save$ [bind] strings @$x s>number? drop d>s
-    rot rot -btest rot rot
-    this #$>value
+    -btest this do-retrieve-inst-var
+    -btest this do-retrieve-inst-value
   ;m overrides retrieve-some-stuff-test
   m: ( atest -- nvar )
     somevarb @ ;m method getvarb
