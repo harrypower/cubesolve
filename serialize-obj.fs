@@ -34,8 +34,8 @@ object class
   m: ( unumber nclass caddr u save-instance-data -- ) \ put unumber into the inst-var named in string caddr u
     this $>xt dup false <> if execute ! else 2drop then ;m method #$>var
   m: ( nclass caddr u save-instance-data -- ) \ caddr u is a method to be executed
-    this $>xt dup false <> if execute else 2drop then ;m method $->method
-  m: ( xt save-instance-data -- ) \ saves the xt name to save$
+    this $>xt dup false <> if this swap execute else 2drop then ;m method $->method
+  m: ( xt save-instance-data -- ) \ saves the name string of xt by getting the nt first name to save$
     this xt>$ save$ [bind] strings !$x ;m method do-save-name
   m: ( xt save-instance-data -- ) \ saves the instance value referenced by xt to save$
     dup this do-save-name
@@ -44,11 +44,11 @@ object class
     dup this do-save-name
     execute @ this #sto$ save$ [bind] strings !$x ;m method do-save-inst-var
   m: ( nnumber save-instance-data -- ) \ saves nnumber to save$ - note this is a cell wide number
-    this #sto$ save$ [bind] strings !$x ;m method do-save-number
+    this #sto$ save$ [bind] strings !$x ;m method do-save-nnumber
   m: ( save-instance-data -- dnumber nflag ) \ retrieve string number from save$
-    save$ [bind] strings @$x s>number? ;m method do-retrieve-number
+    save$ [bind] strings @$x s>number? ;m method do-retrieve-dnumber
   m: ( save-instance-data -- caddr u dnumber nflag ) \ retrieve string name and string number from save$
-    save$ [bind] strings @$x save$ [bind] strings @$x s>number? ;m  method do-retrieve-data
+    save$ [bind] strings @$x this do-retrieve-dnumber ;m  method do-retrieve-data
   m: ( nclass save-instance-data -- ) \ restores instance var from save$
     { nclass } this do-retrieve-data
     true = if
@@ -71,7 +71,7 @@ object class
 end-class save-instance-data
 
 \ ************************************************************************************************************************************************
-\ \\\
+\\\
 
 interface
   selector retrieve-some-stuff-test ( atest -- )
@@ -151,9 +151,10 @@ atest class
   m: ( btest -- )
     save$ ;m method getsave$
   m: ( nnumber btest -- )
-    ." method execution from data is working!"
-    . ." <- number retrieved!" cr
-    this do-retrieve-number true = if d>s . else ." bad number!" 2drop then
+    cr ." method execution from data is working!" cr
+    . ." <- number retrieved! should be 23459!" cr
+    this do-retrieve-dnumber true = if d>s . else ." bad number!" 2drop then
+    ." < this is a test number after method and number retrieve and should be 555!" cr
   ;m method test-method-execution
   m: ( btest -- )
     this do-retrieve-data
@@ -162,8 +163,8 @@ atest class
   m: ( btest -- ) \ save a method and a number
     save$ [bind] strings destruct
     save$ [bind] strings construct
-    ['] test-method-execution this do-save-name 23459 this do-save-number
-    555 this do-save-number
+    ['] test-method-execution this do-save-name 23459 this do-save-nnumber
+    555 this do-save-nnumber
   ;m method save-method-number
 
 end-class btest
@@ -186,3 +187,6 @@ nexttest retrieve-some-stuff-test ." retrieved it" cr
 nexttest getvarb . ." < should be 8234" cr
 nexttest getvara . ." < should be 923" cr
 nexttest getvaluea . ." < avalue should be 999" cr
+
+nexttest save-method-number
+nexttest retrieve-method-number
