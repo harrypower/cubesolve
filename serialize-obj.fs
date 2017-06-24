@@ -43,6 +43,10 @@ object class
   m: ( xt save-instance-data -- ) \ saves the instance var referenced by xt to save$
     dup this do-save-name
     execute @ this #sto$ save$ [bind] strings !$x ;m method do-save-inst-var
+  m: ( nnumber save-instance-data -- ) \ saves nnumber to save$ - note this is a cell wide number
+    this #sto$ save$ [bind] strings !$x ;m method do-save-number
+  m: ( save-instance-data -- dnumber nflag ) \ retrieve string number from save$
+    save$ [bind] strings @$x s>number? ;m method do-retrieve-number
   m: ( save-instance-data -- caddr u dnumber nflag ) \ retrieve string name and string number from save$
     save$ [bind] strings @$x save$ [bind] strings @$x s>number? ;m  method do-retrieve-data
   m: ( nclass save-instance-data -- ) \ restores instance var from save$
@@ -112,40 +116,56 @@ letssee getvara . ." < should be 923" cr
 
 defer -btest
 atest class
-  destruction implementation  \ ( atest -- )
+  destruction implementation  \ ( btest -- )
   save-recall implementation
   protected
   cell% inst-var somevarb
   inst-value somevaluea
   public
-  m: ( atest -- ) \ constructor
+  m: ( btest -- ) \ constructor
     this [parent] construct
     8234 somevarb !
     999 [to-inst] somevaluea
   ;m overrides construct
-  m: ( atest -- ) \ destructor
+  m: ( btest -- ) \ destructor
     this [parent]  destruct
   ;m overrides destruct
-  m: ( atest -- )
+  m: ( btest -- )
     this [parent] save-some-stuff-test
     ['] somevarb this do-save-inst-var
     ['] somevaluea this do-save-inst-value
   ;m overrides save-some-stuff-test
-  m: ( atest -- )
+  m: ( btest -- )
     this [parent] retrieve-some-stuff-test
     -btest this do-retrieve-inst-var
     -btest this do-retrieve-inst-value
   ;m overrides retrieve-some-stuff-test
-  m: ( atest -- nvar )
+  m: ( btest -- nvar )
     somevarb @ ;m method getvarb
-  m: ( atest -- nvalue )
+  m: ( btest -- nvalue )
     somevaluea ;m method getvaluea
-  m: ( atest -- )
+  m: ( btest -- )
     0 somevarb ! ;m method clearvarb
-  m: ( atest -- )
+  m: ( btest -- )
     0 [to-inst] somevaluea ;m method clearvaluea
-  m: ( atest -- )
+  m: ( btest -- )
     save$ ;m method getsave$
+  m: ( nnumber btest -- )
+    ." method execution from data is working!"
+    . ." <- number retrieved!" cr
+    this do-retrieve-number true = if d>s . else ." bad number!" 2drop then
+  ;m method test-method-execution
+  m: ( btest -- )
+    this do-retrieve-data
+    true = if d>s rot rot -btest rot rot this $->method else 2drop 2drop ." method execution not working!" then
+  ;m method retrieve-method-number
+  m: ( btest -- ) \ save a method and a number
+    save$ [bind] strings destruct
+    save$ [bind] strings construct
+    ['] test-method-execution this do-save-name 23459 this do-save-number
+    555 this do-save-number
+  ;m method save-method-number
+
 end-class btest
 ' btest is -btest
 
