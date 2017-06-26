@@ -16,42 +16,26 @@ object class
   inst-value save-file-size
   inst-value save-fid
   inst-value save$
-
+  inst-value working$
+  inst-value separate$
   public
-  m: ( nclass caddr u save -- xt ) \ from caddr u string is an instance data name and returns its xt
-    \ xt is false if caddr u string does not match any instance data names or method names
-    \ this works by using a defered name that is later assigned this class name
-    { nclass caddr u }
-    caddr u find-name false = if
-      nclass push-order
-      caddr u find-name dup false = if drop false else name>int then
-      nclass drop-order
-    else
-      caddr u find-name name>int
-    then ;m method $>xt
-  m: ( nxt save -- caddr u ) \ from the xt of an instance data name return the caddr u string of that named instance data
-    \ caddr u is valid if xt is an instance data or method name
-    >name dup false = if 0 0 else name>string then
-  ;m method xt>$
-  m: ( unumber caddr u save -- ) \ put unumber into the inst-value named in string caddr u
-    this $>xt dup false <> if <to-inst> else 2drop then
-  ;m method #$>value
-  m: ( unumber caddr u save -- ) \ put unumber into the inst-var named in string caddr u
-    this $>xt dup false <> if execute ! else 2drop then
-  ;m method #$>var
-  m: ( caddr u save -- ) \ caddr u is a method to be executed
-    this $>xt dup false <> if execute else 2drop then
-  ;m method $>method
-  m: ( save -- ) \ save instance values into save-data
-  ;m method make-save-inst-value
-  m: ( save -- ) \ retrieve instance values back to there place
-  ;m method retrieve-inst-value
   m: ( save -- ) \ create string of the data to be saved
+    separate$ @$ working$ !$
+    save$ [bind] strings reset
+    save$ [bind] strings $qty 0 ?do
+      save$ [bind] strings @$x working$ !+$
+      separate$ @$ working$ !+$
+    loop
   ;m method make-save-data
   m: ( save -- ) \ save the save data
+    working$ @$ save-fid write-file throw
   ;m method do-save-data
-  m: ( save -- ) \ save the data to restart later
-    ." Enter the path and file name to save data > "
+  m: ( nstrings save -- ) \ save the data to restart later
+    \ nstrings is the strings object that contains strings of data to be put into a save file
+    \ note the nstrings strings object is copied into this object and not altered in any way
+    save$ [bind] strings destruct
+    save$ [bind] strings copy$s
+    cr ." Enter the path and file name to save data > "
     save-file 250 accept [to-inst] save-file-size
     save-file save-file-size file-status swap drop
     false = if \ directory and file name there so delete-file
@@ -70,10 +54,34 @@ object class
       save-fid close-file
     then
   ;m method save-data
+  m: ( save -- nstrings ) \ retrieve the saved data from file
+
+  ;m method retrieve-data
   m: ( save -- ) \ constructor
+    250 allocate throw [to-inst] save-file
     strings heap-new [to-inst] save$
+    string heap-new [to-inst] working$
+    string heap-new [to-inst] separate$
+    s" |||" separate$ [bind] string !$
   ;m overrides construct
   m: ( save -- ) \ destructor
+    save-file free throw
     save$ [bind] strings destruct
-  ;m overrides destructor
+    working$ [bind] string destruct
+    separate$ [bind] string destruct
+  ;m overrides destruct
 end-class save
+
+\ ***********************************************************************************************************************
+
+\ \\\
+
+save heap-new constant testsave
+strings heap-new constant dataset
+
+s" somedata" dataset !$x
+s" 923" dataset !$x
+s" moredata" dataset !$x
+s" 27" dataset !$x
+
+dataset testsave save-data
