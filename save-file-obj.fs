@@ -50,8 +50,8 @@ object class
       [to-inst] save-fid
       this make-save-data
       this do-save-data
-      save-fid flush-file
-      save-fid close-file
+      save-fid flush-file throw
+      save-fid close-file throw
     then
   ;m method save-data
   m: ( save -- nstrings ) \ retrieve the saved data from file
