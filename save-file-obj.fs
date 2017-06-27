@@ -107,7 +107,7 @@ end-class save
 
 \ ***********************************************************************************************************************
 
-\ \\\
+\\\
 
 save heap-new constant testsave
 strings heap-new constant dataset
@@ -120,12 +120,3 @@ s" 27" dataset !$x
  dataset testsave save-data
 
  testsave retrieve-data
-
-\\\
-string heap-new constant what
-s" 27|||th" what !$
-what @$ dump cr ." ^ that is what before" cr
-s" |||" what split$ .
-dump cr ." ^ that is first dump" cr
-
-dump cr ." ^ that is second dump" cr
