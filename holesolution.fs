@@ -34,7 +34,7 @@ ref-piece-array puzzle-board hole-array-piece-list heap-new constant hapl
   end-interface destruction
 [endif]
 defer -hole-solution
-object class
+save-instance-data class
   destruction implementation  \ ( hole-solution -- )
   protected
   selector next-hole          \ ( hole-solution -- )
@@ -305,7 +305,7 @@ object class
 end-class hole-solution
 ' hole-solution is -hole-solution
 \ ***************************************************************************************************************************************
-\ \\\
+\\\
 ref-piece-array hapl hole-solution heap-new constant testsolution
 
 \ 0 testsolution test-intersect . ." answer for ref 0" cr
