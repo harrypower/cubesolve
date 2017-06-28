@@ -21,7 +21,7 @@ object class
   inst-value separate$
   public
   m: ( save -- ) \ create string of the data to be saved
-    separate$ @$ working$ !$
+    s" " working$ !$
     save$ [bind] strings reset
     save$ [bind] strings $qty 0 ?do
       save$ [bind] strings @$x working$ !+$
@@ -37,15 +37,13 @@ object class
     \ note working$ could be an empty string after this process ends !
     separate$ @$ working$ [bind] string split$ ( caddrf uf caddrl ul nflag )
     >r 2swap parse$ [bind] string !$ working$ [bind] string !$ parse$ [bind] string @$ r>
-    \ working$ [bind] string @$ dump cr ." ^ (do-parse-data)" cr
   ;m method (do-parse-data)
   m: ( save -- ) \ parse the data from working$ buffer
     try
-      this (do-parse-data) false = if true throw then 2drop
       begin
-        this (do-parse-data) false = if true throw then \ 2dup dump cr
+        this (do-parse-data) false = if true throw then
         save$ [bind] strings !$x
-        working$ [bind] string len$ 0 = \ .s cr working$ [bind] string @$ dump cr
+        working$ [bind] string len$ 0 =
       until
       false
     restore if save$ [bind] strings destruct then
@@ -95,7 +93,7 @@ object class
     string heap-new [to-inst] working$
     string heap-new [to-inst] separate$
     string heap-new [to-inst] parse$
-    s" |||" separate$ [bind] string !$
+    s\" |\r\n" separate$ [bind] string !$
   ;m overrides construct
   m: ( save -- ) \ destructor
     save-file free throw
