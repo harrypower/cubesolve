@@ -21,14 +21,6 @@ require ./serialize-obj.fs
   else 0
   then ;
 
-\ puzzle-board - a board object for the basic puzzle
-\ this board object can be used with puzzle-board to hold pieces
-\ ref-piece-array - a make-all-pieces object containing all the reference pieces for basic puzzle
-\ this reference array can be used to test if pieces intersect in a fast way!
-\ hapl - a hole-array-piece-list object organized as x y z addressed holes with lists of reference pieces that are in that hole
-
-ref-piece-array puzzle-board hole-array-piece-list heap-new constant hapl
-
 [ifundef] destruction
   interface
      selector destruct ( object-name -- ) \ to free allocated memory in objects that use this
@@ -348,7 +340,9 @@ save-instance-data class
 end-class hole-solution
 ' hole-solution is -hole-solution
 \ ***************************************************************************************************************************************
-\ \\\
+\\\
+ref-piece-array puzzle-board hole-array-piece-list heap-new constant hapl
+
 ref-piece-array hapl hole-solution heap-new constant testsolution
 
 \ 0 testsolution test-intersect . ." answer for ref 0" cr

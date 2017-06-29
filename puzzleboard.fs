@@ -124,8 +124,8 @@ object class
   ;m method see-board
 end-class board
 
-board heap-new constant puzzle-board
+\ board heap-new constant puzzle-board
 
-require ./newpuzzle.def
+\ require ./newpuzzle.def
 
 \ **********************************************************************************************************************
