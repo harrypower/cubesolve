@@ -6,6 +6,7 @@ require ./puzzleboard.fs
 require ./allpieces.fs
 require ./piece-array.fs
 require ./ref-puzzle-pieces.fs
+require ./serialize-obj.fs
 
 : pause-for-key ( -- nkey ) \ halt until a key is pressed then continue nkey is the key pressed when this word returns
   begin key? until
@@ -211,8 +212,13 @@ save-instance-data class
 \    0 37 at-xy .s ." outside loop"
 \    pause-for-key drop
   ;m method the-hole-solution
+  m: ( hole-solution -- )
+  ;m method retrieve-solution-piece-list
+  m: ( hole-solution -- )
+  ;m method retrieve-values
   public
   m: ( uref-piece-array uhapl hole-solution -- ) \ constructor
+    this [parent] construct
     6 [to-inst] x-display-size
     1 [to-inst] y-display-size
     x-display-size y-display-size * [to-inst] z-display-size
@@ -249,7 +255,34 @@ save-instance-data class
       loop
     loop
   ;m method see-solution
-
+  m: ( hole-solution -- )
+    begin
+      this next-hole
+      this the-hole-solution
+      this solution-size@ solvehigh > if this solution-size@ [to-inst] solvehigh then
+      solveloops 3000 > if true [to-inst] solvelow-flag then
+      this solution-size@ solvelow < solvelow-flag and if this solution-size@ [to-inst] solvelow then
+      solveloops 3000 > if
+        0 [to-inst] solveloops this see-solution
+        40 0 at-xy this solution-size@ . ." solution-size"
+        40 1 at-xy solvehigh . ." highest"
+        40 2 at-xy solvelow . ." lowest"
+        this current-hole 40 3 at-xy rot . swap . . ." current-hole"
+        40 4 this display-current-solution-list
+        0 35 at-xy ." press any key to pause ... press any key to continue ... press x key to stop "
+      else
+        solveloops 1 + [to-inst] solveloops
+      then
+  \        0 [to-inst] solveloops this see-solution
+  \        40 0 at-xy this solution-size@ . ." solution-size"
+  \        40 1 at-xy solvehigh . ." highest"
+  \        40 2 at-xy solvelow . ." lowest"
+  \        this current-hole 40 3 at-xy rot . swap . . ." current-hole"
+  \        40 4 this display-current-solution-list
+  \        pause-for-key
+      key-test-wait 120 = if true else this solution-size@ final-solution = then
+    until
+  ;m method continue-solving
   m: ( hole-solution -- ) \ solve puzzle and display partial solutions and steps working on along the way
     this test-solvable? if
       page
@@ -257,38 +290,46 @@ save-instance-data class
       a-hapl @ [bind] hole-array-piece-list next-ref-piece-in-hole@ drop
       this place-piece? drop
       this see-solution
-      begin
-        this next-hole
-        this the-hole-solution
-        this solution-size@ solvehigh > if this solution-size@ [to-inst] solvehigh then
-        solveloops 3000 > if true [to-inst] solvelow-flag then
-        this solution-size@ solvelow < solvelow-flag and if this solution-size@ [to-inst] solvelow then
-        solveloops 3000 > if
-          0 [to-inst] solveloops this see-solution
-          40 0 at-xy this solution-size@ . ." solution-size"
-          40 1 at-xy solvehigh . ." highest"
-          40 2 at-xy solvelow . ." lowest"
-          this current-hole 40 3 at-xy rot . swap . . ." current-hole"
-          40 4 this display-current-solution-list
-          0 35 at-xy ." press any key to pause ... press any key to continue ... press x key to stop "
-        else
-          solveloops 1 + [to-inst] solveloops
-        then
-    \        0 [to-inst] solveloops this see-solution
-    \        40 0 at-xy this solution-size@ . ." solution-size"
-    \        40 1 at-xy solvehigh . ." highest"
-    \        40 2 at-xy solvelow . ." lowest"
-    \        this current-hole 40 3 at-xy rot . swap . . ." current-hole"
-    \        40 4 this display-current-solution-list
-    \        pause-for-key
-        key-test-wait 120 = if true else this solution-size@ final-solution = then
-      until
+      this continue-solving
       page this see-solution
-      this solution-size@ final-solution = if 40 0 at-xy ." solution found!" then
+      this solution-size@ final-solution = if 40 0 at-xy ." solution found!" else 40 0 at-xy ." solving halted!" then
     else
       ." The puzzle board can not hold the puzzle pieces in an even quantity!  Puzzle is not solvable!" cr
     then
   ;m method start-solving
+
+  m: ( hole-solution -- nsolution-string ) \ makes and returns the current solution state
+    this [parent] destruct \ to reset save data
+    this [parent] construct
+    ['] retrieve-solution-piece-list this do-save-name \ to restore solution-piece-list data and board-array data from solution-piece-list
+    this solution-size@ dup this do-save-nnumber \ quantity of solution-piece-list data
+    solution-piece-list @ [bind] double-linked-list ll-set-start
+    0 ?do
+      solution-piece-list @ [bind] double-linked-list ll@> drop anumberbuffer swap move anumberbuffer @ this do-save-nnumber
+    loop
+    ['] retrieve-values this do-save-name \ to restore values
+    14 this do-save-nnumber \ this is the count of the values that are saved below
+    ['] x-display-size this do-save-inst-value
+    ['] y-display-size this do-save-inst-value
+    ['] z-display-size this do-save-inst-value
+    ['] x-max this do-save-inst-value
+    ['] y-max this do-save-inst-value
+    ['] z-max this do-save-inst-value
+    ['] x-now this do-save-inst-value
+    ['] y-now this do-save-inst-value
+    ['] z-now this do-save-inst-value
+    ['] final-solution this do-save-inst-value
+    ['] solveloops this do-save-inst-value
+    ['] solvelow this do-save-inst-value
+    ['] solvelow-flag this do-save-inst-value
+    ['] solvehigh this do-save-inst-value
+    save$
+  ;m method save-solution
+  m: ( nsolution-string hole-solution -- ) \ restore the solutions state from nsolution-string
+    a-ref-piece-array @ a-hapl @ this construct \ ensture object is set to begining state
+    \ need to retrieve values and vars from nsolution-string next
+    \ need to reconstuct the board-array from the restored solution-piece-list data
+  ;m method restore-solution
 
   m: ( uref-piece hole-solution -- nflag ) \ test intersect-test? method
     this place-piece? ;m method test-intersect
@@ -296,8 +337,10 @@ save-instance-data class
   m: ( hole-solution -- )  \ test del-solution-piece
     this del-solution-piece ;m method removeit
 
-  m: ( hole-solution -- usize ) \ return current size of solution
-    this solution-size@ ;m method  currentsize@
+  m: ( hole-solution -- usize nflag ) \ usize is the current solution size nflag is true if solution is found false if not found
+    this solution-size@ dup
+    final-solution =
+  ;m method  currentsize@
 
   m: ( hole-solution -- ux uy uz ) \ test next hole solution
     this next-hole
@@ -305,7 +348,7 @@ save-instance-data class
 end-class hole-solution
 ' hole-solution is -hole-solution
 \ ***************************************************************************************************************************************
-\\\
+\ \\\
 ref-piece-array hapl hole-solution heap-new constant testsolution
 
 \ 0 testsolution test-intersect . ." answer for ref 0" cr
