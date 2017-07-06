@@ -25,5 +25,26 @@ ref-piece-array puzzle-board hole-array-piece-list heap-new constant hapl
 
 ref-piece-array hapl hole-solution heap-new constant asolution
 
-page
-asolution start-solving
+save heap-new constant save-restore-puzzle
+
+: continue-save ( -- )
+  0 37 at-xy ." Press c to continue solution "
+  0 38 at-xy ." Press s to save the current solution "
+  0 39 at-xy ." Press anything else to exit"
+    pause-for-key case
+      99 of page asolution see-solution asolution continue-solving endof
+      115 of asolution save-solution save-restore-puzzle save-data endof
+    endcase ;
+: main-solution ( -- )
+  page
+  0 0 at-xy ." Press l to load a solution from file and solve !"
+  0 1 at-xy ." Press s to start a new solution!"
+  0 2 at-xy ." Press anything else to exit"
+  pause-for-key case
+    108 of page save-restore-puzzle retrieve-data asolution restore-solution \ page asolution see-solution asolution continue-solving
+          endof
+    115 of asolution start-solving endof
+  endcase
+  continue-save ;
+
+main-solution

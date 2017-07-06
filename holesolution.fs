@@ -204,9 +204,15 @@ save-instance-data class
 \    0 37 at-xy .s ." outside loop"
 \    pause-for-key drop
   ;m method the-hole-solution
-  m: ( hole-solution -- )
+  m: ( namount hole-solution -- ) \ used only by restoring puzzle to load data into solution-piece-list
+    0 ?do
+      this do-retrieve-dnumber true = if d>s this add-solution-piece else 2drop then
+    loop
   ;m method retrieve-solution-piece-list
-  m: ( hole-solution -- )
+  m: ( namount hole-solution -- ) \ used ony by restoring puzzle to load data into all the instance values of this hole-solution
+    0 ?do
+      -hole-solution this do-retrieve-inst-value
+    loop
   ;m method retrieve-values
   public
   m: ( uref-piece-array uhapl hole-solution -- ) \ constructor
@@ -291,7 +297,7 @@ save-instance-data class
   ;m method start-solving
 
   m: ( hole-solution -- nsolution-string ) \ makes and returns the current solution state
-    this [parent] destruct \ to reset save data
+    this [parent] destruct \ to reset save data in parent class
     this [parent] construct
     ['] retrieve-solution-piece-list this do-save-name \ to restore solution-piece-list data and board-array data from solution-piece-list
     this solution-size@ dup this do-save-nnumber \ quantity of solution-piece-list data
@@ -318,9 +324,12 @@ save-instance-data class
     save$
   ;m method save-solution
   m: ( nsolution-string hole-solution -- ) \ restore the solutions state from nsolution-string
-    a-ref-piece-array @ a-hapl @ this construct \ ensture object is set to begining state
-    \ need to retrieve values and vars from nsolution-string next
-    \ need to reconstuct the board-array from the restored solution-piece-list data
+    a-ref-piece-array @ a-hapl @ this construct \ ensture object is set to beginning state
+    save$ [bind] strings copy$s \ saves the strings object data to be used for retrieval
+    this do-retrieve-data true = if d>s rot rot -hole-solution rot rot this $->method else 2drop 2drop abort" restore data incorrect!" then
+    \ this above lines retrieves the solution-piece-list data and the board-array is restored with it.
+    this do-retrieve-data true = if d>s rot rot -hole-solution rot rot this $->method else 2drop 2drop abort" restore data incorrect!" then
+    \ this above line retrieves all the instance values for this hole-solution to continue ... values saved are in save-solution method
   ;m method restore-solution
 
   m: ( uref-piece hole-solution -- nflag ) \ test intersect-test? method
