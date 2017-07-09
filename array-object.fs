@@ -148,3 +148,5 @@ testmulti bind multi-cell-array cell-array-dimensions@ .s ." final " cr
 tripletest
 testmulti bind multi-cell-array print
 testmulti bind multi-cell-array destruct
+testmulti free throw
+." note there are items left on the stack after this test code runs!" cr

@@ -240,6 +240,12 @@ save-instance-data class
     0 [to-inst] solvehigh
   ;m overrides construct
   m: ( hole-solution -- ) \ destructor
+    this [parent] destruct
+    board-array @ [bind] multi-cell-array destruct
+    board-array @ free throw
+    solution-piece-list @ [bind] double-linked-list destruct
+    solution-piece-list @ free throw
+    \ this [parent] destruct
   ;m overrides destruct
 
   m: ( hole-solution -- ) \ basic terminal view of the board-array reference pieces solution
@@ -324,6 +330,7 @@ save-instance-data class
     save$
   ;m method save-solution
   m: ( nsolution-string hole-solution -- ) \ restore the solutions state from nsolution-string
+    this destruct
     a-ref-piece-array @ a-hapl @ this construct \ ensture object is set to beginning state
     save$ [bind] strings copy$s \ saves the strings object data to be used for retrieval
     this do-retrieve-data true = if d>s rot rot -hole-solution rot rot this $->method else 2drop 2drop abort" restore data incorrect!" then
@@ -350,31 +357,15 @@ end-class hole-solution
 ' hole-solution is -hole-solution
 \ ***************************************************************************************************************************************
 \\\
+0 puzzle-pieces make-all-pieces heap-new constant map         \ this object is used to make reference lists from start pieces
+constant ref-piece-list                                       \ this is the reference list of piece`s created above
+ref-piece-list piece-array heap-new constant ref-piece-array  \ this object takes reference list from above and makes a reference array of list for indexing faster
+
 ref-piece-array puzzle-board hole-array-piece-list heap-new constant hapl
 
 ref-piece-array hapl hole-solution heap-new constant testsolution
 
-\ 0 testsolution test-intersect . ." answer for ref 0" cr
-\ 376 testsolution test-intersect . ." answer for ref 376" cr
-\ 60 testsolution test-intersect . ." answer for ref 60" cr
-page
-testsolution start-solving
-
-\\\
-testsolution currentsize@ ." should be 1" cr
-testsolution see-solution
-
-\\\
-cr 0 testsolution test-intersect . cr
-testsolution currentsize@ . cr
-0 59 ref-piece-array fast-intersect? . cr
-testsolution removeit
-0 testsolution test-intersect . cr
-testsolution currentsize@ . cr
-5 testsolution test-intersect . cr
-testsolution currentsize@ . cr
-59 testsolution test-intersect . cr
-testsolution currentsize@ . cr
-
-testsolution see-solution
-testsolution nexthole@ . . .
+testsolution destruct
+testsolution free throw
+\ page
+\ testsolution start-solving
