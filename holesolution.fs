@@ -245,7 +245,6 @@ save-instance-data class
     board-array @ free throw
     solution-piece-list @ [bind] double-linked-list destruct
     solution-piece-list @ free throw
-    \ this [parent] destruct
   ;m overrides destruct
 
   m: ( hole-solution -- ) \ basic terminal view of the board-array reference pieces solution

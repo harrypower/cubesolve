@@ -125,7 +125,7 @@ object class
 end-class board
 
 \ **********************************************************************************************************************
-\ \\\
+\\\
 board heap-new constant puzzle-board
 
 require ./newpuzzle.def
