@@ -258,15 +258,23 @@ save-instance-data class
         40 1 at-xy solvehigh . ." highest"
         40 2 at-xy solvelow . ." lowest"
         this current-hole 40 3 at-xy rot . swap . . ." current-hole"
-        40 4 this display-current-solution-list
+        40 7 this display-current-solution-list
         0 35 at-xy ." press any key to pause ... press any key to continue ... press x key to stop ... press r to reset low and high "
       else
         solveloops 1 + [to-inst] solveloops
       then
-      key-test-wait case
+      this see-solution
+      40 0 at-xy this solution-size@ . ." solution-size"
+      40 1 at-xy solvehigh . ." highest"
+      40 2 at-xy solvelow . ." lowest"
+      this current-hole 40 3 at-xy rot . swap . . ." current-hole"
+      40 7 this display-current-solution-list
+      0 35 at-xy ." press any key to pause ... press any key to continue ... press x key to stop ... press r to reset low and high "
+      \ key-test-wait case
+      pause-for-key case
         120 of true endof
         114 of final-solution [to-inst] solvelow 0 [to-inst] solvehigh false false [to-inst] solvelow-flag endof
-        this solution-size@ final-solution =
+        this solution-size@ final-solution = swap
       endcase
     until
   ;m method continue-solving
