@@ -64,7 +64,6 @@ save-instance-data class
     { uref-piece }
     solution-piece-list @ [bind] double-linked-list ll-set-start
     solution-piece-list @ [bind] double-linked-list ll-size@
-    \ .s ." size of list in test" cr
     0 =
     if
       true \ list empty so no intersection
@@ -165,28 +164,20 @@ save-instance-data class
 \    then ;m method hole-
   m: ( hole-solution -- ) \ increment to next hole address to fill
     begin
-      this current-hole \ 40 40 at-xy .s ."    "
-      this board-array@ \ 40 41 at-xy .s ."    "
+      this current-hole
+      this board-array@
       true = if true else this hole+ false then
     until
   ;m overrides next-hole
   m: ( hole-solution -- ) \ impliment the hole solution
     begin
-\      0 36 at-xy ."                         "
-\      0 36 at-xy .s ." inside loop"
-\      pause-for-key drop
       this current-hole
       a-hapl @ [bind] hole-array-piece-list next-ref-piece-in-hole@
       if \ at end of hole references
         this place-piece?
         if \ next hole because hole was filled with last one .. now exit this begin until
           true
-        else \ last hole becasue hole was not filled with last one  .. now exit  this begin until
-          \ solution-piece-list @ [bind] double-linked-list ll-set-end
-          \ solution-piece-list @ [bind] double-linked-list ll@ anumberbuffer swap move
-          \ 0 anumberbuffer @ a-ref-piece-array @ [bind] piece-array upiece@ [bind] piece get-voxel
-\              [to-inst] z-now [to-inst] y-now [to-inst] x-now
-\              this current-hole 40 35 at-xy rot . swap . .
+        else \ last hole because hole was not filled with last one  .. now exit  this begin until
           this del-solution-piece
           0 [to-inst] x-now 0 [to-inst] y-now 0 [to-inst] z-now
           true
@@ -195,14 +186,11 @@ save-instance-data class
         this place-piece?
         if \ next hole because hole was filled with last one .. now exit this begin until
           true
-        else \ next reference at same hole becasue hole was not filled ... do not exit this begin until
+        else \ next reference at same hole because hole was not filled ... do not exit this begin until
           false
         then
       then
     until
-\    0 37 at-xy ."                         "
-\    0 37 at-xy .s ." outside loop"
-\    pause-for-key drop
   ;m method the-hole-solution
   m: ( namount hole-solution -- ) \ used only by restoring puzzle to load data into solution-piece-list
     0 ?do
@@ -248,7 +236,6 @@ save-instance-data class
   ;m overrides destruct
 
   m: ( hole-solution -- ) \ basic terminal view of the board-array reference pieces solution
-  \  page
     z-max 0 ?do
       y-max 0 ?do
         x-max 0 ?do
@@ -272,18 +259,15 @@ save-instance-data class
         40 2 at-xy solvelow . ." lowest"
         this current-hole 40 3 at-xy rot . swap . . ." current-hole"
         40 4 this display-current-solution-list
-        0 35 at-xy ." press any key to pause ... press any key to continue ... press x key to stop "
+        0 35 at-xy ." press any key to pause ... press any key to continue ... press x key to stop ... press r to reset low and high "
       else
         solveloops 1 + [to-inst] solveloops
       then
-  \        0 [to-inst] solveloops this see-solution
-  \        40 0 at-xy this solution-size@ . ." solution-size"
-  \        40 1 at-xy solvehigh . ." highest"
-  \        40 2 at-xy solvelow . ." lowest"
-  \        this current-hole 40 3 at-xy rot . swap . . ." current-hole"
-  \        40 4 this display-current-solution-list
-  \        pause-for-key
-      key-test-wait 120 = if true else this solution-size@ final-solution = then
+      key-test-wait case
+        120 of true endof
+        114 of final-solution [to-inst] solvelow 0 [to-inst] solvehigh false false [to-inst] solvelow-flag endof
+        this solution-size@ final-solution =
+      endcase
     until
   ;m method continue-solving
   m: ( hole-solution -- ) \ solve puzzle and display partial solutions and steps working on along the way
