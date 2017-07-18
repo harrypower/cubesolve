@@ -65,7 +65,7 @@ save-instance-data class
   m: ( uref-piece hole-solution -- nflag ) \ test if uref-piece can be placed into current board
   \ this test will look through the current pieces in solution-piece-list using a-ref-piece-array object fast-intersect? test!
   \ nflag is true if uref-piece can be placed into current board and false if uref-piece can not be placed into current board
-    { uref-piece }
+    0 { uref-piece nnumber }
     solution-piece-list @ [bind] double-linked-list ll-set-start
     solution-piece-list @ [bind] double-linked-list ll-size@
     0 =
@@ -73,13 +73,13 @@ save-instance-data class
       true \ list empty so no intersection
     else
       begin
-        solution-piece-list @ [bind] double-linked-list ll@> rot rot anumberbuffer swap move true =
+        solution-piece-list @ [bind] double-linked-list ll-cell@ to nnumber solution-piece-list @ [bind] double-linked-list ll> true =
         if \ at end of list
-          anumberbuffer @ uref-piece \ .s ." data into fast test at end" cr
+          nnumber uref-piece \ .s ." data into fast test at end" cr
           a-ref-piece-array @ [bind] piece-array fast-intersect?
           if false true else true true then \ if intersection found leave loop with false on stack otherwise leave loop with true on stack
         else \ in middle of list
-          anumberbuffer @ uref-piece \ .s ." data into fast test in middle" cr
+          nnumber uref-piece \ .s ." data into fast test in middle" cr
           a-ref-piece-array @ [bind] piece-array fast-intersect?
           if false true else false then \ if an intersection is found leave loop with false on stack otherwise continue loop
         then
