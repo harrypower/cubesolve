@@ -109,16 +109,17 @@ save-instance-data class
   m: ( uref-piece hole-solution -- ) \ add uref-piece to solution-piece-list at last in list possition
   \ also add uref-piece to board-array multi-cell-array object to allow fast display
     dup
-    anumberbuffer !
-    anumberbuffer cell solution-piece-list @ [bind] double-linked-list ll!
+    solution-piece-list @ [bind] double-linked-list ll-cell!
     this add-board-piece
     z-now [to-inst] z-del y-now [to-inst] y-del x-now [to-inst] x-del \ to store this last added hole location for possible deleting later
-    ;m method add-solution-piece
+  ;m method add-solution-piece
   m: ( hole-solution -- ) \ delete the last reference added to solution-piece-list
   \ remove the last reference added from the board-array to ensure it is updated
     solution-piece-list @ [bind] double-linked-list ll-set-end
-    solution-piece-list @ [bind] double-linked-list ll@ anumberbuffer swap move
-    anumberbuffer @ this del-board-piece
+    \ solution-piece-list @ [bind] double-linked-list ll@ anumberbuffer swap move
+    \ anumberbuffer @ this del-board-piece
+    solution-piece-list @ [bind] double-linked-list ll-cell@
+    this del-board-piece
     solution-piece-list @ [bind] double-linked-list delete-last ;m method del-solution-piece
   m: ( hole-solution -- usize ) \ return the current size of solution-piece-list
     solution-piece-list @ [bind] double-linked-list ll-size@ ;m overrides solution-size@
