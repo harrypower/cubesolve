@@ -116,8 +116,6 @@ save-instance-data class
   m: ( hole-solution -- ) \ delete the last reference added to solution-piece-list
   \ remove the last reference added from the board-array to ensure it is updated
     solution-piece-list @ [bind] double-linked-list ll-set-end
-    \ solution-piece-list @ [bind] double-linked-list ll@ anumberbuffer swap move
-    \ anumberbuffer @ this del-board-piece
     solution-piece-list @ [bind] double-linked-list ll-cell@
     this del-board-piece
     solution-piece-list @ [bind] double-linked-list delete-last ;m method del-solution-piece
@@ -130,16 +128,17 @@ save-instance-data class
   \ note uref-piece is placed into solution-piece-list and put on the board-array for display purposes if it can be placed at all
     dup this intersect-test? if this add-solution-piece true else drop false then ;m method place-piece?
   m: ( ux uy hole-solution -- ) \ display current solution reference numbers
-    { ux uy }
+    0 { ux uy nnumber }
     solution-piece-list @ [bind] double-linked-list ll-set-start
     begin
       ux uy 1 + dup to uy at-xy
-      solution-piece-list @ [bind] double-linked-list ll@>
-      rot rot anumberbuffer swap move anumberbuffer @ .
+      solution-piece-list @ [bind] double-linked-list ll-cell@ to nnumber
+      solution-piece-list @ [bind] double-linked-list ll>
+      nnumber .
       ux 5 + uy at-xy
-      0 anumberbuffer @ a-ref-piece-array @ [bind] piece-array upiece@ [bind] piece get-voxel
+      0 nnumber a-ref-piece-array @ [bind] piece-array upiece@ [bind] piece get-voxel
       rot . swap . .
-      0 anumberbuffer @ a-ref-piece-array @ [bind] piece-array upiece@ [bind] piece get-voxel
+      0 nnumber a-ref-piece-array @ [bind] piece-array upiece@ [bind] piece get-voxel
       ux 15 + uy at-xy
       a-hapl @ [bind] hole-array-piece-list hole-list-quantity@ .
     until ;m method display-current-solution-list
