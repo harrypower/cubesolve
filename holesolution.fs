@@ -45,7 +45,6 @@ save-instance-data class
   inst-value x-now
   inst-value y-now
   inst-value z-now
-  cell% inst-var anumberbuffer      \ used to store and retrieve a number
   inst-value final-solution         \ holds the number of pieces needed that constitutes a solution
   inst-value solveloops             \ for display purposes the amount of loops between showing current solution
   inst-value solvelow
@@ -385,7 +384,9 @@ save-instance-data class
     this solution-size@ dup this do-save-nnumber \ quantity of solution-piece-list data
     solution-piece-list @ [bind] double-linked-list ll-set-start
     0 ?do
-      solution-piece-list @ [bind] double-linked-list ll@> drop anumberbuffer swap move anumberbuffer @ this do-save-nnumber
+      solution-piece-list @ [bind] double-linked-list ll-cell@
+      solution-piece-list @ [bind] double-linked-list ll> drop
+      this do-save-nnumber
     loop
     ['] retrieve-values this do-save-name \ to restore values
     14 this do-save-nnumber \ this is the count of the values that are saved below
