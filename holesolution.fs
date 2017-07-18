@@ -36,6 +36,7 @@ save-instance-data class
   cell% inst-var a-ref-piece-array  \ piece-array object containing the reference piece array passed to this hole-solution
   cell% inst-var a-hapl             \ hole-array-piece-list object containing the reference hapl passed to this hole-solution
   cell% inst-var solution-piece-list  \ double-linked-list object containing reference pieces of current puzzle solution
+  inst-value sol-piece-voxel-list   \ a linked list of solution voxels that match the solution-piece-list reference pieces as placed
   inst-value x-display-size         \ contains constants that are used to display the board in a terminal
   inst-value y-display-size
   inst-value z-display-size
@@ -104,13 +105,26 @@ save-instance-data class
       i uref-piece this voxel-address@
       this board-array!
     loop ;m method del-board-piece
-
-  m: ( uref-piece hole-solution -- ) \ add uref-piece to solution-piece-list at last in list possition
+  m: ( nx ny nz hole-solution -- ) \ store solution piece voxel in sol-piece-voxel-list linked list
+    sol-piece-voxel-list [bind] double-linked-list ll-cell! \ nz
+    sol-piece-voxel-list [bind] double-linked-list ll-cell! \ ny
+    sol-piece-voxel-list [bind] double-linked-list ll-cell! \ nx
+  ;m method sol-piece-voxel-list!
+  m: ( hole-solution -- nx ny nz ) \ retrieve solution piece voxel from sol-piece-voxel-list linked list and remove them from the linked list itself
+    sol-piece-voxel-list [bind] double-linked-list ll-cell@    \ nx
+    sol-piece-voxel-list [bind] double-linked-list delete-last
+    sol-piece-voxel-list [bind] double-linked-list ll-cell@    \ ny
+    sol-piece-voxel-list [bind] double-linked-list delete-last
+    sol-piece-voxel-list [bind] double-linked-list ll-cell@    \ nz
+    sol-piece-voxel-list [bind] double-linked-list delete-last
+  ;m method sol-piece-voxel-list@
+  m: ( uref-piece hole-solution -- ) \ add uref-piece to solution-piece-list at last in list position
   \ also add uref-piece to board-array multi-cell-array object to allow fast display
     dup
     solution-piece-list @ [bind] double-linked-list ll-cell!
     this add-board-piece
-    z-now [to-inst] z-del y-now [to-inst] y-del x-now [to-inst] x-del \ to store this last added hole location for possible deleting later
+    \ z-now [to-inst] z-del y-now [to-inst] y-del x-now [to-inst] x-del \ to store this last added hole location for possible deleting later
+    x-now y-now z-now this sol-piece-voxel-list!
   ;m method add-solution-piece
   m: ( hole-solution -- ) \ delete the last reference added to solution-piece-list
   \ remove the last reference added from the board-array to ensure it is updated
@@ -181,17 +195,22 @@ save-instance-data class
       \ 500 ms
       \ 0 40 at-xy ."                                                       "
       \ 2drop 2drop
-      del-piece x-del x-now = and y-del y-now = and z-del z-now = and
-      true = if
-        this del-solution-piece
-        0 [to-inst] x-now 0 [to-inst] y-now 0 [to-inst] z-now
-        this next-hole
-        \ 0 39 at-xy ." condition met second delete piece"
-        \ 1000 ms
-        \ 0 39 at-xy ."                                    "
-      \ else 0 39 at-xy ." !!!!!continue !!!!!" 200 ms ."                                           "
+      \ del-piece x-del x-now = and y-del y-now = and z-del z-now = and
+      del-piece true = if
+        \ xyx stuff
+        this sol-piece-voxel-list@
+        z-now = swap y-now = and swap x-now = and
+        true = if
+          this del-solution-piece
+          0 [to-inst] x-now 0 [to-inst] y-now 0 [to-inst] z-now
+          this next-hole
+          \ 0 39 at-xy ." condition met second delete piece"
+          \ 1000 ms
+          \ 0 39 at-xy ."                                    "
+        \ else 0 39 at-xy ." !!!!!continue !!!!!" 200 ms ."                                           "
+        then
+        false [to-inst] del-piece
       then
-      false [to-inst] del-piece
       this current-hole
       a-hapl @ [bind] hole-array-piece-list next-ref-piece-in-hole@
       if \ at end of hole references
@@ -309,6 +328,7 @@ save-instance-data class
     0 [to-inst] x-del
     0 [to-inst] y-del
     0 [to-inst] z-del
+    double-linked-list heap-new [to-inst] sol-piece-voxel-list
   ;m overrides construct
   m: ( hole-solution -- ) \ destructor
     this [parent] destruct
@@ -316,6 +336,8 @@ save-instance-data class
     board-array @ free throw
     solution-piece-list @ [bind] double-linked-list destruct
     solution-piece-list @ free throw
+    sol-piece-voxel-list [bind] double-linked-list destruct
+    sol-piece-voxel-list free throw
   ;m overrides destruct
 
   m: ( hole-solution -- ) \ basic terminal view of the board-array reference pieces solution
