@@ -52,9 +52,6 @@ save-instance-data class
   inst-value solvelow-flag
   inst-value solvehigh
   inst-value del-piece
-  inst-value x-del
-  inst-value y-del
-  inst-value z-del
   m: ( hole-solution -- nflag ) \ test if puzzle can be solved and if so place piece count needed for soulution in final-solution
   \ nflag is true if puzzle can be solved and false if the pieces do not add up to a solution
     x-max y-max * z-max *
@@ -106,15 +103,19 @@ save-instance-data class
       this board-array!
     loop ;m method del-board-piece
   m: ( nx ny nz hole-solution -- ) \ store solution piece voxel in sol-piece-voxel-list linked list
+    0 41 at-xy .s ." adding this to sol-piece-voxel-list" 500 ms 0 41 at-xy ."                                                                                  "
     sol-piece-voxel-list [bind] double-linked-list ll-cell! \ nz
     sol-piece-voxel-list [bind] double-linked-list ll-cell! \ ny
     sol-piece-voxel-list [bind] double-linked-list ll-cell! \ nx
   ;m method sol-piece-voxel-list!
   m: ( hole-solution -- nx ny nz ) \ retrieve solution piece voxel from sol-piece-voxel-list linked list and remove them from the linked list itself
+    sol-piece-voxel-list [bind] double-linked-list ll-set-end
     sol-piece-voxel-list [bind] double-linked-list ll-cell@    \ nx
     sol-piece-voxel-list [bind] double-linked-list delete-last
+    sol-piece-voxel-list [bind] double-linked-list ll-set-end
     sol-piece-voxel-list [bind] double-linked-list ll-cell@    \ ny
     sol-piece-voxel-list [bind] double-linked-list delete-last
+    sol-piece-voxel-list [bind] double-linked-list ll-set-end
     sol-piece-voxel-list [bind] double-linked-list ll-cell@    \ nz
     sol-piece-voxel-list [bind] double-linked-list delete-last
   ;m method sol-piece-voxel-list@
@@ -123,7 +124,6 @@ save-instance-data class
     dup
     solution-piece-list @ [bind] double-linked-list ll-cell!
     this add-board-piece
-    \ z-now [to-inst] z-del y-now [to-inst] y-del x-now [to-inst] x-del \ to store this last added hole location for possible deleting later
     x-now y-now z-now this sol-piece-voxel-list!
   ;m method add-solution-piece
   m: ( hole-solution -- ) \ delete the last reference added to solution-piece-list
@@ -198,8 +198,10 @@ save-instance-data class
       \ del-piece x-del x-now = and y-del y-now = and z-del z-now = and
       del-piece true = if
         \ xyx stuff
-        this sol-piece-voxel-list@
-        z-now = swap y-now = and swap x-now = and
+        this sol-piece-voxel-list@ 0 39 at-xy .s ." pre test"
+        z-now = swap y-now = and swap x-now = and 0 40 at-xy .s ." test result"
+        700 ms 0 39 at-xy ."                                                                      "
+        0 40 at-xy ."                                             "
         true = if
           this del-solution-piece
           0 [to-inst] x-now 0 [to-inst] y-now 0 [to-inst] z-now
@@ -325,9 +327,6 @@ save-instance-data class
     false [to-inst] solvelow-flag
     0 [to-inst] solvehigh
     false [to-inst] del-piece
-    0 [to-inst] x-del
-    0 [to-inst] y-del
-    0 [to-inst] z-del
     double-linked-list heap-new [to-inst] sol-piece-voxel-list
   ;m overrides construct
   m: ( hole-solution -- ) \ destructor
