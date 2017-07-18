@@ -16,7 +16,7 @@ require ./serialize-obj.fs
 require ./holesolution.fs
 
 
-0 puzzle-pieces make-all-pieces heap-new constant map         \ this object is used to make reference lists from start pieces
+0 puzzle-pieces make-all-pieces heap-new constant map         \ this object is used to make reference lists from start pieces it is not used directly but produces ref.
 constant ref-piece-list                                       \ this is the reference list of piece`s created above
 ref-piece-list piece-array heap-new constant ref-piece-array  \ this object takes reference list from above and makes a reference array of list for indexing faster
 

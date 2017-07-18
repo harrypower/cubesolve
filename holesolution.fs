@@ -51,6 +51,10 @@ save-instance-data class
   inst-value solvelow
   inst-value solvelow-flag
   inst-value solvehigh
+  inst-value del-piece
+  inst-value x-del
+  inst-value y-del
+  inst-value z-del
   m: ( hole-solution -- nflag ) \ test if puzzle can be solved and if so place piece count needed for soulution in final-solution
   \ nflag is true if puzzle can be solved and false if the pieces do not add up to a solution
     x-max y-max * z-max *
@@ -107,7 +111,9 @@ save-instance-data class
     dup
     anumberbuffer !
     anumberbuffer cell solution-piece-list @ [bind] double-linked-list ll!
-    this add-board-piece ;m method add-solution-piece
+    this add-board-piece
+    z-now [to-inst] z-del y-now [to-inst] y-del x-now [to-inst] x-del \ to store this last added hole location for possible deleting later
+    ;m method add-solution-piece
   m: ( hole-solution -- ) \ delete the last reference added to solution-piece-list
   \ remove the last reference added from the board-array to ensure it is updated
     solution-piece-list @ [bind] double-linked-list ll-set-end
@@ -170,24 +176,98 @@ save-instance-data class
     until
   ;m overrides next-hole
   m: ( hole-solution -- ) \ impliment the hole solution
+  \  0 0 { del-ref  del-piece }
     begin
+      \ del-piece this current-hole 0 40 at-xy .s ." this is hole at entry"
+      \ 500 ms
+      \ 0 40 at-xy ."                                                       "
+      \ 2drop 2drop
+      del-piece x-del x-now = and y-del y-now = and z-del z-now = and
+      true = if
+        this del-solution-piece
+        0 [to-inst] x-now 0 [to-inst] y-now 0 [to-inst] z-now
+        this next-hole
+        \ 0 39 at-xy ." condition met second delete piece"
+        \ 1000 ms
+        \ 0 39 at-xy ."                                    "
+      \ else 0 39 at-xy ." !!!!!continue !!!!!" 200 ms ."                                           "
+      then
+      false [to-inst] del-piece
       this current-hole
       a-hapl @ [bind] hole-array-piece-list next-ref-piece-in-hole@
       if \ at end of hole references
         this place-piece?
         if \ next hole because hole was filled with last one .. now exit this begin until
+        \  0 39 at-xy ." hole filled but at end of references"
+        \  300 ms
+        \  0 39 at-xy ."                                      "
           true
         else \ last hole because hole was not filled with last one  .. now exit  this begin until
+        \  0 39 at-xy ." at delete process!"
+        \  300 ms
+        \  0 39 at-xy ."                    "
+          \ 0 41 at-xy ." deleted location "
+          \ x-del . y-del . z-del .
+          \ 1000 ms
+          \ 0 41 at-xy ."                                                "
+          true [to-inst] del-piece
           this del-solution-piece
           0 [to-inst] x-now 0 [to-inst] y-now 0 [to-inst] z-now
           true
+  \        begin
+  \          0 39 at-xy ." starting delete process "
+  \          solution-piece-list @ [bind] double-linked-list ll-set-end
+  \          solution-piece-list @ [bind] double-linked-list ll@ anumberbuffer swap move
+  \          anumberbuffer @ to del-ref  \ now del-ref has the reference piece that will be deleted
+  \          this del-solution-piece
+  \          0 [to-inst] x-now 0 [to-inst] y-now 0 [to-inst] z-now
+  \          this next-hole
+  \          this current-hole 0 43 at-xy rot . swap . .
+  \          del-ref a-ref-piece-array @ [bind] piece-array upiece@ to del-piece
+  \          0 del-piece [bind] piece voxel-quantity@ 0 ?do
+  \            i del-piece [bind] piece get-voxel ( x y z ) 0 40 at-xy .s
+  \            this current-hole ( x y z x' y' z' ) 0 41 at-xy .s
+  \            3 pick = swap 4 pick = and swap 4 pick = and swap drop swap drop swap drop
+  \            or
+  \          loop
+  \          invert
+  \          0 42 at-xy .s ." loop exit ?"
+  \          solution-piece-list @ [bind] double-linked-list ll-size@ 30 42 at-xy .
+  \          pause-for-key drop
+  \          0 43 at-xy ."                                            "
+  \          0 42 at-xy ."                                            "
+  \          0 39 at-xy ."                                            "
+  \          0 40 at-xy ."                                             "
+  \          0 41 at-xy ."                                             "
+  \          \ this current-hole
+  \          \ 0 = swap 0 = and swap 0 = and true =
+  \          solution-piece-list @ [bind] double-linked-list ll-size@ 0 = if
+  \            0 38 at-xy ." down to first piece placed!"
+  \            200 ms
+  \            0 38 at-xy ."                             "
+  \            \ page
+  \            this current-hole
+  \            a-hapl @ [bind] hole-array-piece-list next-ref-piece-in-hole@ drop
+  \            this place-piece? drop
+  \            \ this see-solution
+  \            drop true
+  \          then
+  \        until
+  \        0 [to-inst] x-now 0 [to-inst] y-now 0 [to-inst] z-now
+  \        true
         then
       else \ not at end of hole references
         this place-piece?
         if \ next hole because hole was filled with last one .. now exit this begin until
           true
+        \  0 38 at-xy ." hole filled exit"
+        \  300 ms
+        \  0 38 at-xy ."                  "
         else \ next reference at same hole because hole was not filled ... do not exit this begin until
           false
+        \  0 38 at-xy ." repeat hole solution"
+        \  300 ms
+        \  0 38 at-xy ."                      "
         then
       then
     until
@@ -226,6 +306,10 @@ save-instance-data class
     final-solution [to-inst] solvelow
     false [to-inst] solvelow-flag
     0 [to-inst] solvehigh
+    false [to-inst] del-piece
+    0 [to-inst] x-del
+    0 [to-inst] y-del
+    0 [to-inst] z-del
   ;m overrides construct
   m: ( hole-solution -- ) \ destructor
     this [parent] destruct
@@ -263,6 +347,7 @@ save-instance-data class
       else
         solveloops 1 + [to-inst] solveloops
       then
+      page
       this see-solution
       40 0 at-xy this solution-size@ . ." solution-size"
       40 1 at-xy solvehigh . ." highest"
