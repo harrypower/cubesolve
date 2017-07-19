@@ -2,6 +2,12 @@ require ./Gforth-Objects/objects.fs
 require ./Gforth-Objects/double-linked-list.fs
 require ./newpieces.fs
 
+[ifundef] destruction
+  interface
+     selector destruct ( object-name -- ) \ to free allocated memory in objects that use this
+  end-interface destruction
+[endif]
+
 object class
   destruction implementation
   selector set-board-dims

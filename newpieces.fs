@@ -1,9 +1,17 @@
 require ./Gforth-Objects/objects.fs
 require ./Gforth-Objects/double-linked-list.fs
+require ./serialize-obj.fs
 
-interface
-  selector intersect? ( n object-name -- nflag )
-end-interface intersect
+[ifundef] intersect
+  interface
+    selector intersect? ( n object-name -- nflag )
+  end-interface intersect
+[endif]
+[ifundef] destruction
+  interface
+     selector destruct ( object-name -- ) \ to free allocated memory in objects that use this
+  end-interface destruction
+[endif]
 
 object class
   intersect implementation
@@ -24,7 +32,8 @@ object class
     voxel@ z c@ this adjust = swap y c@ this adjust = and swap x c@ this adjust = and ;m overrides intersect?
 end-class voxel
 
-object class
+defer -piece
+save-instance-data class
   destruction implementation
   intersect implementation
   selector voxel-quantity@
@@ -37,10 +46,12 @@ object class
   ;m method seek-voxel
   public
   m: ( piece -- ) \ construct
+    this [parent] construct
     voxel heap-new a-voxel !
     double-linked-list heap-new a-voxel-list !
   ;m overrides construct
   m: ( piece -- ) \ destruct
+    this [parent] destruct
     a-voxel @ free throw
     0 this seek-voxel
     this voxel-quantity@ 0 ?do
@@ -108,6 +119,7 @@ object class
     loop
   ;m method copy
 end-class piece
+' piece is -piece
 
 object class
   destruction implementation

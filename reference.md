@@ -1,12 +1,12 @@
 # This is somewhat of an outline of objects and or data structures and methods needed to go forward with general cube puzzle solver!
 
-* voxel object
-  * will be the base element used by the piece, pieces, board and translation orientation objects
-  * will manage all the things important to voxels
-  * contains x y and z
-  * methods to get x y z data in and out
-  * methods to test this voxel to a given voxel for intersecting
-
+* voxel  
+  ### newpieces.fs
+  ### methods
+    * voxel!      ( ux uy uz voxel -- ) \ store the voxel coordinates
+    * voxel@      ( voxel -- ux uy uz ) \ retrieve voxel coordinates
+    * intersect?  ( uvoxel voxel -- nflag ) \ nflag is true if uvoxel is intersecting with voxel nflag is false if not intersecting
+    
 * piece object
   * will be the base object that manage what constitutes a piece or a collection of voxels
   * will contain voxel objects
@@ -64,7 +64,7 @@
   * will take ref-piece-array object and hole-array-piece-list object and puzzle-board
   * will store a working puzzle board array to fast access pieces on board in a reference form
   * will use the fast intersect method from ref-piece-array to solve intersections.
-  * will mechanize the sequential hole filling to solve puzzle 
+  * will mechanize the sequential hole filling to solve puzzle
 
 * Next additions or bugs to work on
-  * solution for now will be just fill the holes.  Use the above mentioned object to cycle through the list of pieces for the list of holes.
+  * convert all the objects to use the save-instance-data object to allow complete data saving of the objects data!
