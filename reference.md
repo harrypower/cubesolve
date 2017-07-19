@@ -2,22 +2,22 @@
 
 * ### voxel
   newpieces.fs
-  * construct ___ ( voxel -- ) \ construct voxel with 0 0 0 as voxel coordinates
-  * voxel!___( ux uy uz voxel -- ) \ store the voxel coordinates
-  * voxel@      ( voxel -- ux uy uz ) \ retrieve voxel coordinates
-  * intersect?  ( uvoxel voxel -- nflag ) \ nflag is true if uvoxel is intersecting with voxel nflag is false if not intersecting
+  * construct ------ ( voxel -- ) \ construct voxel with 0 0 0 as voxel coordinates
+  * voxel! --------- ( ux uy uz voxel -- ) \ store the voxel coordinates
+  * voxel@ --------- ( voxel -- ux uy uz ) \ retrieve voxel coordinates
+  * intersect? ----- ( uvoxel voxel -- nflag ) \ nflag is true if uvoxel is intersecting with voxel nflag is false if not intersecting
 
 * ### piece
   newpieces.fs
-  * #### construct        ( piece -- ) \ construct piece object
-  * #### destruct         ( piece -- ) \ destruct and free data in object
-  * #### add-voxel        ( ux uy uz piece -- ) \ add a voxel to this piece with ux uy uz address
-  * #### get-voxel-object ( uindex piece -- uvoxel ) \ return a voxel object at uindex
-  * #### get-voxel        ( uindex piece -- ux uy uz ) \ retrieve voxel data from uindex voxel in this piece
-  * #### voxel-quantity@  ( piece -- usize ) \ return voxel quantity
-  * #### intersect?       ( upiece piece -- nflag ) \ test for intersection of upiece with this piece on any voxel
-  * #### same?            ( upiece piece -- nflag ) \ test upiece agains this piece for exact voxels match forward or backward
-  * #### copy             ( upiece piece -- ) \ exact copy upiece to this piece
+  * construct ------ ( piece -- ) \ construct piece object
+  * destruct ------- ( piece -- ) \ destruct and free data in object
+  * add-voxel ------ ( ux uy uz piece -- ) \ add a voxel to this piece with ux uy uz address
+  * get-voxel-object ( uindex piece -- uvoxel ) \ return a voxel object at uindex
+  * get-voxel ------ ( uindex piece -- ux uy uz ) \ retrieve voxel data from uindex voxel in this piece
+  * voxel-quantity@  ( piece -- usize ) \ return voxel quantity
+  * intersect? ----- ( upiece piece -- nflag ) \ test for intersection of upiece with this piece on any voxel
+  * same? ---------- ( upiece piece -- nflag ) \ test upiece agains this piece for exact voxels match forward or backward
+  * copy ----------- ( upiece piece -- ) \ exact copy upiece to this piece
 
 * pieces object
   * will be the base object that manages what constitutes groups of pieces for any grouping purpose
