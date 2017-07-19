@@ -1,12 +1,12 @@
 # This is somewhat of an outline of objects and or data structures and methods needed to go forward with general cube puzzle solver!
 
-* voxel  
+* ## voxel  
   ### newpieces.fs
   ### methods
-    * voxel!      ( ux uy uz voxel -- ) \ store the voxel coordinates
-    * voxel@      ( voxel -- ux uy uz ) \ retrieve voxel coordinates
-    * intersect?  ( uvoxel voxel -- nflag ) \ nflag is true if uvoxel is intersecting with voxel nflag is false if not intersecting
-    
+    * #### voxel!      ( ux uy uz voxel -- ) \ store the voxel coordinates
+    * #### voxel@      ( voxel -- ux uy uz ) \ retrieve voxel coordinates
+    * #### intersect?  ( uvoxel voxel -- nflag ) \ nflag is true if uvoxel is intersecting with voxel nflag is false if not intersecting
+
 * piece object
   * will be the base object that manage what constitutes a piece or a collection of voxels
   * will contain voxel objects
