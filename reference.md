@@ -9,15 +9,15 @@
 
 * ### piece
   newpieces.fs
-  * construct == ( piece -- ) \ construct piece object
-  * destruct == ( piece -- ) \ destruct and free data in object
-  * add-voxel == ( ux uy uz piece -- ) \ add a voxel to this piece with ux uy uz address
-  * get-voxel-object == ( uindex piece -- uvoxel ) \ return a voxel object at uindex
-  * get-voxel == ( uindex piece -- ux uy uz ) \ retrieve voxel data from uindex voxel in this piece
-  * voxel-quantity@ == ( piece -- usize ) \ return voxel quantity
-  * intersect? == ( upiece piece -- nflag ) \ test for intersection of upiece with this piece on any voxel
-  * same? == ( upiece piece -- nflag ) \ test upiece agains this piece for exact voxels match forward or backward
-  * copy ++ ( upiece piece -- ) \ exact copy upiece to this piece
+  * construct _( piece -- ) \ construct piece object_
+  * destruct _( piece -- ) \ destruct and free data in object_
+  * add-voxel _( ux uy uz piece -- ) \ add a voxel to this piece with ux uy uz address_
+  * get-voxel-object _( uindex piece -- uvoxel ) \ return a voxel object at uindex_
+  * get-voxel _( uindex piece -- ux uy uz ) \ retrieve voxel data from uindex voxel in this piece_
+  * voxel-quantity@ _( piece -- usize ) \ return voxel quantity_
+  * intersect? _( upiece piece -- nflag ) \ test for intersection of upiece with this piece on any voxel_
+  * same? _( upiece piece -- nflag ) \ test upiece agains this piece for exact voxels match forward or backward_
+  * copy _( upiece piece -- ) \ exact copy upiece to this piece_
 
 * pieces object
   * will be the base object that manages what constitutes groups of pieces for any grouping purpose

@@ -6,7 +6,12 @@ require ./Gforth-Objects/stringobj.fs
      selector destruct ( object-name -- ) \ to free allocated memory in objects that use this
   end-interface destruction
 [endif]
-
+[ifundef] serialize
+  interface
+    selector save-data ( object-name -- nstrings ) \ nstrings is all the data from object-name to store in a strings object
+    selector restore-data ( nstrings object-name -- ) \ nstrings contains all the data to be restored to object-name
+  end-interface serialize
+[endif]
 
 object class
   destruction implementation  \ ( save-instance-data -- )
@@ -68,6 +73,21 @@ object class
     save$ [bind] strings destruct
     numberbuffer$ [bind] string destruct
   ;m overrides destruct
+  m: ( save-instance-data -- nstrings )
+    \ basicaly this method needs to be custom for each object using it
+    \ this method needs to use the methods provided to save data into save$ refered to strings object
+    \ save$ \ this will return the nstrings required
+  ;m overrides save-data
+  m: ( nstrings save-instance-data -- )
+    \ basicaly this method needs to be custom for each object using it
+    \ this method needs to retrieve the data in nstrings to restore the objects data
+    \ the data could be broken into parts that save inst-value and inst-var and other data
+    \ you could do this by having a method that is each catagorie
+    \ this method name could be stored in the save-data method code so all the you need to do here is retrieve that method name and execute it
+    \ >> this do-retrieve-data true = if d>s rot rot -defered-object-name rot rot this $->method else 2drop 2drop abort" restore data incorrect!" then
+    \ the above line of code is an example of retrieving the name and a number from save$ data and that name is executed and the number could be used as an index of saved items
+    \ save$ [bind] strings copy$s \ saves the nstrings object data to be used for retrieval in this method 
+  ;m overrides restore-data
 end-class save-instance-data
 
 \ ************************************************************************************************************************************************
