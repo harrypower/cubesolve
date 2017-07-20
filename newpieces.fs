@@ -37,6 +37,7 @@ save-instance-data class
   destruction implementation
   intersect implementation
   selector voxel-quantity@
+  selector add-voxel
   protected
   cell% inst-var a-voxel
   cell% inst-var a-voxel-list
@@ -44,6 +45,14 @@ save-instance-data class
     a-voxel-list @ [bind] double-linked-list ll-set-start
     0 ?do a-voxel-list @ [bind] double-linked-list ll> drop loop
   ;m method seek-voxel
+  m: ( uvoxel-amount piece -- ) \ used only by serialize-data! to place data back to this piece
+    0 ?do
+      3 0 ?do
+        this do-retrieve-dnumber true = if d>s else abort" piece voxel data incorrect!" then
+      loop
+      this add-voxel
+    loop
+  ;m method serialize-data-voxel!
   public
   m: ( piece -- ) \ construct
     this [parent] construct
@@ -65,7 +74,7 @@ save-instance-data class
     a-voxel @ [bind] voxel voxel!
     a-voxel cell a-voxel-list @ [bind] double-linked-list ll!
     voxel heap-new a-voxel !
-  ;m method add-voxel
+  ;m overrides add-voxel
   m: ( uindex piece -- uvoxel ) \ return a voxel object at uindex
     this seek-voxel
     a-voxel-list @ [bind] double-linked-list ll@ drop @ ;m method get-voxel-object
@@ -121,14 +130,26 @@ save-instance-data class
   m: ( piece -- nstrings ) \ to save this data
     this [parent] destruct \ to reset save data in parent class
     this [parent] construct
+    ['] serialize-data-voxel! this do-save-name
+    this voxel-quantity@ this do-save-nnumber
+    this voxel-quantity@ 0 ?do
+      i this get-voxel
+      this do-save-nnumber
+      this do-save-nnumber
+      this do-save-nnumber
+    loop
   ;m overrides serialize-data@
   m: ( nstrings piece -- ) \ to restore previously saved data
     this destruct
+    this construct
+    save$ [bind] strings copy$s \ saves the strings object data to be used for retrieval
+    this do-retrieve-data true = if d>s rot rot -piece rot rot this $->method else 2drop 2drop abort" restore data incorrect!" then
   ;m overrides serialize-data@
 end-class piece
 ' piece is -piece
 
-object class
+defer -pieces
+save-instance-data class
   destruction implementation
   selector pieces-quantity@
   protected
@@ -165,7 +186,15 @@ object class
   m: ( pieces -- usize ) \ return the quantity of pieces in this piece list
     a-pieces-list @ [bind] double-linked-list ll-size@
   ;m overrides pieces-quantity@
+  m: ( pieces -- nstrings ) \ to save this data
+    this [parent] destruct \ to reset save data in parent class
+    this [parent] construct
+  ;m overrides serialize-data@
+  m: ( nstrings pieces -- ) \ to restore previously saved data
+    this destruct
+  ;m overrides serialize-data@
 end-class pieces
+' pieces is -pieces
 
 pieces heap-new constant puzzle-pieces
 piece heap-new constant working-piece

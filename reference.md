@@ -2,30 +2,34 @@
 
 * ### voxel
   newpieces.fs
-  * construct _( voxel -- ) \ construct voxel with 0 0 0 as voxel coordinates_
-  * voxel! _( ux uy uz voxel -- ) \ store the voxel coordinates_
-  * voxel@ _( voxel -- ux uy uz ) \ retrieve voxel coordinates_
-  * intersect? _( uvoxel voxel -- nflag ) \ nflag is true if uvoxel is intersecting with voxel nflag is false if not intersecting_
+  * construct       _( voxel -- ) \ construct voxel with 0 0 0 as voxel coordinates_
+  * voxel!          _( ux uy uz voxel -- ) \ store the voxel coordinates_
+  * voxel@          _( voxel -- ux uy uz ) \ retrieve voxel coordinates_
+  * intersect?      _( uvoxel voxel -- nflag ) \ nflag is true if uvoxel is intersecting with voxel nflag is false if not intersecting_
 
 * ### piece
   newpieces.fs
-  * construct _( piece -- ) \ construct piece object_
-  * destruct _( piece -- ) \ destruct and free data in object_
-  * add-voxel _( ux uy uz piece -- ) \ add a voxel to this piece with ux uy uz address_
-  * get-voxel-object _( uindex piece -- uvoxel ) \ return a voxel object at uindex_
-  * get-voxel _( uindex piece -- ux uy uz ) \ retrieve voxel data from uindex voxel in this piece_
-  * voxel-quantity@ _( piece -- usize ) \ return voxel quantity_
-  * intersect? _( upiece piece -- nflag ) \ test for intersection of upiece with this piece on any voxel_
-  * same? _( upiece piece -- nflag ) \ test upiece agains this piece for exact voxels match forward or backward_
-  * copy _( upiece piece -- ) \ exact copy upiece to this piece_
-  * serialize-data@ _( piece -- nstrings ) \ to save this data_
-  * serialize-data! _( nstrings piece -- ) \ to restore previously saved data_
+  * construct         _( piece -- ) \ construct piece object_
+  * destruct          _( piece -- ) \ destruct and free data in object_
+  * add-voxel         _( ux uy uz piece -- ) \ add a voxel to this piece with ux uy uz address_
+  * get-voxel-object  _( uindex piece -- uvoxel ) \ return a voxel object at uindex_
+  * get-voxel         _( uindex piece -- ux uy uz ) \ retrieve voxel data from uindex voxel in this piece_
+  * voxel-quantity@   _( piece -- usize ) \ return voxel quantity_
+  * intersect?        _( upiece piece -- nflag ) \ test for intersection of upiece with this piece on any voxel_
+  * same?             _( upiece piece -- nflag ) \ test upiece agains this piece for exact voxels match forward or backward_
+  * copy              _( upiece piece -- ) \ exact copy upiece to this piece_
+  * serialize-data@   _( piece -- nstrings ) \ to save this piece data_
+  * serialize-data!   _( nstrings piece -- ) \ to restore previously saved data_
 
-* pieces object
-  * will be the base object that manages what constitutes groups of pieces for any grouping purpose
-  * will contain piece objects
-  * methods to put and get piece objects into a linked list to represent a group of pieces for many reasons
-  * methods to allow indexed piece get
+* ### pieces
+  newpieces.fs
+  * construct         _( pieces -- ) \ construct pieces object_
+  * destruct          _( pieces -- ) \ destruct pieces object_
+  * add-a-piece       _( upiece pieces -- ) \ copies contents of upiece object and puts the copied piece object in a-pieces-list_
+  * get-a-piece       _( uindex pieces -- upiece ) \ retrieve uindex piece from a-pieces-list_
+  * pieces-quantity@  _( pieces -- usize ) \ return the quantity of pieces in this piece list_
+  * serialize-data@   _( pieces -- nstrings ) \ to save this list of pieces_
+  * serialize-data!   _( nstrings pieces -- ) \ to restore previously saved list of pieces_
 
 * board object
   * will manage all that the board space needs to be managed
