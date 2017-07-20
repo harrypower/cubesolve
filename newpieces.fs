@@ -138,13 +138,14 @@ save-instance-data class
       this do-save-nnumber
       this do-save-nnumber
     loop
+    save$
   ;m overrides serialize-data@
   m: ( nstrings piece -- ) \ to restore previously saved data
     this destruct
     this construct
     save$ [bind] strings copy$s \ saves the strings object data to be used for retrieval
     this do-retrieve-data true = if d>s rot rot -piece rot rot this $->method else 2drop 2drop abort" restore data incorrect!" then
-  ;m overrides serialize-data@
+  ;m overrides serialize-data!
 end-class piece
 ' piece is -piece
 
@@ -192,7 +193,7 @@ save-instance-data class
   ;m overrides serialize-data@
   m: ( nstrings pieces -- ) \ to restore previously saved data
     this destruct
-  ;m overrides serialize-data@
+  ;m overrides serialize-data!
 end-class pieces
 ' pieces is -pieces
 
@@ -208,3 +209,8 @@ piece heap-new constant working-piece
 
 
 \ **********************************************************************************************************************
+\\\  **** finish the test words for above objects
+5 2 7 define-a-voxel
+working-piece bind piece serialize-data@
+0 working-piece bind piece get-voxel rot . swap . . cr
+.s

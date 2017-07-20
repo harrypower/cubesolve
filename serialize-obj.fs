@@ -88,7 +88,7 @@ object class
     \ >> this do-retrieve-data true = if d>s rot rot -defered-object-name rot rot this $->method else 2drop 2drop abort" restore data incorrect!" then
     \ the above line of code is an example of retrieving the name and a number from save$ data and that name is executed and the number could be used as an index of saved items
     \ save$ [bind] strings copy$s \ saves the nstrings object data to be used for retrieval in this method
-  ;m overrides serialize-data@
+  ;m overrides serialize-data!
 end-class save-instance-data
 
 \ ************************************************************************************************************************************************
