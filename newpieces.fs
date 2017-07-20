@@ -118,6 +118,13 @@ save-instance-data class
       i upiece get-voxel this add-voxel
     loop
   ;m method copy
+  m: ( piece -- nstrings ) \ to save this data
+    this [parent] destruct \ to reset save data in parent class
+    this [parent] construct
+  ;m overrides serialize-data@
+  m: ( nstrings piece -- ) \ to restore previously saved data
+    this destruct
+  ;m overrides serialize-data@
 end-class piece
 ' piece is -piece
 

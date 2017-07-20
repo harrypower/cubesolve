@@ -18,6 +18,8 @@
   * intersect? _( upiece piece -- nflag ) \ test for intersection of upiece with this piece on any voxel_
   * same? _( upiece piece -- nflag ) \ test upiece agains this piece for exact voxels match forward or backward_
   * copy _( upiece piece -- ) \ exact copy upiece to this piece_
+  * serialize-data@ _( piece -- nstrings ) \ to save this data_
+  * serialize-data! _( nstrings piece -- ) \ to restore previously saved data_
 
 * pieces object
   * will be the base object that manages what constitutes groups of pieces for any grouping purpose
