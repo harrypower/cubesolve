@@ -50,6 +50,7 @@ save-instance-data class
       3 0 ?do
         this do-retrieve-dnumber true = if d>s else abort" piece voxel data incorrect!" then
       loop
+      swap rot \ x y z
       this add-voxel
     loop
   ;m method serialize-data-voxel!
@@ -134,9 +135,9 @@ save-instance-data class
     this voxel-quantity@ this do-save-nnumber
     this voxel-quantity@ 0 ?do
       i this get-voxel
-      this do-save-nnumber
-      this do-save-nnumber
-      this do-save-nnumber
+      this do-save-nnumber \ z
+      this do-save-nnumber \ y
+      this do-save-nnumber \ x
     loop
     save$
   ;m overrides serialize-data@
@@ -156,12 +157,16 @@ save-instance-data class
   protected
   cell% inst-var a-piece
   cell% inst-var a-pieces-list
+  m: ( pieces -- ) \ used only by serialize-data! process to restore saved data back into this object
+  ;m method serialize-data-pieces!
   public
   m: ( pieces -- ) \ construct
+    this [parent] construct
     piece heap-new a-piece !
     double-linked-list heap-new a-pieces-list !
   ;m overrides construct
   m: ( pieces -- ) \ destruct
+    this [parent] destruct
     a-piece @ [bind] piece destruct
     a-piece @ free throw
     a-pieces-list @ [bind] double-linked-list ll-set-start
@@ -190,7 +195,12 @@ save-instance-data class
   m: ( pieces -- nstrings ) \ to save this data
     this [parent] destruct \ to reset save data in parent class
     this [parent] construct
-  ;m overrides serialize-data@
+    ['] serialize-data-pieces! this do-save-name
+    this pieces-quantity@ this do-save-nnumber
+    this pieces-quantity@ 0 ?do
+      i this get-a-piece [bind] piece serialize-data@
+      save$ [bind] strings copy$s
+    loop save$ ;m overrides serialize-data@
   m: ( nstrings pieces -- ) \ to restore previously saved data
     this destruct
   ;m overrides serialize-data!
@@ -209,8 +219,29 @@ piece heap-new constant working-piece
 
 
 \ **********************************************************************************************************************
-\\\  **** finish the test words for above objects
+\\\
+strings heap-new constant holder$s
 5 2 7 define-a-voxel
-working-piece bind piece serialize-data@
-0 working-piece bind piece get-voxel rot . swap . . cr
-.s
+2 9 0 define-a-voxel
+working-piece bind piece serialize-data@ holder$s copy$s
+0 working-piece bind piece get-voxel rot . swap . . ." < should be 5 2 7" cr
+1 working-piece bind piece get-voxel rot . swap . . ." < should be 2 9 0" cr
+working-piece bind piece voxel-quantity@ . ." < should be 2" cr
+working-piece bind piece destruct
+working-piece bind piece construct
+holder$s working-piece bind piece serialize-data!
+0 working-piece bind piece get-voxel rot . swap . . ." < should be 5 2 7" cr
+1 working-piece bind piece get-voxel rot . swap . . ." < should be 2 9 0" cr
+working-piece puzzle-pieces bind pieces add-a-piece
+puzzle-pieces bind pieces serialize-data@
+dup bind strings @$x type ."  < should be serialize-data-pieces!" cr
+dup bind strings @$x type ." < should be 1" cr
+dup bind strings @$x type ."  < should be serialize-data-voxel!" cr
+dup bind strings @$x type ." < 2" cr
+dup bind strings @$x type ." < 7" cr
+dup bind strings @$x type ." < 2" cr
+dup bind strings @$x type ." < 5" cr
+dup bind strings @$x type ." < 0" cr
+dup bind strings @$x type ." < 9" cr
+dup bind strings @$x type ." < 2" cr
+drop
