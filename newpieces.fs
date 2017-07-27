@@ -145,7 +145,7 @@ save-instance-data class
     this destruct
     this construct
     save$ [bind] strings copy$s \ saves the strings object data to be used for retrieval
-    this do-retrieve-data true = if d>s rot rot -piece rot rot this $->method else 2drop 2drop abort" restore data incorrect!" then
+    this do-retrieve-data true = if d>s rot rot -piece rot rot this $->method else 2drop 2drop abort" restore piece data incorrect!" then
   ;m overrides serialize-data!
 end-class piece
 ' piece is -piece
@@ -154,16 +154,39 @@ defer -pieces
 save-instance-data class
   destruction implementation
   selector pieces-quantity@
+  selector add-a-piece
   protected
   cell% inst-var a-piece
   cell% inst-var a-pieces-list
-  m: ( pieces -- ) \ used only by serialize-data! process to restore saved data back into this object
-  ;m method serialize-data-pieces!
+  inst-value temp$
+  inst-value temp-piece
+  m: ( pieces -- ) \ used to parse save$ for one piece data to restore
+    temp$ [bind] strings destruct
+    temp$ [bind] strings construct
+    begin
+      save$ [bind] strings @$x
+      2dup s" piece-end" str= true = if
+        2drop true
+      else
+        temp$ [bind] strings !$x false
+      then
+    until
+  ;m method parse-piece
+  m: ( upiece-amount pieces -- ) \ used only by serialize-data! process to restore saved data back into this object
+    0 ?do
+      temp-piece [bind] piece destruct
+      temp-piece [bind] piece construct
+      this parse-piece
+      temp$ temp-piece [bind] piece serialize-data!
+      temp-piece this add-a-piece
+    loop ;m method serialize-data-pieces!
   public
   m: ( pieces -- ) \ construct
     this [parent] construct
     piece heap-new a-piece !
     double-linked-list heap-new a-pieces-list !
+    strings heap-new [to-inst] temp$
+    piece heap-new [to-inst] temp-piece
   ;m overrides construct
   m: ( pieces -- ) \ destruct
     this [parent] destruct
@@ -177,6 +200,10 @@ save-instance-data class
     loop
     a-pieces-list @ [bind] double-linked-list destruct
     a-pieces-list @ free throw
+    temp$ [bind] strings destruct
+    temp$ free throw
+    temp-piece [bind] piece destruct
+    temp-piece free throw
   ;m overrides destruct
   m: ( upiece pieces -- ) \ copies contents of upiece object and puts the copied piece object in a-pieces-list
     { upiece }
@@ -185,7 +212,7 @@ save-instance-data class
     loop
     a-piece cell a-pieces-list @ [bind] double-linked-list ll!
     piece heap-new a-piece !
-  ;m method add-a-piece
+  ;m overrides add-a-piece
   m: ( uindex pieces -- upiece ) \ retrieve uindex piece from a-pieces-list
     a-pieces-list @ [bind] double-linked-list nll@ drop @
   ;m method get-a-piece
@@ -200,9 +227,13 @@ save-instance-data class
     this pieces-quantity@ 0 ?do
       i this get-a-piece [bind] piece serialize-data@
       save$ [bind] strings copy$s
+      s" piece-end" save$ [bind] strings !$x
     loop save$ ;m overrides serialize-data@
   m: ( nstrings pieces -- ) \ to restore previously saved data
     this destruct
+    this construct
+    save$ [bind] strings copy$s \ saves the strings object data to be used for retrieval
+    this do-retrieve-data true = if d>s rot rot -pieces rot rot this $->method else 2drop 2drop abort" restore pieces data incorrect!" then
   ;m overrides serialize-data!
 end-class pieces
 ' pieces is -pieces
@@ -220,10 +251,11 @@ piece heap-new constant working-piece
 
 \ **********************************************************************************************************************
 \\\
+cr
 strings heap-new constant holder$s
 5 2 7 define-a-voxel
 2 9 0 define-a-voxel
-working-piece bind piece serialize-data@ holder$s copy$s
+working-piece bind piece serialize-data@ holder$s bind strings copy$s
 0 working-piece bind piece get-voxel rot . swap . . ." < should be 5 2 7" cr
 1 working-piece bind piece get-voxel rot . swap . . ." < should be 2 9 0" cr
 working-piece bind piece voxel-quantity@ . ." < should be 2" cr
@@ -232,10 +264,14 @@ working-piece bind piece construct
 holder$s working-piece bind piece serialize-data!
 0 working-piece bind piece get-voxel rot . swap . . ." < should be 5 2 7" cr
 1 working-piece bind piece get-voxel rot . swap . . ." < should be 2 9 0" cr
+working-piece bind piece voxel-quantity@ . ." < should be 2" cr
 working-piece puzzle-pieces bind pieces add-a-piece
-puzzle-pieces bind pieces serialize-data@
+working-piece puzzle-pieces bind pieces add-a-piece
+
+puzzle-pieces bind pieces serialize-data@ cr
+dup bind strings $qty . ." < should be 20" cr
 dup bind strings @$x type ."  < should be serialize-data-pieces!" cr
-dup bind strings @$x type ." < should be 1" cr
+dup bind strings @$x type ." < should be 2" cr
 dup bind strings @$x type ."  < should be serialize-data-voxel!" cr
 dup bind strings @$x type ." < 2" cr
 dup bind strings @$x type ." < 7" cr
@@ -244,4 +280,15 @@ dup bind strings @$x type ." < 5" cr
 dup bind strings @$x type ." < 0" cr
 dup bind strings @$x type ." < 9" cr
 dup bind strings @$x type ." < 2" cr
-drop
+bind strings @$X type ." < should be piece-end" cr
+
+holder$s bind strings destruct
+holder$s bind strings construct
+puzzle-pieces bind pieces serialize-data@ holder$s bind strings copy$s
+holder$s puzzle-pieces bind pieces serialize-data!
+puzzle-pieces bind pieces pieces-quantity@ . ." < should be 2!" cr
+
+1 puzzle-pieces bind pieces get-a-piece
+dup bind piece voxel-quantity@ . ." < should be 2" cr
+dup 0 swap bind piece get-voxel rot . swap . . ." < should be 5 2 7" cr
+dup 1 swap bind piece get-voxel rot . swap . . ." < should be 2 9 0" cr

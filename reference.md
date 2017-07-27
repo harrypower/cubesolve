@@ -31,6 +31,31 @@
   * serialize-data@   _( pieces -- nstrings ) \ to save this list of pieces_
   * serialize-data!   _( nstrings pieces -- ) \ to restore previously saved list of pieces_
 
+* ### save-instance-data
+  serialize-obj.fs
+  * construct         _( save-instance-data -- ) \ constructor_
+  * destruct          _( save-instance-data -- ) \ destructor_
+  * serialize-data@   _( save-instance-data -- nstrings ) \ method that is empty and is the suggested name of method for making serialized data_
+  * serialize-data!   _( nstrings save-instance-data -- ) \ method that is empty and is the suggested name of the method for retrieving the serialized data in nstrings_
+  #### private inst-value not used  
+    * save$           _this is the strings object handle containing the serialized data_
+  #### private methods that are not normally used directly by inherited class but can be used if understood how they work.
+    * #sto$            _( ns save-instance-data -- caddr u ) \ convert ns to string_
+    * $>xt             _( nclass caddr u save-instance-data -- xt ) \ caddr u string is an instance data name and returns its xt. nclass is also needed_
+    * xt>$             _( nxt save-instance-data -- caddr u ) \ from the xt of an instance data name return the caddr u string of that named instance data_
+    * #$>value         _( unumber nclass caddr u save-instance-data -- ) \ put unumber into the inst-value named in string caddr u_ ... note nclass is needed!_
+    * #$>var           _( unumber nclass caddr u save-instance-data -- ) \ put unumber into the inst-var named in string caddr u ... note nclass is needed!_
+    * $->method        _( nclass caddr u save-instance-data -- ) \ caddr u is a method to be executed ... note nclass is needed!_
+  #### private methods that are normaly used directly by inherited class to save and restore data into save$ strings object_
+    * do-save-name     _( xt save-instance-data -- ) \ saves the name string of xt by getting the nt first name to save$_
+    * do-save-inst-value  _( xt save-instance-data -- ) \ saves the instance value referenced by xt to save$_
+    * do-save-inst-var    _( xt save-instance-data -- ) \ saves the instance var referenced by xt to save$_
+    * do-save-nnumber     _( nnumber save-instance-data -- ) \ saves nnumber to save$ - note this is a cell wide number_
+    * do-retrieve-dnumber _( save-instance-data -- dnumber nflag ) \ retrieve string number from save$_
+    * do-retrieve-data    _( save-instance-data -- caddr u dnumber nflag ) \ retrieve string name and string number from save$_
+    * do-retrieve-inst-var  _( nclass save-instance-data -- ) \ restores instance var from save$_
+    * do-retrieve-inst-value  _( nclass save-instance-data -- ) \ restores instance value from save$_
+
 * board object
   * will manage all that the board space needs to be managed
   * will contain an array of the current puzzle board with voxel like addresses of x y and z
