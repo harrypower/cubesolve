@@ -7,6 +7,7 @@
   * voxel@          _( voxel -- ux uy uz ) \ retrieve voxel coordinates_
   * intersect?      _( uvoxel voxel -- nflag ) \ nflag is true if uvoxel is intersecting with voxel nflag is false if not intersecting_
 
+
 * ### piece
   newpieces.fs
   * construct         _( piece -- ) \ construct piece object_
@@ -31,40 +32,47 @@
   * serialize-data@   _( pieces -- nstrings ) \ to save this list of pieces_
   * serialize-data!   _( nstrings pieces -- ) \ to restore previously saved list of pieces_
 
+
 * ### save-instance-data
   serialize-obj.fs
   * construct         _( save-instance-data -- ) \ constructor_
   * destruct          _( save-instance-data -- ) \ destructor_
   * serialize-data@   _( save-instance-data -- nstrings ) \ method that is empty and is the suggested name of method for making serialized data_
   * serialize-data!   _( nstrings save-instance-data -- ) \ method that is empty and is the suggested name of the method for retrieving the serialized data in nstrings_
-  #### private inst-value not used  
+  #### private inst-value  
     * save$           _this is the strings object handle containing the serialized data_
   #### private methods that are not normally used directly by inherited class but can be used if understood how they work.
-    * #sto$            _( ns save-instance-data -- caddr u ) \ convert ns to string_
-    * $>xt             _( nclass caddr u save-instance-data -- xt ) \ caddr u string is an instance data name and returns its xt. nclass is also needed_
-    * xt>$             _( nxt save-instance-data -- caddr u ) \ from the xt of an instance data name return the caddr u string of that named instance data_
-    * #$>value         _( unumber nclass caddr u save-instance-data -- ) \ put unumber into the inst-value named in string caddr u_ ... note nclass is needed!_
-    * #$>var           _( unumber nclass caddr u save-instance-data -- ) \ put unumber into the inst-var named in string caddr u ... note nclass is needed!_
-    * $->method        _( nclass caddr u save-instance-data -- ) \ caddr u is a method to be executed ... note nclass is needed!_
-  #### private methods that are normaly used directly by inherited class to save and restore data into save$ strings object_
-    * do-save-name     _( xt save-instance-data -- ) \ saves the name string of xt by getting the nt first name to save$_
-    * do-save-inst-value  _( xt save-instance-data -- ) \ saves the instance value referenced by xt to save$_
-    * do-save-inst-var    _( xt save-instance-data -- ) \ saves the instance var referenced by xt to save$_
-    * do-save-nnumber     _( nnumber save-instance-data -- ) \ saves nnumber to save$ - note this is a cell wide number_
-    * do-retrieve-dnumber _( save-instance-data -- dnumber nflag ) \ retrieve string number from save$_
-    * do-retrieve-data    _( save-instance-data -- caddr u dnumber nflag ) \ retrieve string name and string number from save$_
-    * do-retrieve-inst-var  _( nclass save-instance-data -- ) \ restores instance var from save$_
+    * #sto$           _( ns save-instance-data -- caddr u ) \ convert ns to string_
+    * $>xt            _( nclass caddr u save-instance-data -- xt ) \ caddr u string is an instance data name and returns its xt. nclass is also needed_
+    * xt>$            _( nxt save-instance-data -- caddr u ) \ from the xt of an instance data name return the caddr u string of that named instance data_
+    * #$>value        _( unumber nclass caddr u save-instance-data -- ) \ put unumber into the inst-value named in string caddr u_ ... note nclass is needed!_
+    * #$>var          _( unumber nclass caddr u save-instance-data -- ) \ put unumber into the inst-var named in string caddr u ... note nclass is needed!_
+    * $->method       _( nclass caddr u save-instance-data -- ) \ caddr u is a method to be executed ... note nclass is needed!_
+  #### private methods that are normaly used directly by inherited class to save and restore data into save$ strings object
+    * do-save-name            _( xt save-instance-data -- ) \ saves the name string of xt by getting the nt first name to save$_
+    * do-save-inst-value      _( xt save-instance-data -- ) \ saves the instance value referenced by xt to save$_
+    * do-save-inst-var        _( xt save-instance-data -- ) \ saves the instance var referenced by xt to save$_
+    * do-save-nnumber         _( nnumber save-instance-data -- ) \ saves nnumber to save$ - note this is a cell wide number_
+    * do-retrieve-dnumber     _( save-instance-data -- dnumber nflag ) \ retrieve string number from save$_
+    * do-retrieve-data        _( save-instance-data -- caddr u dnumber nflag ) \ retrieve string name and string number from save$_
+    * do-retrieve-inst-var    _( nclass save-instance-data -- ) \ restores instance var from save$_
     * do-retrieve-inst-value  _( nclass save-instance-data -- ) \ restores instance value from save$_
 
-* board object
-  * will manage all that the board space needs to be managed
-  * will contain an array of the current puzzle board with voxel like addresses of x y and z
-  * will contain piece pieces and voxels possibly!
-  * methods to set and get the board size
-  * methods to set and get pieces that can be placed on the board
-  * methods to set and get voxels or a piece on the board
-  * methods to display the board at the command line showing both pieces on the board or the voxels that are placed on the board from pieces
-  * methods to test a piece or voxel to see if it can be placed on the board
+
+* ### board
+  puzzleboard.fs
+  * construct             _( board -- ) \ constructor_
+  * destruct              _( board -- ) \ destrctor_
+  * set-board-dims        _( ux uy uz board -- ) \ set max board size and allocate the board-array memory_
+  * get-board-dims        _( board -- ux-max uy-max uz-max ) \ get dimensions of this board_
+  * board-piece-quantity@ _( board -- uquantity ) \ return how many pieces are currently on the board_
+  * voxel-on-board?       _( ux uy uz board -- nflag ) \ ux uy uz is a voxel to test if it can be placed on an empty board_
+  * piece-on-board?       _( upiece board -- nflag ) \ test if upiece can be placed on an empty board nflag is true if piece can be placed false if not_
+  * piece-on-this-board?  _( upiece board -- nflag ) \ test if upiece could be placed on the current populated board_
+  * place-piece-on-board  _( upiece board -- nflag ) \ place upiece on the current board if it can be placed without intersecting with other pieces_
+  * nget-board-piece      _( uindex board -- upiece ) \ retrieve uindex piece from this board in the form of a piece object_
+  * see-board             _( board -- ) \ crude terminal board display_
+
 
 * translation and orientation object
   * will have the job of taking a piece and creating all the pieces that are derived from the translations and rotations of the piece in the board space
