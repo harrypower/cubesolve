@@ -76,22 +76,22 @@
 * ### piece-array
   piece-array.fs
   * `construct`
-      _( upieces piece-array -- )_
-      construct the array from the contents of upieces!  Note the size is fixed at construct time!
-      construct the intersect array of reference pieces.
+      - _( upieces piece-array -- )_
+      - construct the array from the contents of upieces!  Note the size is fixed at construct time!
+      - construct the intersect array of reference pieces.
   * `destruct`
-      _( piece-array -- )_
+      - _( piece-array -- )_
   * `upiece@`
-      _( uindex piece-array -- upiece)_
-      retrieve upiece from array at uindex location
+      - _( uindex piece-array -- upiece)_
+      - retrieve upiece from array at uindex location
   * `fast-intersect?`
-      _( uindex0 uindex1 piece-array -- nflag )_
-      return nflag from intersect-array to get fast intersect detection for uindex0 and uindex1 pieces
-      nflag is true if an intersection between uindex0 and uindex1 is found
-      nflag is false if no intersection is found
+      - _( uindex0 uindex1 piece-array -- nflag )_
+      - return nflag from intersect-array to get fast intersect detection for uindex0 and uindex1 pieces
+      - nflag is true if an intersection between uindex0 and uindex1 is found
+      - nflag is false if no intersection is found
   * `quantity@`
-      _( piece-array -- nquantity )_
-      return the array size
+      - _( piece-array -- nquantity )_
+      - return the array size
 
 * translation and orientation object
   * will have the job of taking a piece and creating all the pieces that are derived from the translations and rotations of the piece in the board space
