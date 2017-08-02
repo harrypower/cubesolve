@@ -1,6 +1,7 @@
 require ./Gforth-Objects/objects.fs
 require ./newpieces.fs
-require ./array-object.fs
+\ require ./array-object.fs
+require ./Gforth-Objects/mdca-obj.fs
 
 [ifundef] destruction
   interface
@@ -59,7 +60,7 @@ object class
 
   m: ( uindex0 uindex1 piece-array -- nflag ) \ return nflag from intersect-array to get fast intersect detection for uindex0 and uindex1 pieces
     \ nflag is true if an intersection between uindex0 and uindex1 is found
-    \ nflag is false if no intersection is found 
+    \ nflag is false if no intersection is found
     intersect-array @ [bind] multi-cell-array cell-array@
   ;m method fast-intersect?
 

@@ -73,6 +73,25 @@
   * `nget-board-piece`      _( uindex board -- upiece ) \ retrieve uindex piece from this board in the form of a piece object_
   * `see-board`             _( board -- ) \ crude terminal board display_
 
+* ### piece-array
+  piece-array.fs
+  * `construct`
+      _( upieces piece-array -- )_
+      construct the array from the contents of upieces!  Note the size is fixed at construct time!
+      construct the intersect array of reference pieces.
+  * `destruct`
+      _( piece-array -- )_
+  * `upiece@`
+      _( uindex piece-array -- upiece)_
+      retrieve upiece from array at uindex location
+  * `fast-intersect?`
+      _( uindex0 uindex1 piece-array -- nflag )_
+      return nflag from intersect-array to get fast intersect detection for uindex0 and uindex1 pieces
+      nflag is true if an intersection between uindex0 and uindex1 is found
+      nflag is false if no intersection is found
+  * `quantity@`
+      _( piece-array -- nquantity )_
+      return the array size
 
 * translation and orientation object
   * will have the job of taking a piece and creating all the pieces that are derived from the translations and rotations of the piece in the board space
@@ -80,16 +99,6 @@
   * will use board object to test piece voxel validity on the board
   * may contain board objects to facilitate piece or voxel board placement testing of orientations translations and or rotations
   * methods to manipulate a piece as a translation and rotation to make other piece orientations
-
-* piece array object
-  * this is a fixed array object that will contain the reference piece array
-  * this will allow the total pieces found in the translation and orientation object to be indexed
-  * this array and indexing of all the pieces for puzzle board are used in puzzle solution
-  * when then array is created it is of fixed size
-  * at array creation the pieces list that is to be stored is given to this array and placed in the array at this time.
-  * method to retrieve a given indexed piece that is stored already
-  * method to retrieve the total size of piece array
-  * indexed piece retrieval should be fast not stored in a linked list!
 
 * group list object
   * will be a general purpose list to group numbers or index values for example.
