@@ -58,71 +58,71 @@
 * ### save-instance-data
   serialize-obj.fs
   * `construct`         _( save-instance-data -- )_
-     - constructor
   * `destruct`          _( save-instance-data -- )_
-     - destructor
   * `serialize-data@`   _( save-instance-data -- nstrings )_
      - method that is empty and is the suggested name of method for making serialized data
   * `serialize-data!`   _( nstrings save-instance-data -- )_
      - method that is empty and is the suggested name of the method for retrieving the serialized data in nstrings
+
   #### private inst-value  
-    * `save$`           _this is the strings object handle containing the serialized data
+  * `save$`           
+      - this is the strings object handle containing the serialized data
+
   #### private methods that are not normally used directly by inherited class but can be used if understood how they work.
     * `#sto$`           _( ns save-instance-data -- caddr u )_
-     - convert ns to string
+        - convert ns to string
     * `$>xt`            _( nclass caddr u save-instance-data -- xt )_
-     - caddr u string is an instance data name and returns its xt. nclass is also needed
+        - caddr u string is an instance data name and returns its xt. nclass is also needed
     * `xt>$`            _( nxt save-instance-data -- caddr u )_
-     - from the xt of an instance data name return the caddr u string of that named instance data
+        - from the xt of an instance data name return the caddr u string of that named instance data
     * `#$>value`        _( unumber nclass caddr u save-instance-data -- )_
-     - put unumber into the inst-value named in string caddr u ... note nclass is needed!_
+        - put unumber into the inst-value named in string caddr u ... note nclass is needed!
     * `#$>var`          _( unumber nclass caddr u save-instance-data -- )_
-     - put unumber into the inst-var named in string caddr u ... note nclass is needed!_
+        - put unumber into the inst-var named in string caddr u ... note nclass is needed!
     * `$->method`       _( nclass caddr u save-instance-data -- )_
-     - caddr u is a method to be executed ... note nclass is needed!_
+        - caddr u is a method to be executed ... note nclass is needed!
+
   #### private methods that are normaly used directly by inherited class to save and restore data into save$ strings object
     * `do-save-name`            _( xt save-instance-data -- )_
-     - saves the name string of xt by getting the nt first name to save$_
+        - saves the name string of xt by getting the nt first name to save$
     * `do-save-inst-value`      _( xt save-instance-data -- )_
-     - saves the instance value referenced by xt to save$_
+        - saves the instance value referenced by xt to save$
     * `do-save-inst-var`        _( xt save-instance-data -- )_
-     - saves the instance var referenced by xt to save$_
+        - saves the instance var referenced by xt to save$
     * `do-save-nnumber`         _( nnumber save-instance-data -- )_
-     - saves nnumber to save$ - note this is a cell wide number
-         * `do-retrieve-dnumber`     _( save-instance-data -- dnumber nflag )_
-     - retrieve string number from save$_
+        - saves nnumber to save$ - note this is a cell wide number
+    * `do-retrieve-dnumber`     _( save-instance-data -- dnumber nflag )_
+        - retrieve string number from save$
     * `do-retrieve-data`        _( save-instance-data -- caddr u dnumber nflag )_
-     - retrieve string name and string number from save$_
+        - retrieve string name and string number from save$
     * `do-retrieve-inst-var`    _( nclass save-instance-data -- )_
-     - restores instance var from save$_
+        - restores instance var from save$
     * `do-retrieve-inst-value`  _( nclass save-instance-data -- )_
-     - restores instance value from save$_
+        - restores instance value from save$
 
 
 * ### board
   puzzleboard.fs
   * `construct`             _( board -- )_
-     - constructor_
   * `destruct`              _( board -- )_
-     - destrctor_
   * `set-board-dims`        _( ux uy uz board -- )_
-     - set max board size and allocate the board-array memory
+      - set max board size and allocate the board-array memory
   * `get-board-dims`        _( board -- ux-max uy-max uz-max )_
-     - get dimensions of this board
+      - get dimensions of this board
   * `board-piece-quantity@` _( board -- uquantity )_
-     - return how many pieces are currently on the board
+      - return how many pieces are currently on the board
   * `voxel-on-board?`       _( ux uy uz board -- nflag )_
-     - ux uy uz is a voxel to test if it can be placed on an empty board
+      - ux uy uz is a voxel to test if it can be placed on an empty board
   * `piece-on-board?`       _( upiece board -- nflag )_
-     - test if upiece can be placed on an empty board nflag is true if piece can be placed false if not
+      - test if upiece can be placed on an empty board nflag is true if piece can be placed false if not
   * `piece-on-this-board?`  _( upiece board -- nflag )_
-     - test if upiece could be placed on the current populated board
+      - test if upiece could be placed on the current populated board
   * `place-piece-on-board`  _( upiece board -- nflag )_
-     - place upiece on the current board if it can be placed without intersecting with other pieces
+      - place upiece on the current board if it can be placed without intersecting with other pieces
   * `nget-board-piece`      _( uindex board -- upiece )_
-     - retrieve uindex piece from this board in the form of a piece object
+      - retrieve uindex piece from this board in the form of a piece object
   * `see-board`             _( board -- )_
-     - crude terminal board display
+      - crude terminal board display
 
 * ### piece-array
   piece-array.fs
