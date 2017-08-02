@@ -2,95 +2,141 @@
 
 * ### voxel
   newpieces.fs
-  * `construct`       _( voxel -- ) \ construct voxel with 0 0 0 as voxel coordinates_
-  * `voxel!`          _( ux uy uz voxel -- ) \ store the voxel coordinates_
-  * `voxel@`          _( voxel -- ux uy uz ) \ retrieve voxel coordinates_
-  * `intersect?`      _( uvoxel voxel -- nflag ) \ nflag is true if uvoxel is intersecting with voxel nflag is false if not intersecting_
+  * `construct`       _( voxel -- )_
+      - construct voxel with 0 0 0 as voxel coordinates
+  * `voxel!`          _( ux uy uz voxel -- )_
+      - store the voxel coordinates
+  * `voxel@`          _( voxel -- ux uy uz )_
+      - retrieve voxel coordinates
+  * `intersect?`      _( uvoxel voxel -- nflag )_
+      - nflag is true if uvoxel is intersecting with voxel nflag is false if not intersecting
 
 
 * ### piece
   newpieces.fs
-  * `construct`         _( piece -- ) \ construct piece object_
-  * `destruct`          _( piece -- ) \ destruct and free data in object_
-  * `add-voxel`         _( ux uy uz piece -- ) \ add a voxel to this piece with ux uy uz address_
-  * `get-voxel-object`  _( uindex piece -- uvoxel ) \ return a voxel object at uindex_
-  * `get-voxel`         _( uindex piece -- ux uy uz ) \ retrieve voxel data from uindex voxel in this piece_
-  * `voxel-quantity@`   _( piece -- usize ) \ return voxel quantity_
-  * `intersect?`        _( upiece piece -- nflag ) \ test for intersection of upiece with this piece on any voxel_
-  * `same?`             _( upiece piece -- nflag ) \ test upiece agains this piece for exact voxels match forward or backward_
-  * `copy`              _( upiece piece -- ) \ exact copy upiece to this piece_
-  * `serialize-data@`   _( piece -- nstrings ) \ to save this piece data_
-  * `serialize-data!`   _( nstrings piece -- ) \ to restore previously saved data_
+  * `construct`         _( piece -- )_
+      - construct piece object
+  * `destruct`          _( piece -- )_
+      - destruct and free data in object
+  * `add-voxel`         _( ux uy uz piece -- )_
+     - add a voxel to this piece with ux uy uz address
+  * `get-voxel-object`  _( uindex piece -- uvoxel )_
+     - return a voxel object at uindex
+  * `get-voxel`         _( uindex piece -- ux uy uz )_
+     - retrieve voxel data from uindex voxel in this piece
+  * `voxel-quantity@`   _( piece -- usize )_
+     - return voxel quantity
+  * `intersect?`        _( upiece piece -- nflag )_
+     - test for intersection of upiece with this piece on any voxel
+  * `same?`             _( upiece piece -- nflag )_
+     - test upiece agains this piece for exact voxels match forward or backward
+  * `copy`              _( upiece piece -- )_
+     - exact copy upiece to this piece
+  * `serialize-data@`   _( piece -- nstrings )_
+     - to save this piece data
+  * `serialize-data!`   _( nstrings piece -- )_
+     - to restore previously saved data
 
 * ### pieces
   newpieces.fs
-  * `construct`         _( pieces -- ) \ construct pieces object_
-  * `destruct`          _( pieces -- ) \ destruct pieces object_
-  * `add-a-piece`       _( upiece pieces -- ) \ copies contents of upiece object and puts the copied piece object in a-pieces-list_
-  * `get-a-piece`       _( uindex pieces -- upiece ) \ retrieve uindex piece from a-pieces-list_
-  * `pieces-quantity@`  _( pieces -- usize ) \ return the quantity of pieces in this piece list_
-  * `serialize-data@`   _( pieces -- nstrings ) \ to save this list of pieces_
-  * `serialize-data!`   _( nstrings pieces -- ) \ to restore previously saved list of pieces_
+  * `construct`         _( pieces -- )_
+     - construct pieces object
+  * `destruct`          _( pieces -- )_
+     - destruct pieces object
+  * `add-a-piece`       _( upiece pieces -- )_
+     - copies contents of upiece object and puts the copied piece object in a-pieces-lis
+  * `get-a-piece`       _( uindex pieces -- upiece )_
+     - retrieve uindex piece from a-pieces-list
+  * `pieces-quantity@`  _( pieces -- usize )_
+     - return the quantity of pieces in this piece list
+  * `serialize-data@`   _( pieces -- nstrings )_
+     - to save this list of pieces
+  * `serialize-data!`   _( nstrings pieces -- )_
+     - to restore previously saved list of pieces
 
 
 * ### save-instance-data
   serialize-obj.fs
-  * `construct`         _( save-instance-data -- ) \ constructor_
-  * `destruct`          _( save-instance-data -- ) \ destructor_
-  * `serialize-data@`   _( save-instance-data -- nstrings ) \ method that is empty and is the suggested name of method for making serialized data_
-  * `serialize-data!`   _( nstrings save-instance-data -- ) \ method that is empty and is the suggested name of the method for retrieving the serialized data in nstrings_
+  * `construct`         _( save-instance-data -- )_
+     - constructor
+  * `destruct`          _( save-instance-data -- )_
+     - destructor
+  * `serialize-data@`   _( save-instance-data -- nstrings )_
+     - method that is empty and is the suggested name of method for making serialized data
+  * `serialize-data!`   _( nstrings save-instance-data -- )_
+     - method that is empty and is the suggested name of the method for retrieving the serialized data in nstrings
   #### private inst-value  
-    * `save$`           _this is the strings object handle containing the serialized data_
+    * `save$`           _this is the strings object handle containing the serialized data
   #### private methods that are not normally used directly by inherited class but can be used if understood how they work.
-    * `#sto$`           _( ns save-instance-data -- caddr u ) \ convert ns to string_
-    * `$>xt`            _( nclass caddr u save-instance-data -- xt ) \ caddr u string is an instance data name and returns its xt. nclass is also needed_
-    * `xt>$`            _( nxt save-instance-data -- caddr u ) \ from the xt of an instance data name return the caddr u string of that named instance data_
-    * `#$>value`        _( unumber nclass caddr u save-instance-data -- ) \ put unumber into the inst-value named in string caddr u_ ... note nclass is needed!_
-    * `#$>var`          _( unumber nclass caddr u save-instance-data -- ) \ put unumber into the inst-var named in string caddr u ... note nclass is needed!_
-    * `$->method`       _( nclass caddr u save-instance-data -- ) \ caddr u is a method to be executed ... note nclass is needed!_
+    * `#sto$`           _( ns save-instance-data -- caddr u )_
+     - convert ns to string
+    * `$>xt`            _( nclass caddr u save-instance-data -- xt )_
+     - caddr u string is an instance data name and returns its xt. nclass is also needed
+    * `xt>$`            _( nxt save-instance-data -- caddr u )_
+     - from the xt of an instance data name return the caddr u string of that named instance data
+    * `#$>value`        _( unumber nclass caddr u save-instance-data -- )_
+     - put unumber into the inst-value named in string caddr u ... note nclass is needed!_
+    * `#$>var`          _( unumber nclass caddr u save-instance-data -- )_
+     - put unumber into the inst-var named in string caddr u ... note nclass is needed!_
+    * `$->method`       _( nclass caddr u save-instance-data -- )_
+     - caddr u is a method to be executed ... note nclass is needed!_
   #### private methods that are normaly used directly by inherited class to save and restore data into save$ strings object
-    * `do-save-name`            _( xt save-instance-data -- ) \ saves the name string of xt by getting the nt first name to save$_
-    * `do-save-inst-value`      _( xt save-instance-data -- ) \ saves the instance value referenced by xt to save$_
-    * `do-save-inst-var`        _( xt save-instance-data -- ) \ saves the instance var referenced by xt to save$_
-    * `do-save-nnumber`         _( nnumber save-instance-data -- ) \ saves nnumber to save$ - note this is a cell wide number_
-    * `do-retrieve-dnumber`     _( save-instance-data -- dnumber nflag ) \ retrieve string number from save$_
-    * `do-retrieve-data`        _( save-instance-data -- caddr u dnumber nflag ) \ retrieve string name and string number from save$_
-    * `do-retrieve-inst-var`    _( nclass save-instance-data -- ) \ restores instance var from save$_
-    * `do-retrieve-inst-value`  _( nclass save-instance-data -- ) \ restores instance value from save$_
+    * `do-save-name`            _( xt save-instance-data -- )_
+     - saves the name string of xt by getting the nt first name to save$_
+    * `do-save-inst-value`      _( xt save-instance-data -- )_
+     - saves the instance value referenced by xt to save$_
+    * `do-save-inst-var`        _( xt save-instance-data -- )_
+     - saves the instance var referenced by xt to save$_
+    * `do-save-nnumber`         _( nnumber save-instance-data -- )_
+     - saves nnumber to save$ - note this is a cell wide number
+         * `do-retrieve-dnumber`     _( save-instance-data -- dnumber nflag )_
+     - retrieve string number from save$_
+    * `do-retrieve-data`        _( save-instance-data -- caddr u dnumber nflag )_
+     - retrieve string name and string number from save$_
+    * `do-retrieve-inst-var`    _( nclass save-instance-data -- )_
+     - restores instance var from save$_
+    * `do-retrieve-inst-value`  _( nclass save-instance-data -- )_
+     - restores instance value from save$_
 
 
 * ### board
   puzzleboard.fs
-  * `construct`             _( board -- ) \ constructor_
-  * `destruct`              _( board -- ) \ destrctor_
-  * `set-board-dims`        _( ux uy uz board -- ) \ set max board size and allocate the board-array memory_
-  * `get-board-dims`        _( board -- ux-max uy-max uz-max ) \ get dimensions of this board_
-  * `board-piece-quantity@` _( board -- uquantity ) \ return how many pieces are currently on the board_
-  * `voxel-on-board?`       _( ux uy uz board -- nflag ) \ ux uy uz is a voxel to test if it can be placed on an empty board_
-  * `piece-on-board?`       _( upiece board -- nflag ) \ test if upiece can be placed on an empty board nflag is true if piece can be placed false if not_
-  * `piece-on-this-board?`  _( upiece board -- nflag ) \ test if upiece could be placed on the current populated board_
-  * `place-piece-on-board`  _( upiece board -- nflag ) \ place upiece on the current board if it can be placed without intersecting with other pieces_
-  * `nget-board-piece`      _( uindex board -- upiece ) \ retrieve uindex piece from this board in the form of a piece object_
-  * `see-board`             _( board -- ) \ crude terminal board display_
+  * `construct`             _( board -- )_
+     - constructor_
+  * `destruct`              _( board -- )_
+     - destrctor_
+  * `set-board-dims`        _( ux uy uz board -- )_
+     - set max board size and allocate the board-array memory
+  * `get-board-dims`        _( board -- ux-max uy-max uz-max )_
+     - get dimensions of this board
+  * `board-piece-quantity@` _( board -- uquantity )_
+     - return how many pieces are currently on the board
+  * `voxel-on-board?`       _( ux uy uz board -- nflag )_
+     - ux uy uz is a voxel to test if it can be placed on an empty board
+  * `piece-on-board?`       _( upiece board -- nflag )_
+     - test if upiece can be placed on an empty board nflag is true if piece can be placed false if not
+  * `piece-on-this-board?`  _( upiece board -- nflag )_
+     - test if upiece could be placed on the current populated board
+  * `place-piece-on-board`  _( upiece board -- nflag )_
+     - place upiece on the current board if it can be placed without intersecting with other pieces
+  * `nget-board-piece`      _( uindex board -- upiece )_
+     - retrieve uindex piece from this board in the form of a piece object
+  * `see-board`             _( board -- )_
+     - crude terminal board display
 
 * ### piece-array
   piece-array.fs
-  * `construct`
-      _( upieces piece-array -- )_
+  * `construct` _( upieces piece-array -- )_
       - construct the array from the contents of upieces!  Note the size is fixed at construct time!
       - construct the intersect array of reference pieces.
-  * `destruct`
-      _( piece-array -- )_
-  * `upiece@`
-      _( uindex piece-array -- upiece)_
+  * `destruct` _( piece-array -- )_
+  * `upiece@` _( uindex piece-array -- upiece)_
       - retrieve upiece from array at uindex location
-  * `fast-intersect?`
-      _( uindex0 uindex1 piece-array -- nflag )_
+  * `fast-intersect?` _( uindex0 uindex1 piece-array -- nflag )_
       - return nflag from intersect-array to get fast intersect detection for uindex0 and uindex1 pieces
       - nflag is true if an intersection between uindex0 and uindex1 is found
       - nflag is false if no intersection is found
-  * `quantity@`
-      _( piece-array -- nquantity )_
+  * `quantity@` _( piece-array -- nquantity )_
       - return the array size
 
 * translation and orientation object
