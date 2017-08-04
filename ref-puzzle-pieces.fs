@@ -101,7 +101,7 @@ object class
     \ uholex uholey uholez is the hole address identified from puzzle-board
     \ uref-piece is the next reference piece in the list that fits in that hole address
     \ nflag is false normaly after upiece retrieval
-    \ nflag is true when for givin hole address the piece list is at the end
+    \ nflag is true when for given hole address the piece list is at the end
     \ note when nflag is true the piece list at that hole address will reset to begining of list
     hole-array @ [bind] multi-cell-array cell-array@ { uobject }
     uobject [bind] double-linked-list ll@> ( uaddr usize nflag )
