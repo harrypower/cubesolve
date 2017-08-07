@@ -25,11 +25,17 @@ save-instance-data class
   m: ( nflag uindex0 uindex1 piece-array -- ) \ store nflag in 2d intersect-array for fast intersect testing
     intersect-array @ [bind] multi-cell-array cell-array!
   ;m method uintersect-array!
-  m: ( piece-array -- ) \ used only by serialize-data@ to restore the data for this object
+  m: ( piece-array -- ) \ used only by serialize-data! to restore the data for this object
     this do-retrieve-inst-var
     pieces-array-quantity @ 1 multi-cell-array heap-new pieces-array !
     pieces-array-quantity @ dup 2 multi-cell-array heap-new intersect-array !
-  ;m method serialize-piece-array!
+  ;m method serialize-piece-array-quantity!
+  m: ( piece-array -- ) \ used only by serialize-data! to restore the data for this object
+
+  ;m method serialize-piece-array-data!
+  m: ( piece-array -- ) \ used only by serialize-data! to restore the data for this object
+
+  ;m method serialize-intersect-array-data!
   public
   m: ( upieces piece-array -- ) \ construct the array from the contents of upieces!  Note the size is fixed at construct time!
     \ also construct the intersect array of reference pieces.
@@ -79,8 +85,11 @@ save-instance-data class
   m: ( piece-array -- nstrings ) \ to save this data
     this [parent] destruct \ to reset save data in parent class
     this [parent] construct
-    ['] serialize-piece-array! this do-save-name
+    ['] serialize-piece-array-quantity! this do-save-name
+    this quantity@ this do-save-nnumber
     ['] pieces-array-quantity this do-save-inst-var
+    ['] serialize-piece-array-data! this do-save-name
+    this quantity@ this do-save-nnumber
     pieces-array-quantity @ 0 ?do
       i this upiece@ dup
       i this do-save-nnumber \ store index #
@@ -91,23 +100,22 @@ save-instance-data class
         this do-save-nnumber \ x
         this do-save-nnumber \ y
         this do-save-nnumber \ z
-        s" voxel end" save$ [bind] strings !$x
+        s" voxel" save$ [bind] strings !$x
       loop drop
-      s" piece end" save$ [bind] strings !$x
+      s" piece" save$ [bind] strings !$x
     loop
-    \ this voxel-quantity@ 0 ?do
-    \   i this get-voxel
-    \   this do-save-nnumber \ z
-    \   this do-save-nnumber \ y
-    \   this do-save-nnumber \ x
-    \ loop
+    ['] serialize-intersect-array-data! this do-save-name
+    this quantity@ this do-save-nnumber
+    \ now the loop of the intersect-array data
     save$
   ;m overrides serialize-data@
   m: ( nstrings piece-array -- ) \ to restore previously saved data
     this destruct
     this [parent] construct
     save$ [bind] strings copy$s \ saves the strings object data to be used for retrieval
-    this do-retrieve-data true = if d>s rot rot -piece-array rot rot this $->method else 2drop 2drop abort" restore piece array data incorrect!" then
+    this do-retrieve-data true = if 2drop -piece-array rot rot this $->method else 2drop 2drop abort" restore piece array quantity incorrect!" then
+    this do-retrieve-data true = if 2drop -piece-array rot rot this $->method else 2drop 2drop abort" restore piece array data incorrect!" then
+    this do-retrieve-data true = if 2drop -piece-array rot rot this $->method else 2drop 2drop abort" restore intersect array data incorrect!" then
   ;m overrides serialize-data!
 end-class piece-array
 ' piece-array is -piece-array
@@ -136,28 +144,3 @@ test$s @$x dump
 test$s @$x dump
 test$s @$x dump
 test$s @$x dump
-
-\\\
-
-0 puzzle-pieces make-all-pieces heap-new constant testmap
-constant thelist
-
-thelist bind pieces pieces-quantity@ . ." the size of all!" cr
-
-thelist piece-array heap-new constant testarray
-
-testarray quantity@ . ." the size of array!" cr
-
-2 testarray upiece@ voxel-quantity@ . ." should be 5" cr
-
-board heap-new constant testboard1
-board heap-new constant testboard2
-5 5 5 testboard1 set-board-dims
-5 5 5 testboard2 set-board-dims
-
-470 testarray upiece@ testboard1 place-piece-on-board . cr cr cr
-470 thelist get-a-piece testboard2 place-piece-on-board . cr
-testboard1 see-board cr
-testboard2 see-board cr
-
-testarray destruct ." done!" cr
