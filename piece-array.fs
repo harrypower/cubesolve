@@ -1,6 +1,8 @@
 require ./Gforth-Objects/objects.fs
 require ./newpieces.fs
 require ./Gforth-Objects/mdca-obj.fs
+require ./serialize-obj.fs
+
 
 [ifundef] destruction
   interface
@@ -8,7 +10,8 @@ require ./Gforth-Objects/mdca-obj.fs
   end-interface destruction
 [endif]
 
-object class
+defer -piece-array
+save-instance-data class
   destruction implementation
   selector upiece@
   selector quantity@
@@ -22,6 +25,9 @@ object class
   m: ( nflag uindex0 uindex1 piece-array -- ) \ store nflag in 2d intersect-array for fast intersect testing
     intersect-array @ [bind] multi-cell-array cell-array!
   ;m method uintersect-array!
+  m: ( piece-array -- ) \ used only by serialize-data@ to restore the data for this object
+
+  ;m method serialize-piece-array!
   public
   m: ( upieces piece-array -- ) \ construct the array from the contents of upieces!  Note the size is fixed at construct time!
     \ also construct the intersect array of reference pieces.
@@ -66,8 +72,27 @@ object class
   m: ( piece-array -- nquantity ) \ return the array size
     pieces-array-quantity @ ;m overrides quantity@
 
+  m: ( piece-array -- nstrings ) \ to save this data
+    this [parent] destruct \ to reset save data in parent class
+    this [parent] construct
+    ['] serialize-piece-array! this do-save-name
+    \ this voxel-quantity@ this do-save-nnumber
+    \ this voxel-quantity@ 0 ?do
+    \   i this get-voxel
+    \   this do-save-nnumber \ z
+    \   this do-save-nnumber \ y
+    \   this do-save-nnumber \ x
+    \ loop
+    save$
+  ;m overrides serialize-data@
+  m: ( nstrings piece-array -- ) \ to restore previously saved data
+    this destruct
+    this construct
+    save$ [bind] strings copy$s \ saves the strings object data to be used for retrieval
+    this do-retrieve-data true = if d>s rot rot -piece rot rot this $->method else 2drop 2drop abort" restore piece data incorrect!" then
+  ;m overrides serialize-data!
 end-class piece-array
-
+' piece-array is -piece-array
 
 \ ********************************************************************************************************************************
 \\\
