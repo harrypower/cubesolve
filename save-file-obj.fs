@@ -19,7 +19,6 @@ object class
   inst-value working$
   inst-value parse$
   inst-value separate$
-  public
   m: ( save -- ) \ create string of the data to be saved
     s" " working$ !$
     save$ [bind] strings reset
@@ -49,6 +48,7 @@ object class
     restore if save$ [bind] strings destruct then
     endtry
   ;m method do-parse-data
+  public
   m: ( nstrings save -- ) \ save the data to restart later
     \ nstrings is the strings object that contains strings of data to be put into a save file
     \ note the nstrings strings object is copied into this object and not altered in any way

@@ -1,6 +1,5 @@
 require ./Gforth-Objects/objects.fs
 require ./newpieces.fs
-\ require ./array-object.fs
 require ./Gforth-Objects/mdca-obj.fs
 
 [ifundef] destruction
@@ -14,9 +13,9 @@ object class
   selector upiece@
   selector quantity@
   protected
-  cell% inst-var pieces-array \ pieces array object holding the array
+  cell% inst-var pieces-array \ pieces mdca object holding the array
   cell% inst-var pieces-array-quantity \ quantity of pieces in array
-  cell% inst-var intersect-array \ will be the object to contain the 2d reference intersect array ( uses array-object )
+  cell% inst-var intersect-array \ will be the object to contain the 2d reference intersect array ( uses mdca object )
   m: ( upiece uindex piece-array -- ) \ store piece object into array
     pieces-array @ [bind] multi-cell-array cell-array!
   ;m method upiece!
