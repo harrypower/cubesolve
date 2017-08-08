@@ -107,6 +107,15 @@ save-instance-data class
     ['] serialize-intersect-array-data! this do-save-name
     this quantity@ this do-save-nnumber
     \ now the loop of the intersect-array data
+    pieces-array-quantity @ 0 ?do
+      pieces-array-quantity @ 0 ?do
+        i this do-save-nnumber
+        j this do-save-nnumber
+        i j this fast-intersect?
+        this do-save-nnumber
+        s" intersect" save$ [bind] strings !$x
+      loop
+    loop
     save$
   ;m overrides serialize-data@
   m: ( nstrings piece-array -- ) \ to restore previously saved data
