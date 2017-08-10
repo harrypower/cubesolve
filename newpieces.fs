@@ -48,7 +48,7 @@ save-instance-data class
   m: ( uvoxel-amount piece -- ) \ used only by serialize-data! to place data back to this piece
     0 ?do
       3 0 ?do
-        this do-retrieve-dnumber true = if d>s else abort" piece voxel data incorrect!" then
+        this do-retrieve-dnumber true = if d>s else true abort" piece voxel data incorrect!" then
       loop
       swap rot \ x y z
       this add-voxel
@@ -145,7 +145,7 @@ save-instance-data class
     this destruct
     this construct
     save$ [bind] strings copy$s \ saves the strings object data to be used for retrieval
-    this do-retrieve-data true = if d>s rot rot -piece rot rot this $->method else 2drop 2drop abort" restore piece data incorrect!" then
+    this do-retrieve-data true = if d>s rot rot -piece rot rot this $->method else 2drop 2drop true abort" restore piece data incorrect!" then
   ;m overrides serialize-data!
 end-class piece
 ' piece is -piece
@@ -233,7 +233,7 @@ save-instance-data class
     this destruct
     this construct
     save$ [bind] strings copy$s \ saves the strings object data to be used for retrieval
-    this do-retrieve-data true = if d>s rot rot -pieces rot rot this $->method else 2drop 2drop abort" restore pieces data incorrect!" then
+    this do-retrieve-data true = if d>s rot rot -pieces rot rot this $->method else 2drop 2drop true abort" restore pieces data incorrect!" then
   ;m overrides serialize-data!
 end-class pieces
 ' pieces is -pieces

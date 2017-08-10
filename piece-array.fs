@@ -41,7 +41,7 @@ save-instance-data class
   ;m method parse-piece
   m: ( piece-array -- ) \ used only by serialize-data! to restore the data for this object
   \ this code does the work of construct with creating the needed things for this object to function
-    this do-retrieve-inst-var
+    -piece-array this do-retrieve-inst-var
     pieces-array-quantity @ 1 multi-cell-array heap-new pieces-array !
     pieces-array-quantity @ dup 2 multi-cell-array heap-new intersect-array !
     strings heap-new [to-inst] temp$
@@ -57,11 +57,11 @@ save-instance-data class
   ;m method serialize-piece-array-data!
   m: ( uintersect-amount piece-array -- ) \ used only by serialize-data! to restore the data for this object
     0 ?do
-      this do-retrieve-dnumber true = if d>s else abort" intersect A data bad" then
-      this do-retrieve-dnumber true = if d>s else abort" intersect B data bad" then
-      this do-retrieve-dnumber true = if d>s else abort" intersect flag data bad" then
-      save$ @$x s" intersect-end" str= false = if abort" intersect-end bad" then
-      rot rot this uintersect-array!
+      this do-retrieve-dnumber true = if d>s else true abort" intersect A data bad" then
+      this do-retrieve-dnumber true = if d>s else true abort" intersect B data bad" then
+      this do-retrieve-dnumber true = if d>s else true abort" intersect flag data bad" then
+      save$ @$x s" int-end" str= false = if true abort" intersect end bad" then ( ui1 ui2 nflag )
+      rot rot swap this uintersect-array!
     loop
   ;m method serialize-intersect-array-data!
   public
@@ -129,30 +129,15 @@ save-instance-data class
       save$ [bind] strings copy$s
       s" piece-end" save$ [bind] strings !$x
     loop
-\    pieces-array-quantity @ 0 ?do
-\      i this upiece@ dup
-\      i this do-save-nnumber \ store index #
-\      [bind] piece voxel-quantity@ dup
-\      this do-save-nnumber \ store voxel size #
-\      0 ?do
-\        dup i swap [bind] piece get-voxel
-\        this do-save-nnumber \ x
-\        this do-save-nnumber \ y
-\        this do-save-nnumber \ z
-\        s" voxel" save$ [bind] strings !$x
-\      loop drop
-\      s" piece" save$ [bind] strings !$x
-\    loop
     ['] serialize-intersect-array-data! this do-save-name
     this quantity@ this do-save-nnumber
-    \ now the loop of the intersect-array data
     pieces-array-quantity @ 0 ?do
       pieces-array-quantity @ 0 ?do
         i this do-save-nnumber
         j this do-save-nnumber
         i j this fast-intersect?
         this do-save-nnumber
-        s" intersect-end" save$ [bind] strings !$x
+        s" int-end" save$ [bind] strings !$x
       loop
     loop
     save$
@@ -161,15 +146,15 @@ save-instance-data class
     this destruct
     this [parent] construct
     save$ [bind] strings copy$s \ saves the strings object data to be used for retrieval
-    this do-retrieve-data true = if 2drop -piece-array rot rot this $->method else 2drop 2drop abort" restore piece array quantity incorrect!" then
-    this do-retrieve-data true = if d>s rot rot -piece-array rot rot this $->method else 2drop 2drop abort" restore piece array data incorrect!" then
-    this do-retrieve-data true = if d>s rot rot -piece-array rot rot this $->method else 2drop 2drop abort" restore intersect array data incorrect!" then
+    this do-retrieve-data true = if 2drop -piece-array rot rot this $->method else 2drop 2drop true abort" restore piece array quantity incorrect!" then
+    this do-retrieve-data true = if d>s rot rot -piece-array rot rot this $->method else 2drop 2drop true abort" restore piece array data incorrect!" then
+    this do-retrieve-data true = if d>s rot rot -piece-array rot rot this $->method else 2drop 2drop true abort" restore intersect array data incorrect!" then
   ;m overrides serialize-data!
 end-class piece-array
 ' piece-array is -piece-array
 
 \ ********************************************************************************************************************************
-\ \\\
+\\\
 require ./puzzleboard.fs
 board heap-new constant puzzle-board
 require ./newpuzzle.def \ this is the definition of the puzzle to be solved
@@ -180,9 +165,30 @@ require ./allpieces.fs
 constant ref-piece-list                                       \ this is the reference list of piece`s created above
 ref-piece-list piece-array heap-new constant ref-piece-array  \ this object takes reference list from above and makes a reference array of list for indexing faster
 
-ref-piece-array bind piece-array serialize-data@ constant test$s
+ref-piece-array bind piece-array serialize-data@ value test$s
 
 test$s $qty . ." the total items in the reference data" cr
 : seeit ( namount nstart -- ) ?do i . ." : " i test$s []@$ drop type cr loop ;
 100 0 seeit
 8700 8600 seeit
+
+ref-piece-list piece-array heap-new constant test-serialize
+
+test$s test-serialize bind piece-array serialize-data!
+
+test$s bind strings destruct
+test$s free throw
+test-serialize bind piece-array serialize-data@ to test$s
+
+100 0 seeit
+8700 8600 seeit
+
+: confirm ref-piece-array [bind] piece-array quantity@  0 ?do
+  ref-piece-array [bind] piece-array quantity@ 0 ?do
+    i j ref-piece-array [bind] piece-array fast-intersect?
+    i j test-serialize [bind] piece-array fast-intersect?
+    <> if i . j . ." failed here!" cr true throw then
+  loop
+loop ." Passed confirm test!" cr ;
+
+cr confirm

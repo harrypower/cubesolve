@@ -431,9 +431,9 @@ save-instance-data class
     this destruct
     a-ref-piece-array @ a-hapl @ this construct \ ensture object is set to beginning state
     save$ [bind] strings copy$s \ saves the strings object data to be used for retrieval
-    this do-retrieve-data true = if d>s rot rot -hole-solution rot rot this $->method else 2drop 2drop abort" restore data incorrect!" then
+    this do-retrieve-data true = if d>s rot rot -hole-solution rot rot this $->method else 2drop 2drop true abort" restore data incorrect!" then
     \ this above lines retrieves the solution-piece-list data and the board-array is restored with it.
-    this do-retrieve-data true = if d>s rot rot -hole-solution rot rot this $->method else 2drop 2drop abort" restore data incorrect!" then
+    this do-retrieve-data true = if d>s rot rot -hole-solution rot rot this $->method else 2drop 2drop true abort" restore data incorrect!" then
     \ this above line retrieves all the instance values for this hole-solution to continue ... values saved are in save-solution method
   ;m method restore-solution
 
