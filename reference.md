@@ -138,6 +138,10 @@
       - nflag is false if no intersection is found
   * `quantity@`         _( piece-array -- nquantity )_
       - return the array size
+  * `serialize-data@`   _( piece-array -- nstrings )_
+      - return the serialized data of this object in nstrings
+  * `serialize-data!`   _( nstrings piece-array -- )_
+      - nstrings contains the serialized data to restore this object 
 
 * ### make-all-pieces
   allpieces.fs
