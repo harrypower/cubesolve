@@ -40,12 +40,7 @@ save-instance-data class
     until
   ;m method parse-piece
   m: ( piece-array -- ) \ used only by serialize-data! to restore the data for this object
-  \ this code does the work of construct with creating the needed things for this object to function
     -piece-array this do-retrieve-inst-var
-    pieces-array-quantity @ 1 multi-cell-array heap-new pieces-array !
-    pieces-array-quantity @ dup 2 multi-cell-array heap-new intersect-array !
-    strings heap-new [to-inst] temp$
-    piece heap-new [to-inst] temp-piece
   ;m method serialize-piece-array-quantity!
   m: ( upiece-amount piece-array -- ) \ used only by serialize-data! to restore the data for this object
     0 ?do
@@ -53,17 +48,16 @@ save-instance-data class
       temp$ temp-piece [bind] piece serialize-data!
       temp-piece i this upiece!
       piece heap-new [to-inst] temp-piece
-    loop
-  ;m method serialize-piece-array-data!
-  m: ( uintersect-amount piece-array -- ) \ used only by serialize-data! to restore the data for this object
-    0 ?do
-      this do-retrieve-dnumber true = if d>s else true abort" intersect A data bad" then
-      this do-retrieve-dnumber true = if d>s else true abort" intersect B data bad" then
-      this do-retrieve-dnumber true = if d>s else true abort" intersect flag data bad" then
-      save$ @$x s" int-end" str= false = if true abort" intersect end bad" then ( ui1 ui2 nflag )
-      rot rot swap this uintersect-array!
-    loop
-  ;m method serialize-intersect-array-data!
+    loop ;m method serialize-piece-array-data!
+  m: ( piece-array -- ) \ used by serialize-data! and construct to restore and create the intersect data for this object
+    pieces-array-quantity @ dup 2 multi-cell-array heap-new intersect-array !
+    this quantity@ 0 ?do
+      this quantity@ 0 ?do
+        i this upiece@
+        j this upiece@ [bind] piece intersect?
+        i j this uintersect-array!
+      loop
+    loop ;m method serialize-intersect-array-data!
   public
   m: ( upieces piece-array -- ) \ construct the array from the contents of upieces!  Note the size is fixed at construct time!
     \ also construct the intersect array of reference pieces.
@@ -75,14 +69,7 @@ save-instance-data class
       piece heap-new dup i this upiece!
       [bind] piece copy
     loop
-    pieces-array-quantity @ dup 2 multi-cell-array heap-new intersect-array !
-    pieces-array-quantity @ 0 ?do
-      pieces-array-quantity @ 0 ?do
-        i this upiece@
-        j this upiece@ [bind] piece intersect?
-        i j this uintersect-array!
-      loop
-    loop
+    this serialize-intersect-array-data!
     strings heap-new [to-inst] temp$
     piece heap-new [to-inst] temp-piece
   ;m overrides construct
@@ -131,24 +118,18 @@ save-instance-data class
     loop
     ['] serialize-intersect-array-data! this do-save-name
     this quantity@ this do-save-nnumber
-    pieces-array-quantity @ 0 ?do
-      pieces-array-quantity @ 0 ?do
-        i this do-save-nnumber
-        j this do-save-nnumber
-        i j this fast-intersect?
-        this do-save-nnumber
-        s" int-end" save$ [bind] strings !$x
-      loop
-    loop
     save$
   ;m overrides serialize-data@
   m: ( nstrings piece-array -- ) \ to restore previously saved data
     this destruct
     this [parent] construct
+    strings heap-new [to-inst] temp$
+    piece heap-new [to-inst] temp-piece
     save$ [bind] strings copy$s \ saves the strings object data to be used for retrieval
     this do-retrieve-data true = if 2drop -piece-array rot rot this $->method else 2drop 2drop true abort" restore piece array quantity incorrect!" then
+    pieces-array-quantity @ 1 multi-cell-array heap-new pieces-array !
     this do-retrieve-data true = if d>s rot rot -piece-array rot rot this $->method else 2drop 2drop true abort" restore piece array data incorrect!" then
-    this do-retrieve-data true = if d>s rot rot -piece-array rot rot this $->method else 2drop 2drop true abort" restore intersect array data incorrect!" then
+    this do-retrieve-data true = if 2drop -piece-array rot rot this $->method else 2drop 2drop true abort" restore intersect array data incorrect!" then
   ;m overrides serialize-data!
 end-class piece-array
 ' piece-array is -piece-array
@@ -166,29 +147,46 @@ constant ref-piece-list                                       \ this is the refe
 ref-piece-list piece-array heap-new constant ref-piece-array  \ this object takes reference list from above and makes a reference array of list for indexing faster
 
 ref-piece-array bind piece-array serialize-data@ value test$s
+strings heap-new value test2$s
+strings heap-new value test3$s
 
 test$s $qty . ." the total items in the reference data" cr
 : seeit ( namount nstart -- ) ?do i . ." : " i test$s []@$ drop type cr loop ;
 100 0 seeit
-8700 8600 seeit
+8648 8600 seeit
 
+test$s test2$s bind strings copy$s
 ref-piece-list piece-array heap-new constant test-serialize
 
-test$s test-serialize bind piece-array serialize-data!
+test2$s test-serialize bind piece-array serialize-data!
+test-serialize bind piece-array serialize-data@ to test3$s
 
-test$s bind strings destruct
-test$s free throw
-test-serialize bind piece-array serialize-data@ to test$s
+: $confirm2 \ used to confirm original serialized string matches second serialized string
+  test$s [bind] strings reset
+  test3$s [bind] strings reset
+  test$s [bind] strings $qty 0 ?do
+    test$s @$x
+    test3$s @$x
+    compare 0<> if i . ."  failed here! string compare" cr true throw then
+  loop ." first serialized string matches second serialized string!" cr ;
+test3$s bind strings $qty . ." size of test3$s!" cr
+$confirm2
 
-100 0 seeit
-8700 8600 seeit
-
-: confirm ref-piece-array [bind] piece-array quantity@  0 ?do
+: ref-piece-compare
   ref-piece-array [bind] piece-array quantity@ 0 ?do
-    i j ref-piece-array [bind] piece-array fast-intersect?
-    i j test-serialize [bind] piece-array fast-intersect?
-    <> if i . j . ." failed here!" cr true throw then
-  loop
-loop ." Passed confirm test!" cr ;
+    i ref-piece-array [bind] piece-array upiece@
+    i test-serialize [bind] piece-array upiece@
+    [bind] piece same?
+    false = if i . ." failed same? test here" cr true throw then
+  loop ." Passed piece voxel compare test!" cr ;
+ref-piece-compare
 
-cr confirm
+: fast-intersect-compare
+  ref-piece-array [bind] piece-array quantity@  0 ?do
+    ref-piece-array [bind] piece-array quantity@ 0 ?do
+      i j ref-piece-array [bind] piece-array fast-intersect?
+      i j test-serialize [bind] piece-array fast-intersect?
+      <> if i . j . ." failed here! object compare" cr true throw then
+    loop
+  loop ." Passed fast-intersect test!" cr ;
+fast-intersect-compare
