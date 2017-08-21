@@ -18,7 +18,6 @@ require ./piece-array.fs
 object class
   destruction implementation
   protected
-  cell% inst-var number-buffer  \ a place to put a number from stack to retrieve it simply
   cell% inst-var hole-array     \ address of the array that holds the hole reference lists
   cell% inst-var a-ref-piece-array  \ the upiece-array object passed to constructor used as the reference
   cell% inst-var the-puzzle-board   \ the board oject that is passed to construct used to size the hole-array and hole-size values
@@ -29,8 +28,7 @@ object class
 
   m: ( uref-piece uholex uholey uholez hole-array-piece-list -- ) \ store uref-piece into hole list at uholex uholey uholez address
     hole-array @ [bind] multi-cell-array cell-array@
-    swap number-buffer ! number-buffer swap cell swap
-    [bind] double-linked-list ll!
+    [bind] double-linked-list ll-cell!
   ;m method next-piece-in-hole!
 
   m: ( uholex uholey uholez hole-array-piece-list -- )
@@ -104,17 +102,9 @@ object class
     \ nflag is true when for given hole address the piece list is at the end
     \ note when nflag is true the piece list at that hole address will reset to begining of list
     hole-array @ [bind] multi-cell-array cell-array@ { uobject }
-    uobject [bind] double-linked-list ll@> ( uaddr usize nflag )
-    true = if
-      uobject [bind] double-linked-list ll-set-start
-      number-buffer swap move
-      number-buffer @
-      true
-    else
-      number-buffer swap move
-      number-buffer @
-      false
-    then ( uref nflag )
+    uobject [bind] double-linked-list ll-cell@  ( nref )
+    uobject [bind] double-linked-list ll> ( nref nflag )
+    dup true = if uobject [bind] double-linked-list ll-set-start then ( nref nflag )
   ;m method next-ref-piece-in-hole@
 
   m: ( uholex uholey uholez hole-array-piece-list -- uhole-list-quantity ) \ returns the quantity of pieces in a given hole
