@@ -20,10 +20,14 @@ object class
   protected
   cell% inst-var hole-array     \ address of the array that holds the hole reference lists
   cell% inst-var a-ref-piece-array  \ the upiece-array object passed to constructor used as the reference
-  cell% inst-var the-puzzle-board   \ the board oject that is passed to construct used to size the hole-array and hole-size values
+\  cell% inst-var the-puzzle-board   \ the board oject that is passed to construct used to size the hole-array and hole-size values
+  inst-value umax-x
+  inst-value umax-y
+  inst-value umax-z
 
   m: ( hole-array-piece-list -- uholex uholey uholez ) \ return hole address max values
-    the-puzzle-board @ [bind] board get-board-dims
+    umax-x umax-y umax-z
+    \ the-puzzle-board @ [bind] board get-board-dims
   ;m method hole-address@
 
   m: ( uref-piece uholex uholey uholez hole-array-piece-list -- ) \ store uref-piece into hole list at uholex uholey uholez address
@@ -62,7 +66,9 @@ object class
   m: ( upiece-array uboard hole-array-piece-list -- ) \ constructor
     \ takes upiece-array that should contain the reference pieces and organizes them for hole indexing or voxel indexing
     \ uboard should be puzzle-board that contains the size of the current puzzle being solved for
-    the-puzzle-board !
+    \ upiece-array and uboard objects are not stored here or modified just data taken from them!
+    [bind] board get-board-dims [to-inst] umax-z [to-inst] umax-y [to-inst] umax-x
+    \ the-puzzle-board !
     a-ref-piece-array !
     this hole-address@ 3 multi-cell-array heap-new hole-array !
     this hole-address@
@@ -91,7 +97,7 @@ object class
     loop
     hole-array @ [bind] multi-cell-array destruct
     hole-array @ free throw
-    0 the-puzzle-board !
+\    0 the-puzzle-board !
     0 a-ref-piece-array !
   ;m overrides destruct
 
