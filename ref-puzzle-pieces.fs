@@ -2,12 +2,7 @@ require ./Gforth-Objects/objects.fs
 require ./Gforth-Objects/double-linked-list.fs
 require ./newpieces.fs
 require ./puzzleboard.fs
-require ./allpieces.fs
 require ./piece-array.fs
-
-\ 0 puzzle-pieces make-all-pieces heap-new constant map         \ this object is used to make reference lists from start pieces
-\ constant ref-piece-list                                       \ this is the reference list of piece`s created above
-\ ref-piece-list piece-array heap-new constant ref-piece-array  \ this object takes reference list from above and makes a reference array of list for indexing faster
 
 [ifundef] destruction
   interface
@@ -22,6 +17,8 @@ object class
   inst-value umax-x
   inst-value umax-y
   inst-value umax-z
+  inst-value x-mult
+  inst-value y-mult
 
   m: ( hole-array-piece-list -- uholex uholey uholez ) \ return hole address max values
     umax-x umax-y umax-z ;m method hole-address@
@@ -62,6 +59,8 @@ object class
     \ uboard should be puzzle-board that contains the size of the current puzzle being solved for
     \ upiece-array and uboard objects are not stored here or modified just data taken from them!
     [bind] board get-board-dims [to-inst] umax-z [to-inst] umax-y [to-inst] umax-x
+    umax-z umax-y * [to-inst] x-mult
+    umax-z [to-inst] y-mult
     this hole-address@ 3 multi-cell-array heap-new hole-array !
     this hole-address@
     { ux uy uz }
@@ -110,20 +109,55 @@ object class
 
   m: ( hole-array-piece-list -- uholex uholey uholez )  \ returns the total hole addresses for this reference puzzle passed to construct
     this hole-address@ ;m method hole-max-address@
+
+  m: ( uindex hole-array-piece-list -- uholex uholey uholez ) \ return the xyz hole address for the given uindex value
+    dup x-mult / dup x-mult * rot swap -
+    dup y-mult / dup y-mult * rot swap -
+  ;m method index>xyz
+
+  m: ( hole-array-piece-list -- uindex ) \ return the max index size of the holes in this object
+    umax-x 1 - x-mult * umax-y 1 - y-mult * + umax-z  +
+  ;m method hole-max-index@
+
+  m: ( uholex uholey uholez hole-array-piece-list -- uindex ) \ return the uindex for the given xyz hole address
+    rot x-mult * rot y-mult * + +
+  ;m method xyz>index
+
+  m: ( uindex hole-array-piece-list -- uref-piece nflag )
+    \ uindex is the hole index that will return the next uref-piece
+    \ nflag is false normaly after uref-piece is retrieved from uindex hole
+    \ nflag is true when for given hole index the piece list is at the end
+    \ note when nflag is true the piece list at uindex hole address will be reset to begining of the list
+    this index>xyz this next-ref-piece-in-hole@
+  ;m method index-next-ref-piece@
+
 end-class hole-array-piece-list
 
 \ ***************************************************************************************************************************************
 \\\
+board heap-new constant puzzle-board
+require ./newpuzzle.def
+require ./allpieces.fs
+0 puzzle-pieces make-all-pieces heap-new constant map         \ this object is used to make reference lists from start pieces
+constant ref-piece-list                                       \ this is the reference list of piece`s created above
+ref-piece-list piece-array heap-new constant ref-piece-array  \ this object takes reference list from above and makes a reference array of list for indexing faster
+
 ref-piece-array puzzle-board hole-array-piece-list heap-new constant testapl
-\ 0 0 0 testapl next-ref-piece-in-hole@ .s cr
-\ testapl hole-max-address@ .s cr
-
-\ 0 0 0 testapl hole-list-quantity@ .s cr
-
-board heap-new constant testboard
+cr
+testapl hole-max-address@ . . . ." < should be 5 5 5 " cr
+testapl hole-max-index@ . ." < should be 125" cr
+124 testapl index>xyz .s ." < should be 4 4 4" cr
+testapl xyz>index . ." < should be 124" cr
+47 testapl index>xyz . . . ." < should be 2 4 1" cr
+23 testapl index>xyz . . . ." < should be 3 4 0" cr
 
 : keypause ( -- )
   begin key? until key drop ;
+." press any key to continue test!" cr
+keypause
+\ \\\
+board heap-new constant testboard
+
 
 : seeholeonboard ( ux uy uz -- )
   testapl next-ref-piece-in-hole@ drop
@@ -143,7 +177,7 @@ board heap-new constant testboard
   loop ;
 
  2 2 2 putholeonboard
-
+ 0 0 0 putholeonboard
 \\\
 : seeallholes ( -- )
   testapl hole-max-address@
