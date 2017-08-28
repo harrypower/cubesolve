@@ -3,6 +3,7 @@ require ./Gforth-Objects/double-linked-list.fs
 require ./newpieces.fs
 require ./puzzleboard.fs
 require ./piece-array.fs
+require ./serialize-obj.fs
 
 [ifundef] destruction
   interface
@@ -10,7 +11,8 @@ require ./piece-array.fs
   end-interface destruction
 [endif]
 
-object class
+defer -hole-array-piece-list
+save-instance-data class
   destruction implementation
   protected
   cell% inst-var hole-array     \ address of the array that holds the hole reference lists
@@ -52,6 +54,15 @@ object class
         loop
       loop
     loop ;m method populate-holes
+
+  m: ( nquantity hole-array-piece-list -- ) \ used by serialize-data! to restore data to object
+    0 ?do
+      this do-retrieve-inst-value
+    loop
+  ;m method serialize-inst-value-data!
+
+  m: ( nquantity hole-array-piece-list -- ) \ used by serialize-data! to restore data to object
+  ;m method serialize-hole-index-data!
 
   public
   m: ( upiece-array uboard hole-array-piece-list -- ) \ constructor
@@ -131,10 +142,38 @@ object class
     this index>xyz this next-ref-piece-in-hole@
   ;m method index-next-ref-piece@
 
+  m: ( hole-array-piece-list -- nstrings ) \ return nstrings that contain data to serialize this object
+    this [parent] destruct \ to reset save data in parent class
+    this [parent] construct
+    ['] serialize-inst-value-data! this do-save-name
+    5 this do-save-nnumber
+    ['] umax-x this do-save-inst-value
+    ['] umax-y this do-save-inst-value
+    ['] umax-z this do-save-inst-value
+    ['] x-mult this do-save-inst-value
+    ['] y-mult this do-save-inst-value
+    ['] serialize-hole-index-data! this do-save-name
+    this hole-max-index@ this do-save-nnumber
+    this hole-max-index@ 0 ?do
+      begin \ this first time through is to ensure array is at beginning
+        i this index-next-ref-piece@ swap drop
+      until
+      begin
+        i this index-next-ref-piece@ swap
+        this do-save-nnumber
+      until
+      s" hole-end" save$ [bind] strings !$x
+    loop
+    save$ 
+  ;m overrides serialize-data@
+
+  m: ( nstrings hole-array-piece-list -- ) \ nstrings contains serialized data to restore this object
+  ;m overrides serialize-data!
 end-class hole-array-piece-list
+' hole-array-piece-list is -hole-array-piece-list
 
 \ ***************************************************************************************************************************************
-\\\
+\ \\\
 board heap-new constant puzzle-board
 require ./newpuzzle.def
 require ./allpieces.fs
