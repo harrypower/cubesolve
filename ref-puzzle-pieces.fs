@@ -64,14 +64,7 @@ save-instance-data class
   m: ( nquantity hole-array-piece-list -- ) \ used by serialize-data! to restore data to object
   ;m method serialize-hole-index-data!
 
-  public
-  m: ( upiece-array uboard hole-array-piece-list -- ) \ constructor
-    \ takes upiece-array that should contain the reference pieces and organizes them for hole indexing or voxel indexing
-    \ uboard should be puzzle-board that contains the size of the current puzzle being solved for
-    \ upiece-array and uboard objects are not stored here or modified just data taken from them!
-    [bind] board get-board-dims [to-inst] umax-z [to-inst] umax-y [to-inst] umax-x
-    umax-z umax-y * [to-inst] x-mult
-    umax-z [to-inst] y-mult
+  m: ( hole-array-piece-list -- ) \ used by construct and serialize methods to create internal hole array
     this hole-address@ 3 multi-cell-array heap-new hole-array !
     this hole-address@
     { ux uy uz }
@@ -82,6 +75,16 @@ save-instance-data class
         loop
       loop
     loop
+  ;m method create-hole-array
+  public
+  m: ( upiece-array uboard hole-array-piece-list -- ) \ constructor
+    \ takes upiece-array that should contain the reference pieces and organizes them for hole indexing or voxel indexing
+    \ uboard should be puzzle-board that contains the size of the current puzzle being solved for
+    \ upiece-array and uboard objects are not stored here or modified just data taken from them!
+    [bind] board get-board-dims [to-inst] umax-z [to-inst] umax-y [to-inst] umax-x
+    umax-z umax-y * [to-inst] x-mult
+    umax-z [to-inst] y-mult
+    this create-hole-array
     this populate-holes
   ;m overrides construct
 
@@ -164,10 +167,16 @@ save-instance-data class
       until
       s" hole-end" save$ [bind] strings !$x
     loop
-    save$ 
+    save$
   ;m overrides serialize-data@
 
   m: ( nstrings hole-array-piece-list -- ) \ nstrings contains serialized data to restore this object
+    this destruct
+    this [parent] construct
+    save$ [bind] strings copy$s \ copies the strings object data to be used for retrieval
+    this do-retrieve-data true = if d>s rot rot -hole-array-piece-list rot rot this $->method else 2drop 2drop true abort" hole inst-value data incorrect!" then
+    this create-hole-array
+    this do-retrieve-data true = if d>s rot rot -hole-array-piece-list rot rot this $->method else 2drop 2drop true abort" hole index data incorrect!" then
   ;m overrides serialize-data!
 end-class hole-array-piece-list
 ' hole-array-piece-list is -hole-array-piece-list
