@@ -58,9 +58,8 @@ save-instance-data class
 
   m: ( nquantity hole-array-piece-list -- ) \ used by serialize-data! to restore data to object
     0 ?do
-      this do-retrieve-inst-value
-    loop
-  ;m method serialize-inst-value-data!
+      -hole-array-piece-list this do-retrieve-inst-value
+    loop ;m method serialize-inst-value-data!
 
   m: ( nquantity hole-array-piece-list -- ) \ used by serialize-data! to restore data to object
     0 ?do
@@ -69,7 +68,7 @@ save-instance-data class
         this do-retrieve-dnumber false = abort" data for hole list retreval bad!"
         d>s j this index>xyz this next-piece-in-hole!
       loop
-      save$ [bind] strings @$x s" hole-end" search false <> abort" hole-end in hole list not found!"
+      save$ [bind] strings @$x s" hole-end" compare false <> abort" hole-end in hole list not found!"
     loop
   ;m method serialize-hole-index-data!
 
@@ -90,6 +89,7 @@ save-instance-data class
     \ takes upiece-array that should contain the reference pieces and organizes them for hole indexing or voxel indexing
     \ uboard should be puzzle-board that contains the size of the current puzzle being solved for
     \ upiece-array and uboard objects are not stored here or modified just data taken from them!
+    this [parent] construct
     [bind] board get-board-dims [to-inst] umax-z [to-inst] umax-y [to-inst] umax-x
     umax-z umax-y * [to-inst] x-mult
     umax-z [to-inst] y-mult
@@ -98,6 +98,7 @@ save-instance-data class
   ;m overrides construct
 
   m: ( hole-array-piece-list -- ) \ destructor
+    this [parent] destruct
     this hole-address@
     { ux uy uz }
     uz 0 ?do \ z
@@ -195,7 +196,7 @@ end-class hole-array-piece-list
 ' hole-array-piece-list is -hole-array-piece-list
 
 \ ***************************************************************************************************************************************
-\ \\\
+\\\
 board heap-new constant puzzle-board
 require ./newpuzzle.def
 require ./allpieces.fs
@@ -204,6 +205,8 @@ constant ref-piece-list                                       \ this is the refe
 ref-piece-list piece-array heap-new constant ref-piece-array  \ this object takes reference list from above and makes a reference array of list for indexing faster
 
 ref-piece-array puzzle-board hole-array-piece-list heap-new constant testapl
+ref-piece-array puzzle-board hole-array-piece-list heap-new constant testapl2
+
 cr
 testapl hole-max-address@ . . . ." < should be 5 5 5 " cr
 testapl hole-max-index@ . ." < should be 125" cr
@@ -212,15 +215,23 @@ testapl xyz>index . ." < should be 124" cr
 47 testapl index>xyz . . . ." < should be 2 4 1" cr
 23 testapl index>xyz . . . ." < should be 3 4 0" cr
 
-strings heap-new constant temp$
-testapl bind hole-array-piece-list serialize-data@ temp$ bind strings copy$s
-\ temp$ testapl bind hole-array-piece-list serialize-data!
+strings heap-new constant atemp$
+testapl bind hole-array-piece-list serialize-data@
+atemp$ bind strings copy$s
+atemp$ testapl bind hole-array-piece-list serialize-data!
+0 0 0 testapl bind hole-array-piece-list hole-list-quantity@ . ." < should be 6" cr
+0 0 0 testapl2 bind hole-array-piece-list hole-list-quantity@ . ." < should be 6" cr
+4 4 4 testapl bind hole-array-piece-list hole-list-quantity@ . ." < should be 6" cr
+4 4 4 testapl2 bind hole-array-piece-list hole-list-quantity@ . ." < should be 6" cr
+2 2 2 testapl bind hole-array-piece-list hole-list-quantity@ . ." < should be 36" cr
+2 2 2 testapl2 bind hole-array-piece-list hole-list-quantity@ . ." < should be 36" cr
+
 
 : keypause ( -- )
   begin key? until key drop ;
 ." press any key to continue test!" cr
 keypause
-\\\
+\ \\\
 board heap-new constant testboard
 
 

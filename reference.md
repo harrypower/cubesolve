@@ -141,7 +141,7 @@
   * `serialize-data@`   _( piece-array -- nstrings )_
       - return the serialized data of this object in nstrings
   * `serialize-data!`   _( nstrings piece-array -- )_
-      - nstrings contains the serialized data to restore this object 
+      - nstrings contains the serialized data to restore this object
 
 * ### make-all-pieces
   allpieces.fs
@@ -168,7 +168,18 @@
       - returns the quantity of pieces in a given hole
   * `hole-max-address@`       _( hole-array-piece-list -- uholex uholey uholez )_
       - returns the total hole addresses for this reference puzzle passed to construct
-
+  * `index>xyz`               _( uindex hole-array-piece-list -- uholex uholey uholez )_
+      - return the xyz hole address for the given uindex value
+  * `hole-max-index@`         _( hole-array-piece-list -- uindex )_
+      - return the max index size of the holes in this object
+  * `xyz>index`               _( uholex uholey uholez hole-array-piece-list -- uindex )_
+      - return the uindex for the given xyz hole address
+  * `index-next-ref-piece@`   _( uindex hole-array-piece-list -- uref-piece nflag )_
+      - uindex is the hole index that will return the next uref-piece.  Like *next-ref-piece-in-hole@* above but uses uindex!
+  * `serialize-data@`         _( hole-array-piece-list -- nstrings )_
+      - return nstrings that contain data to serialize this object
+  * `serialize-data!`         _( nstrings hole-array-piece-list -- )_
+      - nstrings contains serialized data to restore this object
 
 * solution object
   * will take ref-piece-array object and hole-array-piece-list object and puzzle-board
