@@ -14,6 +14,7 @@ require ./serialize-obj.fs
 defer -hole-array-piece-list
 save-instance-data class
   destruction implementation
+  selector index>xyz  ( uindex hole-array-piece-list -- uholex uholey uholez ) \ return the xyz hole address for the given uindex value
   protected
   cell% inst-var hole-array     \ address of the array that holds the hole reference lists
   inst-value umax-x
@@ -62,6 +63,14 @@ save-instance-data class
   ;m method serialize-inst-value-data!
 
   m: ( nquantity hole-array-piece-list -- ) \ used by serialize-data! to restore data to object
+    0 ?do
+      this do-retrieve-dnumber false = abort" index for hole list retreval not understood!"
+      d>s 0 ?do
+        this do-retrieve-dnumber false = abort" data for hole list retreval bad!"
+        d>s j this index>xyz this next-piece-in-hole!
+      loop
+      save$ [bind] strings @$x s" hole-end" search false <> abort" hole-end in hole list not found!"
+    loop
   ;m method serialize-hole-index-data!
 
   m: ( hole-array-piece-list -- ) \ used by construct and serialize methods to create internal hole array
@@ -127,7 +136,7 @@ save-instance-data class
   m: ( uindex hole-array-piece-list -- uholex uholey uholez ) \ return the xyz hole address for the given uindex value
     dup x-mult / dup x-mult * rot swap -
     dup y-mult / dup y-mult * rot swap -
-  ;m method index>xyz
+  ;m overrides index>xyz
 
   m: ( hole-array-piece-list -- uindex ) \ return the max index size of the holes in this object
     umax-x 1 - x-mult * umax-y 1 - y-mult * + umax-z  +
@@ -158,9 +167,13 @@ save-instance-data class
     ['] serialize-hole-index-data! this do-save-name
     this hole-max-index@ this do-save-nnumber
     this hole-max-index@ 0 ?do
-      begin \ this first time through is to ensure array is at beginning
-        i this index-next-ref-piece@ swap drop
-      until
+      i this index>xyz
+      hole-array @ [bind] multi-cell-array cell-array@
+      [bind] double-linked-list ll-size@
+      this do-save-nnumber \ store the size of the data at this hole index
+      i this index>xyz
+      hole-array @ [bind] multi-cell-array cell-array@
+      [bind] double-linked-list ll-set-start
       begin
         i this index-next-ref-piece@ swap
         this do-save-nnumber
@@ -199,11 +212,15 @@ testapl xyz>index . ." < should be 124" cr
 47 testapl index>xyz . . . ." < should be 2 4 1" cr
 23 testapl index>xyz . . . ." < should be 3 4 0" cr
 
+strings heap-new constant temp$
+testapl bind hole-array-piece-list serialize-data@ temp$ bind strings copy$s
+\ temp$ testapl bind hole-array-piece-list serialize-data!
+
 : keypause ( -- )
   begin key? until key drop ;
 ." press any key to continue test!" cr
 keypause
-\ \\\
+\\\
 board heap-new constant testboard
 
 
