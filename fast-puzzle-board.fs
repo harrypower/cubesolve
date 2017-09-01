@@ -23,10 +23,23 @@ save-instance-data class
   m: ( uref-piece-array upuzzle-board fast-puzzle-board -- ) \ constructor
     \ uref-piece-array is a piece-array object that contains all the pieces this puzzle board can place on it. The array is copied into this object not stored
     \ upuzzle-board is a board object that simply has the size of the puzzle to be worked on.  The size is taken and upzzle-board not stored.
-
   ;m overrides construct
   m: ( fast-puzzle-board -- ) \ destructor
   ;m overrides destruct
+
+  m: ( fast-puzzle-board -- uindex ) \ return the max board index address
+  ;m method max-board-index@
+  m: ( fast-puzzle-board -- ) \ terminal display
+  ;m method output-board
+  m: ( fast-puzzle-board -- uquantity ) \ return current board piece quantity
+  ;m method board-pieces@
+  m: ( uref-piece fast-puzzle-board -- nflag ) \ test if uref-piece can be placed in current board
+  ;m method board-piece?
+  m: ( uref-piece fast-puzzle-board -- ) \ put uref-piece on board and in board array for display only if uref-piece does not intersect with other pieces!
+  ;m method board-piece!
+  m: ( uindex fast-puzzle-board -- uref-piece ) \ get uindex uref-piece from board array
+  ;m method nboard-piece@
+
   m: ( fast-puzzle-board -- nstrings ) \ return nstrings that contain data to serialize this object
     this [parent] destruct \ to reset save data in parent class
     this [parent] construct
@@ -39,7 +52,6 @@ save-instance-data class
     this [parent] construct
     save$ [bind] strings copy$s \ copies the strings object data to be used for retrieval
     this do-retrieve-data true = if d>s rot rot -fast-puzzle-board rot rot this $->method else 2drop 2drop true abort" FPB inst-value data incorrect!" then
-    this create-hole-array
     this do-retrieve-data true = if d>s rot rot -fast-puzzle-board rot rot this $->method else 2drop 2drop true abort" FPB indexed reference data incorrect!" then
   ;m overrides serialize-data!
 end-class fast-puzzle-board
