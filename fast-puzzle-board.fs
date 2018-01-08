@@ -42,14 +42,17 @@ save-instance-data class
     max-board-array-index ;m method max-board-index@
   m: ( fast-puzzle-board -- ) \ terminal display
   ;m method output-board
+
   m: ( fast-puzzle-board -- uquantity ) \ return current board piece quantity
-  ;m method board-pieces@
+    board-pieces-list [bind] double-linked-list ll-size@ ;m method board-pieces@
+
   m: ( uref-piece fast-puzzle-board -- nflag ) \ test if uref-piece can be placed in current board
   ;m method board-piece?
   m: ( uref-piece fast-puzzle-board -- ) \ put uref-piece on board and in board array for display only if uref-piece does not intersect with other pieces!
   ;m method board-piece!
-  m: ( uindex fast-puzzle-board -- uref-piece ) \ get uindex uref-piece from board array
-  ;m method nboard-piece@
+
+  m: ( uindex fast-puzzle-board -- uref-piece ) \ get uindex uref-piece from board piece list
+    board-pieces-list [bind] double-linked-list nll-cell@  ;m method nboard-piece@
 
   m: ( fast-puzzle-board -- nstrings ) \ return nstrings that contain data to serialize this object
     this [parent] destruct \ to reset save data in parent class
