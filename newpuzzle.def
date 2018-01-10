@@ -1,3 +1,5 @@
+board heap-new constant puzzle-board
+
 \ This is the definition information for the puzzle
 \ It defines the puzzle pieces and the puzzle board
 \ I decided to simply use forth words to do this defining so the definitions below are forth code.

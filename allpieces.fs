@@ -2,6 +2,7 @@ require ./Gforth-Objects/objects.fs
 require ./Gforth-Objects/double-linked-list.fs
 require ./newpieces.fs
 require ./puzzleboard.fs
+require ./newpuzzle.def
 
 object class
   destruction implementation
@@ -16,6 +17,7 @@ object class
     working-board @ [bind] board destruct
     working-board @ [bind] board construct
     puzzle-board [bind] board get-board-dims working-board @ [bind] board set-board-dims
+    \ note this puzzle-board is a board defined in newpuzzle.def file but the object is made in puzzleboard.fs so this is an external dependency!
   ;m method reset-working-board
   m: ( upieces make-all-pieces -- ) \ upieces is a pieces object containing the all the start puzzle pieces
     \ this method takes those start pieces and puts the pieces that fit on board into start-pieces pieces list
@@ -108,6 +110,7 @@ object class
     \ note puzzle-board contains the dimensions of the board used here
     board heap-new working-board !
     puzzle-board [bind] board get-board-dims working-board @ [bind] board set-board-dims
+    \ again this puzzle-board external dependency is used here... see above
     pieces heap-new start-pieces !
     pieces heap-new all-pieces !
     piece heap-new working-piece !

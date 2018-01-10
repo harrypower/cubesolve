@@ -72,15 +72,17 @@ end-class fast-puzzle-board
 ' fast-puzzle-board is -fast-puzzle-board
 
 \ **********************************************************************************************************************************************************************
-\\\
-board heap-new constant puzzle-board
-require ./newpuzzle.def \ this is the definition of the puzzle to be solved
+\ \\\
+\ board heap-new constant puzzle-board
+\ require ./newpuzzle.def \ this is the definition of the puzzle to be solved
 
 require ./allpieces.fs
 
-0 puzzle-pieces make-all-pieces heap-new constant map         \ this object is used to make reference lists from start pieces it is not used directly but produces ref.
+0 puzzle-pieces make-all-pieces heap-new constant map         \ this object is used to make reference lists from start pieces it is never used directly but produces ref piece list only
 constant ref-piece-list                                       \ this is the reference list of piece`s created above
+ref-piece-list bind pieces pieces-quantity@ . ." < should be 480!" cr
 ref-piece-list piece-array heap-new constant ref-piece-array  \ this object takes reference list from above and makes a reference array of list for indexing faster
+ref-piece-array bind piece-array quantity@ . ." < should be 480!" cr
 
 ref-piece-array puzzle-board fast-puzzle-board heap-new constant testfastb
 cr testfastb max-board-index@ . ." < should be 125!" cr
