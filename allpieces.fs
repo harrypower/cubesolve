@@ -4,6 +4,8 @@ require ./newpieces.fs
 require ./puzzleboard.fs
 require ./newpuzzle.def
 
+\ note working-board instance variable in this class is a board object from puzzleboard.fs.  I want to remove this dependancy for the fast-puzzle-board.fs object when done! 
+
 object class
   destruction implementation
   protected
@@ -106,7 +108,7 @@ object class
   m: ( uindex upieces make-all-pieces -- upieces2 ) \ constructor
     \ uindex is the reference to the pieces object piece defined in newpuzzle.def file
     \ upieces2 is the returned pieces object that contains the total list of pieces that can be in board as defined by upieces and puzzle-board
-    \ note puzzle-board contains the dimensions of the board used here
+    \ note file newpuzzle.def contains the size of the board in constants x-puzzle-board y-puzzle-board z-puzzle-board
     board heap-new working-board !
     x-puzzle-board y-puzzle-board z-puzzle-board working-board @ [bind] board set-board-dims
     pieces heap-new start-pieces !

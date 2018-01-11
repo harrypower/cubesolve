@@ -4,7 +4,7 @@ require ./newpieces.fs
 require ./Gforth-Objects/mdca-obj.fs
 require ./piece-array.fs
 require ./serialize-obj.fs
-require ./puzzleboard.fs
+require ./newpuzzle.def \ this is the definition of the puzzle to be solved
 
 [ifundef] destruction
   interface
@@ -22,11 +22,10 @@ save-instance-data class
   inst-value max-board-array-index  \ how many voxel the board contains in total
   inst-value max-board-pieces       \ how many pieces the board needs to solve puzzle
   public
-  m: ( uref-piece-array upuzzle-board fast-puzzle-board -- ) \ constructor
-    \ uref-piece-array is a piece-array object that contains all the pieces this puzzle board can place on it. The array is copied into this object uref-piece-array not stored.
-    \ upuzzle-board is a board object that simply has the size of the puzzle to be worked on.  The size is taken and upuzzle-board reference is not stored.
+  m: ( uref-piece-array fast-puzzle-board -- ) \ constructor
+    \ uref-piece-array is a piece-array object that contains all the pieces this puzzle board can place on it. This  uref-piece-array contents are copied into this object uref-piece-array itself is not stored.
     this [parent] construct
-    [bind] board get-board-dims * * [to-inst] max-board-array-index
+    x-puzzle-board y-puzzle-board z-puzzle-board * * [to-inst] max-board-array-index
     max-board-array-index 1 multi-cell-array heap-new [to-inst] board-array
     double-linked-list heap-new [to-inst] board-pieces-list
     puzzle-pieces piece-array heap-new [to-inst] ref-piece-array  \ just to form this object
@@ -72,10 +71,7 @@ end-class fast-puzzle-board
 ' fast-puzzle-board is -fast-puzzle-board
 
 \ **********************************************************************************************************************************************************************
-\ \\\
-require ./newpuzzle.def \ this is the definition of the puzzle to be solved
-board heap-new constant puzzle-board
-
+\\\
 require ./allpieces.fs
 
 0 puzzle-pieces make-all-pieces heap-new constant map         \ this object is used to make reference lists from start pieces it is never used directly but produces ref piece list only
@@ -84,5 +80,5 @@ ref-piece-list bind pieces pieces-quantity@ . ." < should be 480!" cr
 ref-piece-list piece-array heap-new constant ref-piece-array  \ this object takes reference list from above and makes a reference array of list for indexing faster
 ref-piece-array bind piece-array quantity@ . ." < should be 480!" cr
 
-ref-piece-array puzzle-board fast-puzzle-board heap-new constant testfastb
+ref-piece-array fast-puzzle-board heap-new constant testfastb
 cr testfastb max-board-index@ . ." < should be 125!" cr
