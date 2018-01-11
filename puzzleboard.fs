@@ -135,3 +135,4 @@ end-class board
 board heap-new constant puzzle-board
 
 require ./newpuzzle.def
+x-puzzle-board y-puzzle-board z-puzzle-board puzzle-board bind board set-board-dims

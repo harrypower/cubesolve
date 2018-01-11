@@ -136,8 +136,6 @@ end-class piece-array
 
 \ ********************************************************************************************************************************
 \\\
-require ./puzzleboard.fs
-board heap-new constant puzzle-board
 require ./newpuzzle.def \ this is the definition of the puzzle to be solved
 
 require ./allpieces.fs

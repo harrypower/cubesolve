@@ -1,12 +1,14 @@
-board heap-new constant puzzle-board
+require ./newpieces.fs
 
 \ This is the definition information for the puzzle
 \ It defines the puzzle pieces and the puzzle board
 \ I decided to simply use forth words to do this defining so the definitions below are forth code.
 
-\ Puzzle board definitions
+\ Puzzle board size defined
 \ length width height
-5     5     5     puzzle-board set-board-dims
+5 constant x-puzzle-board
+5 constant y-puzzle-board
+5 constant z-puzzle-board
 
 \ Puzzle pieces definitions
 \ x y z

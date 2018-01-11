@@ -16,8 +16,7 @@ object class
   m: ( make-all-pieces -- ) \ reset working-board that points to a piece object
     working-board @ [bind] board destruct
     working-board @ [bind] board construct
-    puzzle-board [bind] board get-board-dims working-board @ [bind] board set-board-dims
-    \ note this puzzle-board is a board defined in newpuzzle.def file but the object is made in puzzleboard.fs so this is an external dependency!
+    x-puzzle-board y-puzzle-board z-puzzle-board working-board @ [bind] board set-board-dims
   ;m method reset-working-board
   m: ( upieces make-all-pieces -- ) \ upieces is a pieces object containing the all the start puzzle pieces
     \ this method takes those start pieces and puts the pieces that fit on board into start-pieces pieces list
@@ -48,7 +47,7 @@ object class
     ENDCASE ;m method do-rotation
 
   m: ( upiece make-all-pieces -- ) \ upiece is a piece object that is used to create translated pieces and place them in translated-pieces
-    puzzle-board [bind] board get-board-dims 0 0 0 { upiece x-max y-max z-max x y z }
+    x-puzzle-board y-puzzle-board z-puzzle-board 0 0 0 { upiece x-max y-max z-max x y z }
     x-max 0 ?do i to x
       y-max 0 ?do i to y
         z-max 0 ?do i to z
@@ -109,8 +108,7 @@ object class
     \ upieces2 is the returned pieces object that contains the total list of pieces that can be in board as defined by upieces and puzzle-board
     \ note puzzle-board contains the dimensions of the board used here
     board heap-new working-board !
-    puzzle-board [bind] board get-board-dims working-board @ [bind] board set-board-dims
-    \ again this puzzle-board external dependency is used here... see above
+    x-puzzle-board y-puzzle-board z-puzzle-board working-board @ [bind] board set-board-dims
     pieces heap-new start-pieces !
     pieces heap-new all-pieces !
     piece heap-new working-piece !
