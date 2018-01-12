@@ -39,6 +39,7 @@ save-instance-data class
 
   m: ( fast-puzzle-board -- uindex ) \ return the max board index address
     max-board-array-index ;m method max-board-index@
+
   m: ( fast-puzzle-board -- ) \ terminal display
   ;m method output-board
 
@@ -47,11 +48,22 @@ save-instance-data class
 
   m: ( uref-piece fast-puzzle-board -- nflag ) \ test if uref-piece can be placed in current board
   ;m method board-piece?
+
+  m: ( uref-piece fast-puzzle-board -- nflag ) \ test if uref-piece can be place on an this empty board
+  ;m method empty-board-place-piece?
+
   m: ( uref-piece fast-puzzle-board -- ) \ put uref-piece on board and in board array for display only if uref-piece does not intersect with other pieces!
   ;m method board-piece!
 
   m: ( uindex fast-puzzle-board -- uref-piece ) \ get uindex uref-piece from board piece list
     board-pieces-list [bind] double-linked-list nll-cell@  ;m method nboard-piece@
+
+  m: ( fast-puzzle-board -- ux uy uz ) \ return the board dimensions
+  ;m method board-dims@
+
+  m: ( fast-puzzle-board -- nflag ) \ test if voxel ux uy uz is on this board
+  \ nflag is true if it is false if it is not
+  ;m method voxel-this-board?
 
   m: ( fast-puzzle-board -- nstrings ) \ return nstrings that contain data to serialize this object
     this [parent] destruct \ to reset save data in parent class
@@ -71,7 +83,7 @@ end-class fast-puzzle-board
 ' fast-puzzle-board is -fast-puzzle-board
 
 \ **********************************************************************************************************************************************************************
-\\\
+\ \\\
 require ./allpieces.fs
 
 0 puzzle-pieces make-all-pieces heap-new constant map         \ this object is used to make reference lists from start pieces it is never used directly but produces ref piece list only
