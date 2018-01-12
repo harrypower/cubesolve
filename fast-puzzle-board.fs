@@ -28,7 +28,7 @@ save-instance-data class
     x-puzzle-board y-puzzle-board z-puzzle-board * * [to-inst] max-board-array-index
     max-board-array-index 1 multi-cell-array heap-new [to-inst] board-array
     double-linked-list heap-new [to-inst] board-pieces-list
-    puzzle-pieces piece-array heap-new [to-inst] ref-piece-array  \ just to form this object
+    puzzle-pieces piece-array heap-new [to-inst] ref-piece-array  \ note this instantiates the object of piece-array quickly but the next line of code will destruct and construct the object again with uref-piece-array data ( more or less just starting the object here!)
     [bind] piece-array serialize-data@ ref-piece-array [bind] piece-array serialize-data! \ now copy uref-piece-array to ref-piece-array
     0 ref-piece-array [bind] piece-array upiece@ [bind] piece voxel-quantity@ max-board-array-index swap / [to-inst] max-board-pieces
     \ idea here is the all pieces in ref-piece-array are same size so use that first piece to calculate max-board-pieces
@@ -82,6 +82,10 @@ save-instance-data class
     this do-retrieve-data true = if d>s rot rot -fast-puzzle-board rot rot this $->method else 2drop 2drop true abort" FPB inst-value data incorrect!" then
     this do-retrieve-data true = if d>s rot rot -fast-puzzle-board rot rot this $->method else 2drop 2drop true abort" FPB indexed reference data incorrect!" then
   ;m overrides serialize-data!
+
+  m: ( fast-puzzle-board -- ) \ print stuff for testing
+    ref-piece-array [bind] piece-array quantity@ . ." ref-piece-array quantity" cr
+  ;m overrides print
 end-class fast-puzzle-board
 ' fast-puzzle-board is -fast-puzzle-board
 
@@ -99,3 +103,5 @@ ref-piece-array fast-puzzle-board heap-new constant testfastb
 cr testfastb max-board-index@ . ." < should be 125!" cr
 
 testfastb max-board-pieces@ . ." < should be 25!" cr
+
+testfastb bind fast-puzzle-board print cr
