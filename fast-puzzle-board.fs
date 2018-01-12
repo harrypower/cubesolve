@@ -46,6 +46,9 @@ save-instance-data class
   m: ( fast-puzzle-board -- uquantity ) \ return current board piece quantity
     board-pieces-list [bind] double-linked-list ll-size@ ;m method board-pieces@
 
+  m: ( fast-puzzle-board -- uquantity ) \ return quantity of pieces to solve this board puzzle
+    max-board-pieces ;m method max-board-pieces@
+
   m: ( uref-piece fast-puzzle-board -- nflag ) \ test if uref-piece can be placed in current board
   ;m method board-piece?
 
@@ -59,9 +62,9 @@ save-instance-data class
     board-pieces-list [bind] double-linked-list nll-cell@  ;m method nboard-piece@
 
   m: ( fast-puzzle-board -- ux uy uz ) \ return the board dimensions
-  ;m method board-dims@
+    x-puzzle-board y-puzzle-board z-puzzle-board  ;m method board-dims@
 
-  m: ( fast-puzzle-board -- nflag ) \ test if voxel ux uy uz is on this board
+  m: ( ux uy uz fast-puzzle-board -- nflag ) \ test if voxel ux uy uz is on this board
   \ nflag is true if it is false if it is not
   ;m method voxel-this-board?
 
@@ -94,3 +97,5 @@ ref-piece-array bind piece-array quantity@ . ." < should be 480!" cr
 
 ref-piece-array fast-puzzle-board heap-new constant testfastb
 cr testfastb max-board-index@ . ." < should be 125!" cr
+
+testfastb max-board-pieces@ . ." < should be 25!" cr
