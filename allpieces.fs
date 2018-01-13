@@ -4,8 +4,6 @@ require ./newpieces.fs
 require ./puzzleboard.fs
 require ./newpuzzle.def
 
-\ note working-board instance variable in this class is a board object from puzzleboard.fs.  I want to remove this dependancy for the fast-puzzle-board.fs object when done! 
-
 object class
   destruction implementation
   protected

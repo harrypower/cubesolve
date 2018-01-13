@@ -17,7 +17,7 @@ save-instance-data class
   destruction implementation
   protected
   inst-value board-array            \ mcda of current board locations index numbers inside them ( piece voxels ) this is used for the terminal display
-  inst-value board-pieces-list      \ double-linked-list of current pieces on board. if this equals max-board-piecs then puzzle is solved
+  inst-value board-pieces-list      \ double-linked-list of current pieces on board. if this equals max-board-pieces then puzzle is solved
   inst-value ref-piece-array        \ pieces-array that is a copy of uref-piece-array passed to this object
   inst-value max-board-array-index  \ how many voxel the board contains in total
   inst-value max-board-pieces       \ how many pieces the board needs to solve puzzle
@@ -52,8 +52,8 @@ save-instance-data class
   m: ( uref-piece fast-puzzle-board -- nflag ) \ test if uref-piece can be placed in current board
   ;m method board-piece?
 
-  m: ( uref-piece fast-puzzle-board -- nflag ) \ test if uref-piece can be place on an this empty board
-  ;m method empty-board-place-piece?
+  m: ( uref-piece fast-puzzle-board -- nflag ) \ test if uref-piece can be place on an empty board
+  ;m method empty-board-place-piece?  \ **** work on this last as it may not be needed!
 
   m: ( uref-piece fast-puzzle-board -- ) \ put uref-piece on board and in board array for display only if uref-piece does not intersect with other pieces!
   ;m method board-piece!
@@ -66,7 +66,7 @@ save-instance-data class
 
   m: ( ux uy uz fast-puzzle-board -- nflag ) \ test if voxel ux uy uz is on this board
   \ nflag is true if it is false if it is not
-  ;m method voxel-this-board?
+  ;m method voxel-this-board? \ **** work on this last as it may not be needed!
 
   m: ( fast-puzzle-board -- nstrings ) \ return nstrings that contain data to serialize this object
     this [parent] destruct \ to reset save data in parent class

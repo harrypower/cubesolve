@@ -1,8 +1,10 @@
 require ./newpieces.fs
 
 \ This is the definition information for the puzzle
-\ It defines the puzzle pieces and the puzzle board
+\ It defines the puzzle piece and the puzzle board dimentions
 \ I decided to simply use forth words to do this defining so the definitions below are forth code.
+\ Note at this moment i only intend to use this definition file to define one piece.  In the future maybe several pieces could be defined for a general type solving solution.
+\  for now i am just working on one puzzle only 
 
 \ Puzzle board size defined
 \ length width height
@@ -10,7 +12,7 @@ require ./newpieces.fs
 5 constant y-puzzle-board
 5 constant z-puzzle-board
 
-\ Puzzle pieces definitions
+\ Puzzle piece definitions
 \ x y z
 0 0 0 define-a-voxel
 1 0 0 define-a-voxel
