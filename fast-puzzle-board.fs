@@ -64,6 +64,9 @@ save-instance-data class
   m: ( uref-piece fast-puzzle-board -- ) \ remove last piece put on this board
   ;m method remove-last-piece
 
+  m: ( fast-puzzle-board -- ) \ empty board of its pieces but keep the internal references to pieces so construct does not need to be used 
+  ;m method clear-board
+
   m: ( fast-puzzle-board -- nstrings ) \ return nstrings that contain data to serialize this object
     this [parent] destruct \ to reset save data in parent class
     this [parent] construct
