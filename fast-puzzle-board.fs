@@ -49,24 +49,20 @@ save-instance-data class
   m: ( fast-puzzle-board -- uquantity ) \ return quantity of pieces to solve this board puzzle
     max-board-pieces ;m method max-board-pieces@
 
+  m: ( fast-puzzle-board -- ux uy uz ) \ return the board dimensions
+    x-puzzle-board y-puzzle-board z-puzzle-board  ;m method board-dims@
+
   m: ( uref-piece fast-puzzle-board -- nflag ) \ test if uref-piece can be placed in current board
   ;m method board-piece?
-
-  m: ( uref-piece fast-puzzle-board -- nflag ) \ test if uref-piece can be place on an empty board
-  ;m method empty-board-place-piece?  \ **** work on this last as it may not be needed!
 
   m: ( uref-piece fast-puzzle-board -- ) \ put uref-piece on board and in board array for display only if uref-piece does not intersect with other pieces!
   ;m method board-piece!
 
-  m: ( uindex fast-puzzle-board -- uref-piece ) \ get uindex uref-piece from board piece list
+  m: ( uindex fast-puzzle-board -- uref-piece ) \ get uref-piece from board piece list at uindex location
     board-pieces-list [bind] double-linked-list nll-cell@  ;m method nboard-piece@
 
-  m: ( fast-puzzle-board -- ux uy uz ) \ return the board dimensions
-    x-puzzle-board y-puzzle-board z-puzzle-board  ;m method board-dims@
-
-  m: ( ux uy uz fast-puzzle-board -- nflag ) \ test if voxel ux uy uz is on this board
-  \ nflag is true if it is false if it is not
-  ;m method voxel-this-board? \ **** work on this last as it may not be needed!
+  m: ( uref-piece fast-puzzle-board -- ) \ remove last piece put on this board
+  ;m method remove-last-piece
 
   m: ( fast-puzzle-board -- nstrings ) \ return nstrings that contain data to serialize this object
     this [parent] destruct \ to reset save data in parent class
