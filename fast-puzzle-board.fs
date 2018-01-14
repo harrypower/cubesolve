@@ -58,12 +58,12 @@ save-instance-data class
     { uref-piece }
     this board-pieces@ 0 > if
       board-pieces-list [bind] double-linked-list ll-set-start
-      ." start of board-pieces-list" cr
+      \ ." start of board-pieces-list" cr
       begin
         board-pieces-list [bind] double-linked-list ll-cell@
-        dup . ." board-pieces-list item " cr
+        \ dup . ." board-pieces-list item " cr
         uref-piece ref-piece-array [bind] piece-array fast-intersect? true =
-        dup . ." fast-intersect?" cr
+        \ dup . ." fast-intersect?" cr
         if
           true true
         else
