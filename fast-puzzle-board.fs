@@ -77,7 +77,7 @@ save-instance-data class
     then
   ;m method board-piece?
 
-  m: ( uref-piece fast-puzzle-board -- ) \ put uref-piece on board and in board array for display only if uref-piece does not intersect with other pieces!
+  m: ( uref-piece fast-puzzle-board -- nflag ) \ put uref-piece on board and in board array for display only if uref-piece does not intersect with other pieces!
     board-pieces-list [bind] double-linked-list ll-cell!
   ;m method board-piece!
 
@@ -130,6 +130,38 @@ testfastb bind fast-puzzle-board print cr
 
 0 testfastb bind fast-puzzle-board board-piece? . ." should be true or -1" cr
 0 testfastb bind fast-puzzle-board board-piece!
-0 testfastb bind fast-puzzle-board board-piece? . ." should be false or 0" cr
+5 testfastb bind fast-puzzle-board board-piece? . ." should be false or 0" cr
+10 testfastb bind fast-puzzle-board board-piece? . ." should be true" cr
 10 testfastb bind fast-puzzle-board board-piece!
-10 testfastb bind fast-puzzle-board board-piece? . ." should be false or 0" cr
+15 testfastb bind fast-puzzle-board board-piece? . ." should be false or 0" cr
+1 testfastb bind fast-puzzle-board board-piece? . ." 1?" cr
+2 testfastb bind fast-puzzle-board board-piece? . ." 2?" cr
+3 testfastb bind fast-puzzle-board board-piece? . ." 3?" cr
+4 testfastb bind fast-puzzle-board board-piece? . ." 4?" cr
+5 testfastb bind fast-puzzle-board board-piece? . ." 5?" cr
+6 testfastb bind fast-puzzle-board board-piece? . ." 6?" cr
+7 testfastb bind fast-puzzle-board board-piece? . ." 7?" cr
+8 testfastb bind fast-puzzle-board board-piece? . ." 8?" cr
+9 testfastb bind fast-puzzle-board board-piece? . ." 9?" cr
+11 testfastb bind fast-puzzle-board board-piece? . ." 11?" cr
+12 testfastb bind fast-puzzle-board board-piece? . ." 12?" cr
+13 testfastb bind fast-puzzle-board board-piece? . ." 13?" cr
+14 testfastb bind fast-puzzle-board board-piece? . ." 14?" cr
+15 testfastb bind fast-puzzle-board board-piece? . ." 15?" cr
+16 testfastb bind fast-puzzle-board board-piece? . ." 16?" cr
+
+\\\
+require ./puzzleboard.fs
+board heap-new constant puzzle-board
+x-puzzle-board y-puzzle-board z-puzzle-board puzzle-board bind board set-board-dims
+0 ref-piece-array bind piece-array upiece@
+puzzle-board bind board place-piece-on-board drop
+puzzle-board bind board see-board
+
+4000 ms
+
+puzzle-board bind board construct
+x-puzzle-board y-puzzle-board z-puzzle-board puzzle-board bind board set-board-dims
+8 ref-piece-array bind piece-array upiece@
+puzzle-board bind board place-piece-on-board drop
+puzzle-board bind board see-board
