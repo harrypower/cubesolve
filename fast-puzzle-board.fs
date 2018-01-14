@@ -53,9 +53,32 @@ save-instance-data class
     x-puzzle-board y-puzzle-board z-puzzle-board  ;m method board-dims@
 
   m: ( uref-piece fast-puzzle-board -- nflag ) \ test if uref-piece can be placed in current board
+    \ nflag is true if uref-piece can be placed on the current board
+    \ nflag is false if uref-piece can not be placed on current board
+    { uref-piece }
+    this board-pieces@ 0 > if
+      board-pieces-list [bind] double-linked-list ll-set-start
+      ." start of board-pieces-list" cr
+      begin
+        board-pieces-list [bind] double-linked-list ll-cell@
+        dup . ." board-pieces-list item " cr
+        uref-piece ref-piece-array [bind] piece-array fast-intersect? true =
+        dup . ." fast-intersect?" cr
+        if
+          true true
+        else
+          board-pieces-list [bind] double-linked-list ll>
+          if false true else false then
+        then
+      until
+      invert
+    else
+      true
+    then
   ;m method board-piece?
 
   m: ( uref-piece fast-puzzle-board -- ) \ put uref-piece on board and in board array for display only if uref-piece does not intersect with other pieces!
+    board-pieces-list [bind] double-linked-list ll-cell!
   ;m method board-piece!
 
   m: ( uindex fast-puzzle-board -- uref-piece ) \ get uref-piece from board piece list at uindex location
@@ -64,7 +87,7 @@ save-instance-data class
   m: ( uref-piece fast-puzzle-board -- ) \ remove last piece put on this board
   ;m method remove-last-piece
 
-  m: ( fast-puzzle-board -- ) \ empty board of its pieces but keep the internal references to pieces so construct does not need to be used 
+  m: ( fast-puzzle-board -- ) \ empty board of its pieces but keep the internal references to pieces so construct does not need to be used
   ;m method clear-board
 
   m: ( fast-puzzle-board -- nstrings ) \ return nstrings that contain data to serialize this object
@@ -104,3 +127,9 @@ cr testfastb max-board-index@ . ." < should be 125!" cr
 testfastb max-board-pieces@ . ." < should be 25!" cr
 
 testfastb bind fast-puzzle-board print cr
+
+0 testfastb bind fast-puzzle-board board-piece? . ." should be true or -1" cr
+0 testfastb bind fast-puzzle-board board-piece!
+0 testfastb bind fast-puzzle-board board-piece? . ." should be false or 0" cr
+10 testfastb bind fast-puzzle-board board-piece!
+10 testfastb bind fast-puzzle-board board-piece? . ." should be false or 0" cr
