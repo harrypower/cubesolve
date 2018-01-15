@@ -21,6 +21,7 @@ save-instance-data class
   inst-value ref-piece-array        \ pieces-array that is a copy of uref-piece-array passed to this object
   inst-value max-board-array-index  \ how many voxel the board contains in total
   inst-value max-board-pieces       \ how many pieces the board needs to solve puzzle
+  inst-value non-piece              \ a value that repesents no piece on the board
 
   m: ( uref-piece fast-puzzle-board -- ) \ place piece on display board
     0 { uref-piece upiece } uref-piece ref-piece-array [bind] piece-array upiece@ to upiece
@@ -36,12 +37,19 @@ save-instance-data class
   m: ( uref-piece fast-puzzle-board -- ) \ remove piece from display board
   ;m method remove-from-display-board
 
+  m: ( fast-puzzle-board -- ) \ file board-array with non piece
+    max-board-array-index 0 ?do
+      non-piece i board-array [bind] multi-cell-array cell-array!
+    loop
+  ;m method empty-board
   public
   m: ( uref-piece-array fast-puzzle-board -- ) \ constructor
     \ uref-piece-array is a piece-array object that contains all the pieces this puzzle board can place on it. This  uref-piece-array contents are copied into this object uref-piece-array itself is not stored.
     this [parent] construct
+    x-puzzle-board y-puzzle-board z-puzzle-board * * 999 + [to-inst] non-piece
     x-puzzle-board y-puzzle-board z-puzzle-board * * [to-inst] max-board-array-index
     max-board-array-index 1 multi-cell-array heap-new [to-inst] board-array
+    this [current] empty-board
     double-linked-list heap-new [to-inst] board-pieces-list
     puzzle-pieces piece-array heap-new [to-inst] ref-piece-array  \ note this instantiates the object of piece-array quickly but the next line of code will destruct and construct the object again with uref-piece-array data ( more or less just starting the object here!)
     [bind] piece-array serialize-data@ ref-piece-array [bind] piece-array serialize-data! \ now copy uref-piece-array to ref-piece-array
@@ -115,6 +123,11 @@ save-instance-data class
   ;m method remove-last-piece
 
   m: ( fast-puzzle-board -- ) \ empty board of its pieces but keep the internal references to pieces so construct does not need to be used
+    board-array [bind] multi-cell-array destruct
+    max-board-array-index 1 board-array [bind] multi-cell-array construct
+    this [current] empty-board
+    board-pieces-list [bind] double-linked-list destruct
+    board-pieces-list [bind] double-linked-list construct
   ;m method clear-board
 
   m: ( fast-puzzle-board -- nstrings ) \ return nstrings that contain data to serialize this object
@@ -158,7 +171,7 @@ testfastb bind fast-puzzle-board print cr
 0 testfastb bind fast-puzzle-board board-piece? . ." should be true or -1" cr
 0 testfastb bind fast-puzzle-board board-piece!
 5 testfastb bind fast-puzzle-board board-piece? . ." should be false or 0" cr
-10 testfastb bind fast-puzzle-board board-piece? . ." should be true" cr
+10 testfastb bind fast-puzzle-board board-piece? . ." should be true or -1" cr
 10 testfastb bind fast-puzzle-board board-piece!
 15 testfastb bind fast-puzzle-board board-piece? . ." should be false or 0" cr
 1 testfastb bind fast-puzzle-board board-piece? . ." 1?" cr
@@ -176,6 +189,10 @@ testfastb bind fast-puzzle-board print cr
 14 testfastb bind fast-puzzle-board board-piece? . ." 14?" cr
 15 testfastb bind fast-puzzle-board board-piece? . ." 15?" cr
 16 testfastb bind fast-puzzle-board board-piece? . ." 16?" cr
+
+testfastb bind fast-puzzle-board output-board cr
+
+testfastb bind fast-puzzle-board clear-board cr
 
 testfastb bind fast-puzzle-board output-board cr
 \\\
