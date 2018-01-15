@@ -35,6 +35,14 @@ save-instance-data class
   ;m method put-on-display-board!
 
   m: ( uref-piece fast-puzzle-board -- ) \ remove piece from display board
+    0 { uref-piece upiece } uref-piece ref-piece-array [bind] piece-array upiece@ to upiece
+    upiece [bind] piece voxel-quantity@ 0 ?do
+      i upiece [bind] piece get-voxel  ( x y z )
+      x-puzzle-board y-puzzle-board * * ( x y z*scale )
+      swap x-puzzle-board * + ( x y*scale+z*scale )
+      + non-piece swap
+      board-array [bind] multi-cell-array cell-array!
+    loop
   ;m method remove-from-display-board
 
   m: ( fast-puzzle-board -- ) \ file board-array with non piece
@@ -119,6 +127,9 @@ save-instance-data class
     board-pieces-list [bind] double-linked-list nll-cell@  ;m method nboard-piece@
 
   m: ( uref-piece fast-puzzle-board -- ) \ remove last piece put on this board
+    board-pieces-list [bind] double-linked-list ll-set-end
+    board-pieces-list [bind] double-linked-list ll-cell@
+    this [current] remove-from-display-board
     board-pieces-list [bind] double-linked-list delete-last
   ;m method remove-last-piece
 
@@ -174,27 +185,46 @@ testfastb bind fast-puzzle-board print cr
 10 testfastb bind fast-puzzle-board board-piece? . ." should be true or -1" cr
 10 testfastb bind fast-puzzle-board board-piece!
 15 testfastb bind fast-puzzle-board board-piece? . ." should be false or 0" cr
-1 testfastb bind fast-puzzle-board board-piece? . ." 1?" cr
-2 testfastb bind fast-puzzle-board board-piece? . ." 2?" cr
-3 testfastb bind fast-puzzle-board board-piece? . ." 3?" cr
-4 testfastb bind fast-puzzle-board board-piece? . ." 4?" cr
-5 testfastb bind fast-puzzle-board board-piece? . ." 5?" cr
-6 testfastb bind fast-puzzle-board board-piece? . ." 6?" cr
-7 testfastb bind fast-puzzle-board board-piece? . ." 7?" cr
-8 testfastb bind fast-puzzle-board board-piece? . ." 8?" cr
-9 testfastb bind fast-puzzle-board board-piece? . ." 9?" cr
-11 testfastb bind fast-puzzle-board board-piece? . ." 11?" cr
-12 testfastb bind fast-puzzle-board board-piece? . ." 12?" cr
-13 testfastb bind fast-puzzle-board board-piece? . ." 13?" cr
-14 testfastb bind fast-puzzle-board board-piece? . ." 14?" cr
-15 testfastb bind fast-puzzle-board board-piece? . ." 15?" cr
-16 testfastb bind fast-puzzle-board board-piece? . ." 16?" cr
 
 testfastb bind fast-puzzle-board output-board cr
-
+." should be with two pieces" cr
+testfastb bind fast-puzzle-board remove-last-piece
+testfastb bind fast-puzzle-board output-board cr
+." should be only one piece" cr
 testfastb bind fast-puzzle-board clear-board cr
-
 testfastb bind fast-puzzle-board output-board cr
+
+\\\
+utime
+0 testfastb bind fast-puzzle-board board-piece? drop
+0 testfastb bind fast-puzzle-board board-piece? drop
+0 testfastb bind fast-puzzle-board board-piece? drop
+0 testfastb bind fast-puzzle-board board-piece? drop
+0 testfastb bind fast-puzzle-board board-piece? drop
+0 testfastb bind fast-puzzle-board board-piece? drop
+0 testfastb bind fast-puzzle-board board-piece? drop
+0 testfastb bind fast-puzzle-board board-piece? drop
+0 testfastb bind fast-puzzle-board board-piece? drop
+0 testfastb bind fast-puzzle-board board-piece? drop
+utime 2swap d- d. ." < time it takes for fast piece test!" cr
+
+require ./puzzleboard.fs
+board heap-new constant puzzle-board
+x-puzzle-board y-puzzle-board z-puzzle-board puzzle-board bind board set-board-dims
+0 ref-piece-array bind piece-array upiece@ constant testpiece
+utime
+testpiece puzzle-board bind board piece-on-board? drop
+testpiece puzzle-board bind board piece-on-board? drop
+testpiece puzzle-board bind board piece-on-board? drop
+testpiece puzzle-board bind board piece-on-board? drop
+testpiece puzzle-board bind board piece-on-board? drop
+testpiece puzzle-board bind board piece-on-board? drop
+testpiece puzzle-board bind board piece-on-board? drop
+testpiece puzzle-board bind board piece-on-board? drop
+testpiece puzzle-board bind board piece-on-board? drop
+testpiece puzzle-board bind board piece-on-board? drop
+utime 2swap d- d. ." < time it takes for slow piece test!" cr
+
 \\\
 require ./puzzleboard.fs
 board heap-new constant puzzle-board
