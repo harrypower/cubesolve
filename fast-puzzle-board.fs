@@ -21,6 +21,21 @@ save-instance-data class
   inst-value ref-piece-array        \ pieces-array that is a copy of uref-piece-array passed to this object
   inst-value max-board-array-index  \ how many voxel the board contains in total
   inst-value max-board-pieces       \ how many pieces the board needs to solve puzzle
+
+  m: ( uref-piece fast-puzzle-board -- ) \ place piece on display board
+    0 { uref-piece upiece } uref-piece ref-piece-array [bind] piece-array upiece@ to upiece
+    upiece [bind] piece voxel-quantity@ 0 ?do
+      i upiece [bind] piece get-voxel  ( x y z )
+      x-puzzle-board y-puzzle-board * * ( x y z*scale )
+      swap x-puzzle-board * + ( x y*scale+z*scale )
+      + uref-piece swap
+      board-array [bind] multi-cell-array cell-array!
+    loop
+  ;m method put-on-display-board!
+
+  m: ( uref-piece fast-puzzle-board -- ) \ remove piece from display board
+  ;m method remove-from-display-board
+
   public
   m: ( uref-piece-array fast-puzzle-board -- ) \ constructor
     \ uref-piece-array is a piece-array object that contains all the pieces this puzzle board can place on it. This  uref-piece-array contents are copied into this object uref-piece-array itself is not stored.
@@ -41,6 +56,9 @@ save-instance-data class
     max-board-array-index ;m method max-board-index@
 
   m: ( fast-puzzle-board -- ) \ terminal display
+    this [current] max-board-index@ 0 ?do
+      i board-array [bind] multi-cell-array cell-array@ . cr
+    loop
   ;m method output-board
 
   m: ( fast-puzzle-board -- uquantity ) \ return current board piece quantity
@@ -56,7 +74,7 @@ save-instance-data class
     \ nflag is true if uref-piece can be placed on the current board
     \ nflag is false if uref-piece can not be placed on current board
     { uref-piece }
-    this board-pieces@ 0 > if
+    this [current] board-pieces@ 0 > if
       board-pieces-list [bind] double-linked-list ll-set-start
       \ ." start of board-pieces-list" cr
       begin
@@ -78,13 +96,22 @@ save-instance-data class
   ;m method board-piece?
 
   m: ( uref-piece fast-puzzle-board -- nflag ) \ put uref-piece on board and in board array for display only if uref-piece does not intersect with other pieces!
-    board-pieces-list [bind] double-linked-list ll-cell!
+    \ nflag is true if uref-piece was place on board
+    \ nflag is false if uref-piece was not placed on board
+    { uref-piece } uref-piece this [current] board-piece? true = if
+      uref-piece board-pieces-list [bind] double-linked-list ll-cell!
+      uref-piece this [current] put-on-display-board!
+      true
+    else
+      false
+    then
   ;m method board-piece!
 
   m: ( uindex fast-puzzle-board -- uref-piece ) \ get uref-piece from board piece list at uindex location
     board-pieces-list [bind] double-linked-list nll-cell@  ;m method nboard-piece@
 
   m: ( uref-piece fast-puzzle-board -- ) \ remove last piece put on this board
+    board-pieces-list [bind] double-linked-list delete-last
   ;m method remove-last-piece
 
   m: ( fast-puzzle-board -- ) \ empty board of its pieces but keep the internal references to pieces so construct does not need to be used
@@ -98,11 +125,11 @@ save-instance-data class
   ;m overrides serialize-data@
 
   m: ( nstrings fast-puzzle-board -- ) \ nstrings contains serialized data to restore this object
-    this destruct
+    this [current] destruct
     this [parent] construct
     save$ [bind] strings copy$s \ copies the strings object data to be used for retrieval
-    this do-retrieve-data true = if d>s rot rot -fast-puzzle-board rot rot this $->method else 2drop 2drop true abort" FPB inst-value data incorrect!" then
-    this do-retrieve-data true = if d>s rot rot -fast-puzzle-board rot rot this $->method else 2drop 2drop true abort" FPB indexed reference data incorrect!" then
+    this [current] do-retrieve-data true = if d>s rot rot -fast-puzzle-board rot rot this [current] $->method else 2drop 2drop true abort" FPB inst-value data incorrect!" then
+    this [current] do-retrieve-data true = if d>s rot rot -fast-puzzle-board rot rot this [current] $->method else 2drop 2drop true abort" FPB indexed reference data incorrect!" then
   ;m overrides serialize-data!
 
   m: ( fast-puzzle-board -- ) \ print stuff for testing
@@ -150,6 +177,7 @@ testfastb bind fast-puzzle-board print cr
 15 testfastb bind fast-puzzle-board board-piece? . ." 15?" cr
 16 testfastb bind fast-puzzle-board board-piece? . ." 16?" cr
 
+testfastb bind fast-puzzle-board output-board cr
 \\\
 require ./puzzleboard.fs
 board heap-new constant puzzle-board
