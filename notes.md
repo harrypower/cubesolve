@@ -10,6 +10,7 @@
 * fast-puzzle-board.fs
 
 ### Things still to do in the above Files
+* *** note multidimentional cell array object does not initalize the array once created.. so ensure when using this object to do that at construct time.****
 * confirm serialize stuff works properly for each object
 * understand how fast-puzzle-board is different then puzzleboard and decide if it is the direction
   #### fast-puzzle-board.fs vs puzzleboard.fs
@@ -19,7 +20,7 @@
   * make-all-pieces from allpieces.fs will need to continue to use board from puzzleboard.fs because at first the linked list is the best way to then generate the reference array of pieces used later by fast-puzzle-board.
   * because board is still needed then there is no reason to change allpieces.fs as it currently depends on board so there is no change needed here!
   * So fast-puzzle-board is used in the algorithm for solving the puzzle rather then board object because of its speed.
-  * fast-puzzle-board will also be able to display the board and serialize its data. 
+  * fast-puzzle-board will also be able to display the board and serialize its data.
 
 ### New idea to incorporate to this project
 * in the past version i concentrated on making reference list and using that fast list to brute force solution by filling the board holes.  My new idea is to use this reference list and add other lists to allow a piece chain type solution.
