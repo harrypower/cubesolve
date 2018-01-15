@@ -13,6 +13,28 @@ object class
   cell% inst-var working-piece      \ piece object used to process or temporary holder of a piece
   cell% inst-var rotated-pieces     \ pieces object containing all the rotated pieces working on before adding to all-pieces list
   cell% inst-var translated-pieces  \ pieces object conatining all the translated pieces working on before adding to all-pieces list
+
+  m: ( ux uy uz board -- nflag ) \ ux uy uz is a voxel to test if it can be placed on an empty board
+    \ nflag is true if ux uy uz can be on the board
+    \ nflag is false if ux uy uz can not be on the board
+    try
+    dup z-puzzle-board < swap 0 >= and invert throw
+    dup y-puzzle-board < swap 0 >= and invert throw
+    dup x-puzzle-board < swap 0 >= and invert throw
+    false
+    restore if drop drop drop false else true then
+    endtry
+  ;m method voxel-on-board?
+  m: ( upiece board -- nflag ) \ test if upiece can be placed on an empty board nflag is true if piece can be placed false if not
+    { upiece }
+    try
+      upiece [bind] piece voxel-quantity@ 0 ?do
+      i upiece [bind] piece get-voxel this voxel-on-board? invert throw
+    loop
+    false
+    restore invert
+    endtry
+  ;m method piece-on-board?
   m: ( make-all-pieces -- ) \ reset working-board that points to a piece object
     working-board @ [bind] board destruct
     working-board @ [bind] board construct
@@ -22,7 +44,8 @@ object class
     \ this method takes those start pieces and puts the pieces that fit on board into start-pieces pieces list
     { uindex upieces }
     \ upieces [bind] pieces pieces-quantity@ 0 ?do
-      uindex upieces [bind] pieces get-a-piece working-board @ [bind] board piece-on-board? true =
+      \ uindex upieces [bind] pieces get-a-piece working-board @ [bind] board piece-on-board? true =
+      uindex upieces [bind] pieces get-a-piece this piece-on-board? true =
       if uindex upieces [bind] pieces get-a-piece start-pieces @ [bind] pieces add-a-piece then
     \ loop
     this reset-working-board
@@ -78,7 +101,8 @@ object class
     0 0 { upieces testpiece result }
     upieces [bind] pieces pieces-quantity@ 0 ?do
       i upieces [bind] pieces get-a-piece to testpiece 0 to result
-      testpiece working-board @ [bind] board piece-on-board? true = if
+      \ testpiece working-board @ [bind] board piece-on-board? true = if
+      testpiece this piece-on-board? true = if
         all-pieces @ [bind] pieces pieces-quantity@ 0 ?do
           testpiece i all-pieces @ [bind] pieces get-a-piece
           [bind] piece same? result or to result
