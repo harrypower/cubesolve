@@ -1,13 +1,11 @@
 require ./Gforth-Objects/objects.fs
 require ./Gforth-Objects/double-linked-list.fs
 require ./newpieces.fs
-\ require ./puzzleboard.fs
 require ./newpuzzle.def
 
 object class
   destruction implementation
   protected
-  \ cell% inst-var working-board      \ board object to do board placement testing
   cell% inst-var start-pieces       \ pieces object will contain all the valid starting pieces
   cell% inst-var all-pieces         \ pieces object will contain all the valid rotated translated pieces created from start-pieces
   cell% inst-var working-piece      \ piece object used to process or temporary holder of a piece
@@ -23,8 +21,7 @@ object class
     dup x-puzzle-board < swap 0 >= and invert throw
     false
     restore if drop drop drop false else true then
-    endtry
-  ;m method voxel-on-board?
+    endtry ;m method voxel-on-board?
   m: ( upiece board -- nflag ) \ test if upiece can be placed on an empty board nflag is true if piece can be placed false if not
     { upiece }
     try
@@ -33,22 +30,12 @@ object class
     loop
     false
     restore invert
-    endtry
-  ;m method piece-on-board?
-  \ m: ( make-all-pieces -- ) \ reset working-board that points to a piece object
-  \  working-board @ [bind] board destruct
-  \  working-board @ [bind] board construct
-  \  x-puzzle-board y-puzzle-board z-puzzle-board working-board @ [bind] board set-board-dims
-  \ ;m method reset-working-board
+    endtry ;m method piece-on-board?
   m: ( uindex upieces make-all-pieces -- ) \ upieces is a pieces object containing the all the start puzzle pieces
     \ this method takes those start pieces and puts the pieces that fit on board into start-pieces pieces list
     { uindex upieces }
-    \ upieces [bind] pieces pieces-quantity@ 0 ?do
-      \ uindex upieces [bind] pieces get-a-piece working-board @ [bind] board piece-on-board? true =
-      uindex upieces [bind] pieces get-a-piece this piece-on-board? true =
-      if uindex upieces [bind] pieces get-a-piece start-pieces @ [bind] pieces add-a-piece then
-    \ loop
-\    this reset-working-board
+    uindex upieces [bind] pieces get-a-piece this piece-on-board? true =
+    if uindex upieces [bind] pieces get-a-piece start-pieces @ [bind] pieces add-a-piece then
   ;m method the-start-pieces
   m: ( udim1 udim2 uaxis -- udim3 udim4 ) \ uaxis is 0 to 7 which axis rotation to perform
     CASE
@@ -68,7 +55,6 @@ object class
       1 of x z uaxis this [current] do-axis-rotation y swap ENDOF
       2 of y z uaxis this [current] do-axis-rotation x rot rot ENDOF
     ENDCASE ;m method do-rotation
-
   m: ( upiece make-all-pieces -- ) \ upiece is a piece object that is used to create translated pieces and place them in translated-pieces
     x-puzzle-board y-puzzle-board z-puzzle-board 0 0 0 { upiece x-max y-max z-max x y z }
     x-max 0 ?do i to x
@@ -109,8 +95,7 @@ object class
         loop
         result false = if testpiece all-pieces @ [bind] pieces add-a-piece then
       then
-    loop
-  ;m method add-to-all-pieces
+    loop ;m method add-to-all-pieces
   m: ( make-all-pieces -- ) \ will take start-pieces and create all rotations and translated pieces then add to all-pieces if not there already
     start-pieces @ [bind] pieces pieces-quantity@ 0 ?do
       i start-pieces @ [bind] pieces get-a-piece
@@ -124,15 +109,12 @@ object class
       loop
       rotated-pieces @ [bind] pieces destruct
       rotated-pieces @ [bind] pieces construct
-    loop
-  ;m method all-rotations-translations
+    loop ;m method all-rotations-translations
   public
   m: ( uindex upieces make-all-pieces -- upieces2 ) \ constructor
     \ uindex is the reference to the pieces object piece defined in newpuzzle.def file
-    \ upieces2 is the returned pieces object that contains the total list of pieces that can be in board as defined by upieces and puzzle-board
+    \ upieces2 is the returned pieces object that contains the total list of pieces that can be in board as defined by upieces
     \ note file newpuzzle.def contains the size of the board in constants x-puzzle-board y-puzzle-board z-puzzle-board
-  \  board heap-new working-board !
-  \  x-puzzle-board y-puzzle-board z-puzzle-board working-board @ [bind] board set-board-dims
     pieces heap-new start-pieces !
     pieces heap-new all-pieces !
     piece heap-new working-piece !
@@ -143,7 +125,6 @@ object class
     all-pieces @ \ return the total list of pieces
   ;m overrides construct
   m: ( make-all-pieces -- ) \ destructor
-  \  working-board @ dup [bind] board destruct free throw
     start-pieces @ dup [bind] pieces destruct free throw
     all-pieces @ dup [bind] pieces destruct free throw
     \ note all-pieces is made in constructor but given out by this object so its handle might be out in the wild and invalid after destruct called
