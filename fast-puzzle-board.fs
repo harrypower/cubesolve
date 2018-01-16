@@ -70,8 +70,13 @@ save-instance-data class
     1 [to-inst] y-display-offset ( line spacing )
     y-puzzle-board y-display-offset * 1 + [to-inst] z-display-offset ( y display size + 1 line seperator )
   ;m overrides construct
-  m: ( fast-puzzle-board -- ) \ destructor
+  m: ( fast-puzzle-board -- ) \ destructor to release all allocated memory
     this [parent] destruct
+    board-array [bind] multi-cell-array destruct
+    board-pieces-list [bind] double-linked-list destruct
+    ref-piece-array [bind] piece-array destruct
+    0 [to-inst] max-board-pieces
+    0 [to-inst] max-board-array-index
   ;m overrides destruct
 
   m: ( fast-puzzle-board -- uindex ) \ return the max board index address
@@ -89,8 +94,7 @@ save-instance-data class
           dup true = if drop ." *****" else u. then
         loop
       loop
-    loop
-  ;m method output-board
+    loop ;m method output-board
 
   m: ( fast-puzzle-board -- uquantity ) \ return current board piece quantity
     board-pieces-list [bind] double-linked-list ll-size@ ;m method board-pieces@
@@ -120,8 +124,7 @@ save-instance-data class
       invert
     else
       true
-    then
-  ;m method board-piece?
+    then ;m method board-piece?
 
   m: ( uref-piece fast-puzzle-board -- nflag ) \ put uref-piece on board and in board array for display only if uref-piece does not intersect with other pieces!
     \ nflag is true if uref-piece was place on board
@@ -132,8 +135,7 @@ save-instance-data class
       true
     else
       false
-    then
-  ;m method board-piece!
+    then ;m method board-piece!
 
   m: ( uindex fast-puzzle-board -- uref-piece ) \ get uref-piece from board piece list at uindex location
     board-pieces-list [bind] double-linked-list nll-cell@  ;m method nboard-piece@
