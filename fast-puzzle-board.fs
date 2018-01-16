@@ -16,18 +16,21 @@ defer -fast-puzzle-board
 save-instance-data class
   destruction implementation
   protected
+  inst-value z-mult                 \ calculated value for the z multiplier used to find board-array memory location
+  inst-value x-display-offset
+  inst-value y-display-offset
+  inst-value z-display-offset
   inst-value board-array            \ mcda of current board locations index numbers inside them ( piece voxels ) this is used for the terminal display
   inst-value board-pieces-list      \ double-linked-list of current pieces on board. if this equals max-board-pieces then puzzle is solved
   inst-value ref-piece-array        \ pieces-array that is a copy of uref-piece-array passed to this object
   inst-value max-board-array-index  \ how many voxel the board contains in total
   inst-value max-board-pieces       \ how many pieces the board needs to solve puzzle
-  inst-value non-piece              \ a value that repesents no piece on the board
 
   m: ( uref-piece fast-puzzle-board -- ) \ place piece on display board
     0 { uref-piece upiece } uref-piece ref-piece-array [bind] piece-array upiece@ to upiece
     upiece [bind] piece voxel-quantity@ 0 ?do
       i upiece [bind] piece get-voxel  ( x y z )
-      x-puzzle-board y-puzzle-board * * ( x y z*scale )
+      z-mult * ( x y z*scale )
       swap x-puzzle-board * + ( x y*scale+z*scale )
       + uref-piece swap
       board-array [bind] multi-cell-array cell-array!
@@ -38,23 +41,22 @@ save-instance-data class
     0 { uref-piece upiece } uref-piece ref-piece-array [bind] piece-array upiece@ to upiece
     upiece [bind] piece voxel-quantity@ 0 ?do
       i upiece [bind] piece get-voxel  ( x y z )
-      x-puzzle-board y-puzzle-board * * ( x y z*scale )
+      z-mult * ( x y z*scale )
       swap x-puzzle-board * + ( x y*scale+z*scale )
-      + non-piece swap
+      + true swap
       board-array [bind] multi-cell-array cell-array!
     loop
   ;m method remove-from-display-board
 
   m: ( fast-puzzle-board -- ) \ file board-array with non piece
     max-board-array-index 0 ?do
-      non-piece i board-array [bind] multi-cell-array cell-array!
+      true i board-array [bind] multi-cell-array cell-array!
     loop
   ;m method empty-board
   public
   m: ( uref-piece-array fast-puzzle-board -- ) \ constructor
     \ uref-piece-array is a piece-array object that contains all the pieces this puzzle board can place on it. This  uref-piece-array contents are copied into this object uref-piece-array itself is not stored.
     this [parent] construct
-    x-puzzle-board y-puzzle-board z-puzzle-board * * 999 + [to-inst] non-piece
     x-puzzle-board y-puzzle-board z-puzzle-board * * [to-inst] max-board-array-index
     max-board-array-index 1 multi-cell-array heap-new [to-inst] board-array
     this [current] empty-board
@@ -63,6 +65,10 @@ save-instance-data class
     [bind] piece-array serialize-data@ ref-piece-array [bind] piece-array serialize-data! \ now copy uref-piece-array to ref-piece-array
     0 ref-piece-array [bind] piece-array upiece@ [bind] piece voxel-quantity@ max-board-array-index swap / [to-inst] max-board-pieces
     \ idea here is the all pieces in ref-piece-array are same size so use that first piece to calculate max-board-pieces
+    x-puzzle-board y-puzzle-board * [to-inst] z-mult
+    ref-piece-array [bind] piece-array quantity@ s>f flog fround f>s 3 + [to-inst] x-display-offset ( max number + padding + space between )
+    1 [to-inst] y-display-offset ( line spacing )
+    y-puzzle-board y-display-offset * 1 + [to-inst] z-display-offset ( y display size + 1 line seperator )
   ;m overrides construct
   m: ( fast-puzzle-board -- ) \ destructor
     this [parent] destruct
@@ -72,8 +78,17 @@ save-instance-data class
     max-board-array-index ;m method max-board-index@
 
   m: ( fast-puzzle-board -- ) \ terminal display
-    this [current] max-board-index@ 0 ?do
-      i board-array [bind] multi-cell-array cell-array@ . cr
+    page
+    z-puzzle-board 0 ?do
+      y-puzzle-board 0 ?do
+        x-puzzle-board 0 ?do
+          i x-display-offset * j y-display-offset * k z-display-offset * + at-xy
+          i j k z-mult * ( x y z*scale )
+          swap x-puzzle-board * + ( x y*scale+z*scale )
+          + board-array [bind] multi-cell-array cell-array@
+          dup true = if drop ." *****" else u. then
+        loop
+      loop
     loop
   ;m method output-board
 
@@ -92,12 +107,9 @@ save-instance-data class
     { uref-piece }
     this [current] board-pieces@ 0 > if
       board-pieces-list [bind] double-linked-list ll-set-start
-      \ ." start of board-pieces-list" cr
       begin
         board-pieces-list [bind] double-linked-list ll-cell@
-        \ dup . ." board-pieces-list item " cr
         uref-piece ref-piece-array [bind] piece-array fast-intersect? true =
-        \ dup . ." fast-intersect?" cr
         if
           true true
         else
