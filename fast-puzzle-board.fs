@@ -210,6 +210,7 @@ testfastb bind fast-puzzle-board output-board cr
 .s cr
 \ \\\
 0 testfastb bind fast-puzzle-board board-piece! . ." < should be true. placed 0 on board for testing speed!" cr
+10 testfastb bind fast-puzzle-board board-piece! . ." < should be true. placed 10 on board for testing speed!" cr
 : fasttest
 utime
 480 0 ?do
@@ -222,6 +223,7 @@ require ./puzzleboard.fs
 board heap-new constant puzzle-board
 x-puzzle-board y-puzzle-board z-puzzle-board puzzle-board bind board set-board-dims
 0 ref-piece-array bind piece-array upiece@ puzzle-board bind board place-piece-on-board drop
+10 ref-piece-array bind piece-array upiece@ puzzle-board bind board place-piece-on-board drop
 : slowtest
 utime
 480 0 ?do
@@ -232,7 +234,7 @@ utime 2swap d- d. ." < time it takes for slow piece test!" cr
 ;
 .s cr
 0 ref-piece-array bind piece-array upiece@ constant 0item
-10 ref-piece-array bind piece-array upiece@ constant 10item
+400 ref-piece-array bind piece-array upiece@ constant 400item
 .s cr
 : slowtest1
 utime
@@ -245,9 +247,9 @@ utime 2swap d- d. ." < time it takes for 0item slow piece test!" cr
 : slowtest2
 utime
 480 0 ?do
-  10item puzzle-board [bind] board piece-on-board? drop
+  400item puzzle-board [bind] board piece-on-board? drop
 loop
-utime 2swap d- d. ." < time it takes for 10item slow piece test!" cr
+utime 2swap d- d. ." < time it takes for 400item slow piece test!" cr
 ;
 
 fasttest .s cr
