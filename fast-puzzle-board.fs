@@ -179,27 +179,27 @@ end-class fast-puzzle-board
 \ **********************************************************************************************************************************************************************
 \ \\\
 require ./allpieces.fs
-
+.s cr
 0 puzzle-pieces make-all-pieces heap-new constant map         \ this object is used to make reference lists from start pieces it is never used directly but produces ref piece list only
 constant ref-piece-list                                       \ this is the reference list of piece`s created above
 ref-piece-list bind pieces pieces-quantity@ . ." < should be 480!" cr
 ref-piece-list piece-array heap-new constant ref-piece-array  \ this object takes reference list from above and makes a reference array of list for indexing faster
 ref-piece-array bind piece-array quantity@ . ." < should be 480!" cr
-
+.s cr
 ref-piece-array fast-puzzle-board heap-new constant testfastb
 cr testfastb max-board-index@ . ." < should be 125!" cr
-
+.s cr
 testfastb max-board-pieces@ . ." < should be 25!" cr
 
 testfastb bind fast-puzzle-board print cr
-
+.s cr
 0 testfastb bind fast-puzzle-board board-piece? . ." should be true or -1" cr
-0 testfastb bind fast-puzzle-board board-piece!
+0 testfastb bind fast-puzzle-board board-piece! . ." should be true " cr
 5 testfastb bind fast-puzzle-board board-piece? . ." should be false or 0" cr
 10 testfastb bind fast-puzzle-board board-piece? . ." should be true or -1" cr
-10 testfastb bind fast-puzzle-board board-piece!
+10 testfastb bind fast-puzzle-board board-piece! . ." should be true " cr
 15 testfastb bind fast-puzzle-board board-piece? . ." should be false or 0" cr
-
+.s cr
 testfastb bind fast-puzzle-board output-board cr
 ." should be with two pieces" cr
 testfastb bind fast-puzzle-board remove-last-piece
@@ -207,50 +207,50 @@ testfastb bind fast-puzzle-board output-board cr
 ." should be only one piece" cr
 testfastb bind fast-puzzle-board clear-board cr
 testfastb bind fast-puzzle-board output-board cr
-
-\\\
+.s cr
+\ \\\
+0 testfastb bind fast-puzzle-board board-piece! . ." < should be true. placed 0 on board for testing speed!" cr
+: fasttest
 utime
-0 testfastb bind fast-puzzle-board board-piece? drop
-0 testfastb bind fast-puzzle-board board-piece? drop
-0 testfastb bind fast-puzzle-board board-piece? drop
-0 testfastb bind fast-puzzle-board board-piece? drop
-0 testfastb bind fast-puzzle-board board-piece? drop
-0 testfastb bind fast-puzzle-board board-piece? drop
-0 testfastb bind fast-puzzle-board board-piece? drop
-0 testfastb bind fast-puzzle-board board-piece? drop
-0 testfastb bind fast-puzzle-board board-piece? drop
-0 testfastb bind fast-puzzle-board board-piece? drop
+480 0 ?do
+  i testfastb [bind] fast-puzzle-board board-piece? drop
+loop
 utime 2swap d- d. ." < time it takes for fast piece test!" cr
-
+;
+.s cr
 require ./puzzleboard.fs
 board heap-new constant puzzle-board
 x-puzzle-board y-puzzle-board z-puzzle-board puzzle-board bind board set-board-dims
-0 ref-piece-array bind piece-array upiece@ constant testpiece
+0 ref-piece-array bind piece-array upiece@ puzzle-board bind board place-piece-on-board drop
+: slowtest
 utime
-testpiece puzzle-board bind board piece-on-board? drop
-testpiece puzzle-board bind board piece-on-board? drop
-testpiece puzzle-board bind board piece-on-board? drop
-testpiece puzzle-board bind board piece-on-board? drop
-testpiece puzzle-board bind board piece-on-board? drop
-testpiece puzzle-board bind board piece-on-board? drop
-testpiece puzzle-board bind board piece-on-board? drop
-testpiece puzzle-board bind board piece-on-board? drop
-testpiece puzzle-board bind board piece-on-board? drop
-testpiece puzzle-board bind board piece-on-board? drop
+480 0 ?do
+  i ref-piece-array [bind] piece-array upiece@
+  puzzle-board [bind] board piece-on-board? drop
+loop
 utime 2swap d- d. ." < time it takes for slow piece test!" cr
+;
+.s cr
+0 ref-piece-array bind piece-array upiece@ constant 0item
+10 ref-piece-array bind piece-array upiece@ constant 10item
+.s cr
+: slowtest1
+utime
+480 0 ?do
+  0item puzzle-board [bind] board piece-on-board? drop
+loop
+utime 2swap d- d. ." < time it takes for 0item slow piece test!" cr
+;
 
-\\\
-require ./puzzleboard.fs
-board heap-new constant puzzle-board
-x-puzzle-board y-puzzle-board z-puzzle-board puzzle-board bind board set-board-dims
-0 ref-piece-array bind piece-array upiece@
-puzzle-board bind board place-piece-on-board drop
-puzzle-board bind board see-board
+: slowtest2
+utime
+480 0 ?do
+  10item puzzle-board [bind] board piece-on-board? drop
+loop
+utime 2swap d- d. ." < time it takes for 10item slow piece test!" cr
+;
 
-4000 ms
-
-puzzle-board bind board construct
-x-puzzle-board y-puzzle-board z-puzzle-board puzzle-board bind board set-board-dims
-8 ref-piece-array bind piece-array upiece@
-puzzle-board bind board place-piece-on-board drop
-puzzle-board bind board see-board
+fasttest .s cr
+slowtest .s cr
+slowtest1 .s cr
+slowtest2 .s cr
