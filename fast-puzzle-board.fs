@@ -16,6 +16,9 @@ defer -fast-puzzle-board
 save-instance-data class
   destruction implementation
   protected
+  inst-value x-max
+  inst-value y-max
+  inst-value z-max
   inst-value z-mult                 \ calculated value for the z multiplier used to find board-array memory location
   inst-value x-display-offset
   inst-value y-display-offset
@@ -31,7 +34,7 @@ save-instance-data class
     upiece [bind] piece voxel-quantity@ 0 ?do
       i upiece [bind] piece get-voxel  ( x y z )
       z-mult * ( x y z*scale )
-      swap x-puzzle-board * + ( x y*scale+z*scale )
+      swap x-max * + ( x y*scale+z*scale )
       + uref-piece swap
       board-array [bind] multi-cell-array cell-array!
     loop
@@ -42,7 +45,7 @@ save-instance-data class
     upiece [bind] piece voxel-quantity@ 0 ?do
       i upiece [bind] piece get-voxel  ( x y z )
       z-mult * ( x y z*scale )
-      swap x-puzzle-board * + ( x y*scale+z*scale )
+      swap x-max * + ( x y*scale+z*scale )
       + true swap
       board-array [bind] multi-cell-array cell-array!
     loop
@@ -57,7 +60,10 @@ save-instance-data class
   m: ( uref-piece-array fast-puzzle-board -- ) \ constructor
     \ uref-piece-array is a piece-array object that contains all the pieces this puzzle board can place on it. This  uref-piece-array contents are copied into this object uref-piece-array itself is not stored.
     this [parent] construct
-    x-puzzle-board y-puzzle-board z-puzzle-board * * [to-inst] max-board-array-index
+    x-puzzle-board [to-inst] x-max
+    y-puzzle-board [to-inst] y-max
+    z-puzzle-board [to-inst] z-max 
+    x-max y-max z-max * * [to-inst] max-board-array-index
     max-board-array-index 1 multi-cell-array heap-new [to-inst] board-array
     this [current] empty-board
     double-linked-list heap-new [to-inst] board-pieces-list
@@ -65,10 +71,10 @@ save-instance-data class
     [bind] piece-array serialize-data@ ref-piece-array [bind] piece-array serialize-data! \ now copy uref-piece-array to ref-piece-array
     0 ref-piece-array [bind] piece-array upiece@ [bind] piece voxel-quantity@ max-board-array-index swap / [to-inst] max-board-pieces
     \ idea here is the all pieces in ref-piece-array are same size so use that first piece to calculate max-board-pieces
-    x-puzzle-board y-puzzle-board * [to-inst] z-mult
+    x-max y-max * [to-inst] z-mult
     ref-piece-array [bind] piece-array quantity@ s>f flog fround f>s 3 + [to-inst] x-display-offset ( max number + padding + space between )
     1 [to-inst] y-display-offset ( line spacing )
-    y-puzzle-board y-display-offset * 1 + [to-inst] z-display-offset ( y display size + 1 line seperator )
+    y-max y-display-offset * 1 + [to-inst] z-display-offset ( y display size + 1 line seperator )
   ;m overrides construct
   m: ( fast-puzzle-board -- ) \ destructor to release all allocated memory
     this [parent] destruct
@@ -84,12 +90,12 @@ save-instance-data class
 
   m: ( fast-puzzle-board -- ) \ terminal display
     page
-    z-puzzle-board 0 ?do
-      y-puzzle-board 0 ?do
-        x-puzzle-board 0 ?do
+    z-max 0 ?do
+      y-max 0 ?do
+        x-max 0 ?do
           i x-display-offset * j y-display-offset * k z-display-offset * + at-xy
           i j k z-mult * ( x y z*scale )
-          swap x-puzzle-board * + ( x y*scale+z*scale )
+          swap x-max * + ( x y*scale+z*scale )
           + board-array [bind] multi-cell-array cell-array@
           dup true = if drop ." *****" else u. then
         loop
@@ -103,7 +109,7 @@ save-instance-data class
     max-board-pieces ;m method max-board-pieces@
 
   m: ( fast-puzzle-board -- ux uy uz ) \ return the board dimensions
-    x-puzzle-board y-puzzle-board z-puzzle-board  ;m method board-dims@
+    x-max y-max z-max  ;m method board-dims@
 
   m: ( uref-piece fast-puzzle-board -- nflag ) \ test if uref-piece can be placed in current board
     \ nflag is true if uref-piece can be placed on the current board
@@ -208,7 +214,7 @@ testfastb bind fast-puzzle-board output-board cr
 testfastb bind fast-puzzle-board clear-board cr
 testfastb bind fast-puzzle-board output-board cr
 .s cr
-\ \\\
+\\\
 0 testfastb bind fast-puzzle-board board-piece! . ." < should be true. placed 0 on board for testing speed!" cr
 10 testfastb bind fast-puzzle-board board-piece! . ." < should be true. placed 10 on board for testing speed!" cr
 : fasttest
