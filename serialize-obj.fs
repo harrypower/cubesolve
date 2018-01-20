@@ -52,6 +52,7 @@ object class
   m: ( nnumber save-instance-data -- ) \ saves nnumber to save$ - note this is a cell wide number
     this #sto$ save$ [bind] strings !$x ;m method do-save-nnumber
   m: ( save-instance-data -- dnumber nflag ) \ retrieve string number from save$
+    \ nflag is true for dnumber being successfully retrieved from string 
     save$ [bind] strings @$x s>number? ;m method do-retrieve-dnumber
   m: ( save-instance-data -- caddr u dnumber nflag ) \ retrieve string name and string number from save$
     save$ [bind] strings @$x this do-retrieve-dnumber ;m  method do-retrieve-data

@@ -28,7 +28,6 @@ save-instance-data class
   inst-value board-array            \ mcda of current board locations index numbers inside them ( piece voxels ) this is used for the terminal display
   inst-value board-pieces-list      \ double-linked-list of current pieces on board. if this equals max-board-pieces then puzzle is solved
   inst-value ref-piece-array        \ pieces-array that is a copy of uref-piece-array passed to this object
-\  inst-value serialize-piece-list   \ used only to process serialized data
   inst-value serialize-temp-string$ \ used only to process serialized data
   m: ( uref-piece fast-puzzle-board -- ) \ place piece on display board
     0 { uref-piece upiece } uref-piece ref-piece-array [bind] piece-array upiece@ to upiece
@@ -66,17 +65,17 @@ save-instance-data class
 
   m: ( nquantity fast-puzzle-board -- ) \ used only by serialize-data! to restore board-array data for this object
     0 ?do
-      this do-retrieve-dnumber throw d>s
-      i board-array [bind] multi-cell-array cell-array!
+      this do-retrieve-dnumber true <> abort" board-array serialized data bad!"
+      d>s i board-array [bind] multi-cell-array cell-array!
     loop
-  ;m method serialize-fpb-board-array!
+  ;m method serialize-board-array!
 
   m: ( nquantity fast-puzzle-board -- ) \ used only by serialize-data! to restore board-pieces-list data for this object
     0 ?do
-      this do-retrieve-dnumber throw d>s
-      board-pieces-list [bind] double-linked-list ll-cell!
+      this do-retrieve-dnumber true <> abort" board-pieces-list data bad!"
+      d>s board-pieces-list [bind] double-linked-list ll-cell!
     loop
-  ;m method serialize-fpb-board-pieces-list!
+  ;m method serialize-board-pieces-list!
 
   m: ( nquantity fast-puzzle-board -- ) \ used only by serialize-data! to restore ref-piece-array data for this object
     serialize-temp-string$ [bind] strings destruct
@@ -85,7 +84,7 @@ save-instance-data class
       save$ [bind] strings @$x 2dup
       s" End of ref-piece-array data!" compare 0 = if 2drop true else serialize-temp-string$ [bind] strings !$x false then
     until
-  ;m method serialize-fpb-ref-piece-array!
+  ;m method serialize-ref-piece-array!
 
   public
   m: ( uref-piece-array fast-puzzle-board -- ) \ constructor
@@ -106,7 +105,6 @@ save-instance-data class
     ref-piece-array [bind] piece-array quantity@ s>f flog fround f>s 3 + [to-inst] x-display-offset ( max number + padding + space between )
     1 [to-inst] y-display-offset ( line spacing )
     y-max y-display-offset * 1 + [to-inst] z-display-offset ( y display size + 1 line seperator )
-  \  double-linked-list heap-new [to-inst] serialize-piece-list
     strings heap-new [to-inst] serialize-temp-string$
   ;m overrides construct
   m: ( fast-puzzle-board -- ) \ destructor to release all allocated memory
@@ -116,7 +114,6 @@ save-instance-data class
     ref-piece-array [bind] piece-array destruct
     0 [to-inst] max-board-pieces
     0 [to-inst] max-board-array-index
-  \  serialize-piece-list [bind] double-linked-list destruct
     serialize-temp-string$ [bind] strings destruct
   ;m overrides destruct
 
@@ -212,21 +209,21 @@ save-instance-data class
     ['] z-display-offset this do-save-inst-value
     ['] max-board-array-index this do-save-inst-value
     ['] max-board-pieces this do-save-inst-value
-
-    ['] serialize-fpb-board-array! this do-save-name
+\ .s cr
+    ['] serialize-board-array! this do-save-name
     board-array [bind] multi-cell-array cell-array-dimensions@ drop dup this do-save-nnumber
     0 ?do
-      board-array [bind] multi-cell-array cell-array@ this do-save-nnumber
+      i board-array [bind] multi-cell-array cell-array@ this do-save-nnumber
     loop
-
-    ['] serialize-fpb-board-pieces-list! this do-save-name
+ \ .s cr
+    ['] serialize-board-pieces-list! this do-save-name
     board-pieces-list [bind] double-linked-list ll-size@ dup this do-save-nnumber
     board-pieces-list [bind] double-linked-list ll-set-start
     0 ?do
       board-pieces-list [bind] double-linked-list ll-cell@ this do-save-nnumber
     loop
-
-    ['] serialize-fpb-ref-piece-array! this do-save-name
+\ .s cr
+    ['] serialize-ref-piece-array! this do-save-name
     ref-piece-array [bind] piece-array quantity@ this do-save-nnumber
     ref-piece-array [bind] piece-array serialize-data@ save$ [bind] strings copy$s
     s" End of ref-piece-array data!" save$ [bind] strings !$x
@@ -252,6 +249,8 @@ save-instance-data class
 
   m: ( fast-puzzle-board -- ) \ print stuff for testing
     ref-piece-array [bind] piece-array quantity@ . ." ref-piece-array quantity" cr
+    board-array [bind] multi-cell-array cell-array-dimensions@ .s ." board-array dimensions" cr drop drop
+    board-pieces-list [bind] double-linked-list ll-size@ . ." board-pieces-list size" cr
     x-max . ." x-max" cr
     y-max . ." y-max" cr
     z-max . ." z-max" cr
@@ -299,8 +298,10 @@ testfastb bind fast-puzzle-board output-board cr
 .s cr
 
 strings heap-new constant testserialize$
+0 testfastb bind fast-puzzle-board board-piece! . ." should be true " cr
+10 testfastb bind fast-puzzle-board board-piece! . ." should be true " cr
 testfastb bind fast-puzzle-board print
-." data before serializing! " cr
+.s cr ." data before serializing! " cr
 testfastb bind fast-puzzle-board serialize-data@
 testserialize$ bind strings copy$s
 testserialize$ testfastb bind fast-puzzle-board serialize-data!
