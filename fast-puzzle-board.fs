@@ -56,13 +56,21 @@ save-instance-data class
       true i board-array [bind] multi-cell-array cell-array!
     loop
   ;m method empty-board
+
+  m: ( ntotal-inst-vars piece-array -- ) \ used only by serialize-data! to restore the data for this object
+    0 ?do
+      -fast-puzzle-board this do-retrieve-inst-value
+    loop
+\  .s ." at serialize-fpb-inst-values!" cr
+  ;m method serialize-fpb-inst-values!
+
   public
   m: ( uref-piece-array fast-puzzle-board -- ) \ constructor
     \ uref-piece-array is a piece-array object that contains all the pieces this puzzle board can place on it. This  uref-piece-array contents are copied into this object uref-piece-array itself is not stored.
     this [parent] construct
     x-puzzle-board [to-inst] x-max
     y-puzzle-board [to-inst] y-max
-    z-puzzle-board [to-inst] z-max 
+    z-puzzle-board [to-inst] z-max
     x-max y-max z-max * * [to-inst] max-board-array-index
     max-board-array-index 1 multi-cell-array heap-new [to-inst] board-array
     this [current] empty-board
@@ -164,7 +172,32 @@ save-instance-data class
   m: ( fast-puzzle-board -- nstrings ) \ return nstrings that contain data to serialize this object
     this [parent] destruct \ to reset save data in parent class
     this [parent] construct
-    \ put code here to stringafy the data
+
+    ['] serialize-fpb-inst-values! this do-save-name
+    9 this do-save-nnumber  \ there are 9 inst-var saved here to serialize and retrieve later
+
+    ['] x-max this do-save-inst-value
+    ['] y-max this do-save-inst-value
+    ['] z-max this do-save-inst-value
+    ['] z-mult this do-save-inst-value
+    ['] x-display-offset this do-save-inst-value
+    ['] y-display-offset this do-save-inst-value
+    ['] z-display-offset this do-save-inst-value
+    ['] max-board-array-index this do-save-inst-value
+    ['] max-board-pieces this do-save-inst-value
+
+
+\    ['] pieces-array-quantity this do-save-inst-var
+\    ['] serialize-piece-array-data! this do-save-name
+\    this quantity@ this do-save-nnumber
+\    pieces-array-quantity @ 0 ?do
+\      i this upiece@ [bind] piece serialize-data@
+\      save$ [bind] strings copy$s
+\      s" piece-end" save$ [bind] strings !$x
+\    loop
+\    ['] serialize-intersect-array-data! this do-save-name
+\    this quantity@ this do-save-nnumber
+
     save$
   ;m overrides serialize-data@
 
@@ -173,11 +206,20 @@ save-instance-data class
     this [parent] construct
     save$ [bind] strings copy$s \ copies the strings object data to be used for retrieval
     this [current] do-retrieve-data true = if d>s rot rot -fast-puzzle-board rot rot this [current] $->method else 2drop 2drop true abort" FPB inst-value data incorrect!" then
-    this [current] do-retrieve-data true = if d>s rot rot -fast-puzzle-board rot rot this [current] $->method else 2drop 2drop true abort" FPB indexed reference data incorrect!" then
+    \ this [current] do-retrieve-data true = if d>s rot rot -fast-puzzle-board rot rot this [current] $->method else 2drop 2drop true abort" FPB indexed reference data incorrect!" then
   ;m overrides serialize-data!
 
   m: ( fast-puzzle-board -- ) \ print stuff for testing
     ref-piece-array [bind] piece-array quantity@ . ." ref-piece-array quantity" cr
+    x-max . ." x-max" cr
+    y-max . ." y-max" cr
+    z-max . ." z-max" cr
+    z-mult . ." z-mult" cr
+    x-display-offset . ." x-display-offset" cr
+    y-display-offset . ." y-display-offset" cr
+    z-display-offset . ." z-display-offset" cr
+    max-board-array-index . ." max-board-array-index" cr
+    max-board-pieces . ." max-board-pieces" cr
   ;m overrides print
 end-class fast-puzzle-board
 ' fast-puzzle-board is -fast-puzzle-board
@@ -214,6 +256,17 @@ testfastb bind fast-puzzle-board output-board cr
 testfastb bind fast-puzzle-board clear-board cr
 testfastb bind fast-puzzle-board output-board cr
 .s cr
+
+strings heap-new constant testserialize$
+testfastb bind fast-puzzle-board print
+." data before serializing! " cr
+testfastb bind fast-puzzle-board serialize-data@
+testserialize$ bind strings copy$s
+testserialize$ testfastb bind fast-puzzle-board serialize-data!
+testfastb bind fast-puzzle-board print
+." data after serializing! " cr
+
+
 \\\
 0 testfastb bind fast-puzzle-board board-piece! . ." < should be true. placed 0 on board for testing speed!" cr
 10 testfastb bind fast-puzzle-board board-piece! . ." < should be true. placed 10 on board for testing speed!" cr
