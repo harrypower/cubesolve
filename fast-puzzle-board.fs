@@ -84,6 +84,8 @@ save-instance-data class
       save$ [bind] strings @$x 2dup
       s" End of ref-piece-array data!" compare 0 = if 2drop true else serialize-temp-string$ [bind] strings !$x false then
     until
+    serialize-temp-string$ ref-piece-array [bind] piece-array serialize-data!
+    ref-piece-array [bind] piece-array quantity@ = invert abort" ref-piece-array data final size does not match saved size!"
   ;m method serialize-ref-piece-array!
 
   public
@@ -244,12 +246,11 @@ save-instance-data class
     this [current] do-retrieve-data true = if d>s rot rot -fast-puzzle-board rot rot this [current] $->method else 2drop 2drop true abort" FPB board-array data incorrect!" then
     this [current] do-retrieve-data true = if d>s rot rot -fast-puzzle-board rot rot this [current] $->method else 2drop 2drop true abort" FPB board-pieces-list data incorrect!" then
     this [current] do-retrieve-data true = if d>s rot rot -fast-puzzle-board rot rot this [current] $->method else 2drop 2drop true abort" FPB ref-piece-array data incorrect!" then
-    serialize-temp-string$ ref-piece-array [bind] piece-array serialize-data!
   ;m overrides serialize-data!
 
   m: ( fast-puzzle-board -- ) \ print stuff for testing
     ref-piece-array [bind] piece-array quantity@ . ." ref-piece-array quantity" cr
-    board-array [bind] multi-cell-array cell-array-dimensions@ .s ." board-array dimensions" cr drop drop
+    board-array [bind] multi-cell-array cell-array-dimensions@ . . ." board-array dimensions" cr
     board-pieces-list [bind] double-linked-list ll-size@ . ." board-pieces-list size" cr
     x-max . ." x-max" cr
     y-max . ." y-max" cr
@@ -302,12 +303,16 @@ strings heap-new constant testserialize$
 10 testfastb bind fast-puzzle-board board-piece! . ." should be true " cr
 testfastb bind fast-puzzle-board print
 .s cr ." data before serializing! " cr
+.s cr
 testfastb bind fast-puzzle-board serialize-data@
+.s cr
 testserialize$ bind strings copy$s
+.s cr
 testserialize$ testfastb bind fast-puzzle-board serialize-data!
+.s cr
 testfastb bind fast-puzzle-board print
 ." data after serializing! " cr
-
+testfastb bind fast-puzzle-board output-board cr
 
 \\\
 0 testfastb bind fast-puzzle-board board-piece! . ." < should be true. placed 0 on board for testing speed!" cr
