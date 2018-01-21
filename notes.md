@@ -13,6 +13,7 @@
 * *** note multidimentional cell array object does not initalize the array once created.. so ensure when using this object to do that at construct time.****
 * confirm serialize stuff works properly for each object.  Newpieces.fs , piece-array.fs, fast-puzzle-board.fs now have working serialize methods.
 * Make chain-piece-ref object that will hold an array of double-linked-lists to index the piece chains that are allowed!
+* update reference.md for fast-puzzle-board object and remove hole-array-piece-list or at least put it at bottom with note about not using it!   Also put a note about not using board object either!
 
 ### New idea to incorporate to this project
 * in the past version i concentrated on making reference list and using that fast list to brute force solution by filling the board holes.  My new idea is to use this reference list and add other lists to allow a piece chain type solution.
