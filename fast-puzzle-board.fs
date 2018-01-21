@@ -112,11 +112,15 @@ save-instance-data class
   m: ( fast-puzzle-board -- ) \ destructor to release all allocated memory
     this [parent] destruct
     board-array [bind] multi-cell-array destruct
+    board-array free throw
     board-pieces-list [bind] double-linked-list destruct
+    board-pieces-list free throw
     ref-piece-array [bind] piece-array destruct
+    ref-piece-array free throw
     0 [to-inst] max-board-pieces
     0 [to-inst] max-board-array-index
     serialize-temp-string$ [bind] strings destruct
+    serialize-temp-string$ free throw
   ;m overrides destruct
 
   m: ( fast-puzzle-board -- uindex ) \ return the max board index address
@@ -238,6 +242,7 @@ save-instance-data class
     save$ [bind] strings copy$s \ copies the strings object data to be used for retrieval
     this [current] do-retrieve-data true = if d>s rot rot -fast-puzzle-board rot rot this [current] $->method else 2drop 2drop true abort" FPB inst-value data incorrect!" then
 
+    strings heap-new [to-inst] serialize-temp-string$
     max-board-array-index 1 multi-cell-array heap-new [to-inst] board-array \ construct board-array
     this [current] empty-board                                              \ empty the board
     double-linked-list heap-new [to-inst] board-pieces-list                 \ construct board-pieces-list
@@ -315,7 +320,7 @@ testfastb bind fast-puzzle-board print
 testfastb bind fast-puzzle-board output-board cr
 
 \ ******************************************************************************************************************************************
-\ the following was used to confirm speed improvement of this fast-puzzle-board over board 
+\ the following was used to confirm speed improvement of this fast-puzzle-board over board
 \\\
 0 testfastb bind fast-puzzle-board board-piece! . ." < should be true. placed 0 on board for testing speed!" cr
 10 testfastb bind fast-puzzle-board board-piece! . ." < should be true. placed 10 on board for testing speed!" cr
