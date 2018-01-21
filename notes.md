@@ -11,17 +11,9 @@
 
 ### Things still to do in the above Files
 * *** note multidimentional cell array object does not initalize the array once created.. so ensure when using this object to do that at construct time.****
-* confirm serialize stuff works properly for each object
-* understand how fast-puzzle-board is different then puzzleboard and decide if it is the direction
-  #### fast-puzzle-board.fs vs puzzleboard.fs
-  * puzzleboard.fs makes board object that uses linked list of pieces.
-  * fast-puzzle-board.fs makes fast-puzzle-board object that uses an array of pieces.  
-  * fast-puzzle-board.fs file uses a simple number to reference a piece.  This number is the reference to pieces passed to the fast-puzzle-board.fs as a linked list but internaly stored as an array.  The board object from puzzleboard.fs uses a piece object for all its inputs so it is slower because that piece object needs to be tested with other pieces objects internaly that are stored as linked list.  This fast-puzzle-board object because it has the reference internally stored as an array that is faster to access.  This means all the fast-puzzle-board object inputs are all simply this reference number and accessing the piece is faster.  All these methods in fast-puzzle-board need to be fleshed out yet but it is the way to go forward.  There is no need to generate this reference internally because the reference is used externally also so just use the externally generated one passed to it internally.
-  * So fast-puzzle-board is used in the algorithm for solving the puzzle rather then board object because of its speed.
-  * fast-puzzle-board will also be able to display the board and serialize its data.
-  * some methods are not implemented or needed in fast-puzzle-board vs board but can be added to fast-puzzle-board if needed.
-  * I have now removed the use of puzzleboard.fs completely and will not use it in the future as fast-puzzle-board will replace it.
-  
+* confirm serialize stuff works properly for each object.  Newpieces.fs , piece-array.fs, fast-puzzle-board.fs now have working serialize methods.
+* Make chain-piece-ref object that will hold an array of double-linked-lists to index the piece chains that are allowed!
+
 ### New idea to incorporate to this project
 * in the past version i concentrated on making reference list and using that fast list to brute force solution by filling the board holes.  My new idea is to use this reference list and add other lists to allow a piece chain type solution.
 * this piece chain idea is that each piece from the reference list has two ends.  The ends of each piece has a place where another piece can be adjacent to the reference piece and if i chain together one at a time a piece then after 24 successful piece chains plus the first piece the puzzle is solved.   
