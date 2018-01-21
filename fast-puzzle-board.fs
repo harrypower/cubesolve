@@ -211,20 +211,20 @@ save-instance-data class
     ['] z-display-offset this do-save-inst-value
     ['] max-board-array-index this do-save-inst-value
     ['] max-board-pieces this do-save-inst-value
-\ .s cr
+
     ['] serialize-board-array! this do-save-name
     board-array [bind] multi-cell-array cell-array-dimensions@ drop dup this do-save-nnumber
     0 ?do
       i board-array [bind] multi-cell-array cell-array@ this do-save-nnumber
     loop
- \ .s cr
+
     ['] serialize-board-pieces-list! this do-save-name
     board-pieces-list [bind] double-linked-list ll-size@ dup this do-save-nnumber
     board-pieces-list [bind] double-linked-list ll-set-start
     0 ?do
       board-pieces-list [bind] double-linked-list ll-cell@ this do-save-nnumber
     loop
-\ .s cr
+
     ['] serialize-ref-piece-array! this do-save-name
     ref-piece-array [bind] piece-array quantity@ this do-save-nnumber
     ref-piece-array [bind] piece-array serialize-data@ save$ [bind] strings copy$s
@@ -266,7 +266,7 @@ end-class fast-puzzle-board
 ' fast-puzzle-board is -fast-puzzle-board
 
 \ **********************************************************************************************************************************************************************
-\ \\\
+\\\
 require ./allpieces.fs
 .s cr
 0 puzzle-pieces make-all-pieces heap-new constant map         \ this object is used to make reference lists from start pieces it is never used directly but produces ref piece list only
@@ -314,6 +314,8 @@ testfastb bind fast-puzzle-board print
 ." data after serializing! " cr
 testfastb bind fast-puzzle-board output-board cr
 
+\ ******************************************************************************************************************************************
+\ the following was used to confirm speed improvement of this fast-puzzle-board over board 
 \\\
 0 testfastb bind fast-puzzle-board board-piece! . ." < should be true. placed 0 on board for testing speed!" cr
 10 testfastb bind fast-puzzle-board board-piece! . ." < should be true. placed 10 on board for testing speed!" cr

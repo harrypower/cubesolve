@@ -82,7 +82,7 @@
     * `$->method`       _( nclass caddr u save-instance-data -- )_
         - caddr u is a method to be executed ... note nclass is needed!
 
-  #### private methods that are normaly used directly by inherited class to save and restore data into save$ strings object
+  #### private methods that are normally used directly by inherited class to save and restore data into save$ strings object
     * `do-save-name`            _( xt save-instance-data -- )_
         - saves the name string of xt by getting the nt first name to save$
     * `do-save-inst-value`      _( xt save-instance-data -- )_
@@ -99,30 +99,6 @@
         - restores instance var from save$
     * `do-retrieve-inst-value`  _( nclass save-instance-data -- )_
         - restores instance value from save$
-
-
-* ### board
-  puzzleboard.fs
-  * `construct`             _( board -- )_
-  * `destruct`              _( board -- )_
-  * `set-board-dims`        _( ux uy uz board -- )_
-      - set max board size and allocate the board-array memory
-  * `get-board-dims`        _( board -- ux-max uy-max uz-max )_
-      - get dimensions of this board
-  * `board-piece-quantity@` _( board -- uquantity )_
-      - return how many pieces are currently on the board
-  * `voxel-on-board?`       _( ux uy uz board -- nflag )_
-      - ux uy uz is a voxel to test if it can be placed on an empty board
-  * `piece-on-board?`       _( upiece board -- nflag )_
-      - test if upiece can be placed on an empty board nflag is true if piece can be placed false if not
-  * `piece-on-this-board?`  _( upiece board -- nflag )_
-      - test if upiece could be placed on the current populated board
-  * `place-piece-on-board`  _( upiece board -- nflag )_
-      - place upiece on the current board if it can be placed without intersecting with other pieces
-  * `nget-board-piece`      _( uindex board -- upiece )_
-      - retrieve uindex piece from this board in the form of a piece object
-  * `see-board`             _( board -- )_
-      - crude terminal board display
 
 * ### piece-array
   piece-array.fs
@@ -149,8 +125,55 @@
       - constructor
       - uindex is the reference to the pieces object piece defined in newpuzzle.def file
       - upieces2 is the returned pieces object that contains the total list of pieces that can be in board as defined by upieces and puzzle-board
-      - note puzzle-board contains the dimensions of the board used here
+      - note newpuzzle.def contains the dimensions of the board used here in three constants
   * `destruct`          _( make-all-pieces -- )_
+
+* ### fast-puzzle-board
+  fast-puzzle-board.fs
+  * `construct`         _( uref-piece-array fast-puzzle-board -- )_
+      - constructor
+      - uref-piece-array is a piece array that contains all the pieces as a reference
+      - note newpuzzle.def contains the dimensions of the board used here in three constants
+  * `destruct`
+  * `max-board-index@`
+  * `output-board`
+  * `board-pieces@`
+  * `max-board-pieces@`
+  * `board-dims@`
+  * `board-piece?`
+  * `board-piece!`
+  * `nboard-piece@`
+  * `remove-last-piece`
+  * `clear-board`
+  * `serialize-data@`
+  * `serialize-data!`
+  * `print`            _( fast-puzzle-board -- )_
+      - print stuff for testing
+
+## The following is not used going forward
+
+* ### board
+  puzzleboard.fs
+  * `construct`             _( board -- )_
+  * `destruct`              _( board -- )_
+  * `set-board-dims`        _( ux uy uz board -- )_
+      - set max board size and allocate the board-array memory
+  * `get-board-dims`        _( board -- ux-max uy-max uz-max )_
+      - get dimensions of this board
+  * `board-piece-quantity@` _( board -- uquantity )_
+      - return how many pieces are currently on the board
+  * `voxel-on-board?`       _( ux uy uz board -- nflag )_
+      - ux uy uz is a voxel to test if it can be placed on an empty board
+  * `piece-on-board?`       _( upiece board -- nflag )_
+      - test if upiece can be placed on an empty board nflag is true if piece can be placed false if not
+  * `piece-on-this-board?`  _( upiece board -- nflag )_
+      - test if upiece could be placed on the current populated board
+  * `place-piece-on-board`  _( upiece board -- nflag )_
+      - place upiece on the current board if it can be placed without intersecting with other pieces
+  * `nget-board-piece`      _( uindex board -- upiece )_
+      - retrieve uindex piece from this board in the form of a piece object
+  * `see-board`             _( board -- )_
+      - crude terminal board display
 
 * ### hole-array-piece-list
   ref-puzzle-pieces.fs
@@ -180,12 +203,3 @@
       - return nstrings that contain data to serialize this object
   * `serialize-data!`         _( nstrings hole-array-piece-list -- )_
       - nstrings contains serialized data to restore this object
-
-* solution object
-  * will take ref-piece-array object and hole-array-piece-list object and puzzle-board
-  * will store a working puzzle board array to fast access pieces on board in a reference form
-  * will use the fast intersect method from ref-piece-array to solve intersections.
-  * will mechanize the sequential hole filling to solve puzzle
-
-* Next additions or bugs to work on
-  * convert all the objects to use the save-instance-data object to allow complete data saving of the objects data!
