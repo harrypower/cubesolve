@@ -16,6 +16,7 @@ piece-array class
   destruction implementation
   protected
 \  inst-value value-name
+  inst-value chain-array  \ mdca containing double-linked-list objects per array cell
 
   m: ( nquantity chain-ref -- ) \ used to restore serialized instance values
   ;m method ser-chain-inst-values!
@@ -26,10 +27,19 @@ piece-array class
   public
   m: ( upieces chain-ref -- ) \ constructor
     this [parent] construct
+    this [current] quantity@ 1 multi-cell-array heap-new [to-inst] chain-array
+    this [current] quantity@ 0 ?do
+      double-linked-list heap-new i chain-array [bind] multi-cell-array cell-array!
+    loop
   ;m overrides construct
 
   m: ( chain-ref -- ) \ destructor
     this [parent] destruct
+    this [current] quantity@ 0 ?do
+      i chain-array [bind] multi-cell-array cell-array@ dup [bind] double-linked-list destruct free throw
+    loop
+    chain-array [bind] multi-cell-array destruct
+    chain-array free throw
   ;m overrides destruct
 
   m: ( chain-ref -- nstrings ) \ return nstrings that contain data to serialize this object
@@ -52,7 +62,6 @@ piece-array class
     \ this [current] destruct
     \ this [parent] construct
     this [parent] serialize-data!
-    save$ [bind] strings copy$s \ copies the strings object data to be used for retrieval
     \ this [current] do-retrieve-data true = if d>s rot rot -chain-ref rot rot this [current] $->method else 2drop 2drop true abort" chain-ref inst-value data incorrect!" then
     \ this [current] do-retrieve-data true = if d>s rot rot -chain-ref rot rot this [current] $->method else 2drop 2drop true abort" chain-ref double-linked-list data incorrect!" then
   ;m overrides serialize-data!
@@ -71,3 +80,5 @@ constant ref-piece-list                                       \ this is the refe
 ref-piece-list chain-ref heap-new constant chain-ref-array    \ this object takes reference list from above and makes chain ref array of that data
 
 chain-ref-array bind chain-ref quantity@ . ." < should be 480" cr
+
+chain-ref-array bind chain-ref destruct
