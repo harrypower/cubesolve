@@ -14,19 +14,54 @@ require ./fast-puzzle-board.fs
 defer -chain-ref
 piece-array class
   destruction implementation
-  protected
-\  inst-value value-name
+\  protected
+  public
   inst-value chain-array  \ mdca containing double-linked-list objects per array cell
+
+  m: ( tx ty tz rx ry rz chain-ref -- nflag ) \ find if test voxels are in chain places compaired to reference voxels
+  \ nflag is true if chain found false if no chain found
+    { tx ty tz rx ry rz }
+    \ x in range and y in range and z in range then true
+    tx rx 1 + <= tx rx 1 - >= and
+    ty ry 1 + <= tx ry 1 - >= and
+    tz rz 1 + <= tz rz 1 - >= and
+    and and
+  ;m method (do-chain?)
 
   m: ( uref-test uref chain-ref -- nflag ) \ for a uref piece find if uref-test piece can chain on either end
   \ nflag returns true if uref-test can chain with uref piece and false if uref-test piece can not chain with uref
-  \ note there are 17 X 2 voxel locations to test for a piece to be considered a chain piece.  This method test them all and returns true at first chain find!
-  \ The false will be returned if uref-test has no end piece in one of these 17 X 2 voxel locations.
+  \ note there are 9 X 3 -1 voxel locations to test for a piece to be considered a chain piece.  This method test them all and returns true at first chain find!
+  \ The false will be returned if uref-test has no end piece in one of these voxel locations.
+  \ note if uref-test intersects with uref then nflag is false
+    0 0 { uref-test uref test-end uref-end }
+    uref-test uref this [current] fast-intersect? if
+      false \ intersection detected!
+    else
+      uref-test this [current] upiece@ [bind] piece voxel-quantity@ to test-end
+      uref this [current] upiece@ [bind] piece voxel-quantity@ to uref-end
+      \ test voxel 0 to voxel 0
+      0 uref-test this [current] upiece@ [bind] piece get-voxel
+      0 uref this [current] upiece@ [bind] piece get-voxel
+      this [current] (do-chain?)
+      \ test voxel 0 to voxel end
+      0 uref-test this [current] upiece@ [bind] piece get-voxel
+      uref-end uref this [current] upiece@ [bind] piece get-voxel
+      this [current] (do-chain?)
+      \ test voxel end to voxel 0
+      test-end uref-test this [current] upiece@ [bind] piece get-voxel
+      0 uref this [current] upiece@ [bind] piece get-voxel
+      this [current] (do-chain?)
+      \ test voxel end to voxel end
+      test-end uref-test this [current] upiece@ [bind] piece get-voxel
+      uref-end uref this [current] upiece@ [bind] piece get-voxel
+      this [current] (do-chain?)
+      or or or
+    then
   ;m method chain?
 
   m: ( uref chain-ref -- ) \ populate the reference chain list for uref piece only in chain-array mdca
   \ note this needs to be done for each reference piece in this piece-array
-    drop 
+    drop
   ;m method generate-chain
 
   m: ( nquantity chain-ref -- ) \ used to restore serialized instance values
@@ -100,4 +135,15 @@ ref-piece-list chain-ref heap-new constant chain-ref-array    \ this object take
 
 chain-ref-array bind chain-ref quantity@ . ." < should be 480" cr
 
-chain-ref-array bind chain-ref destruct
+\ chain-ref-array bind chain-ref destruct
+chain-ref-array fast-puzzle-board heap-new constant see-chain
+
+0 see-chain bind fast-puzzle-board board-piece! . ." < should be true!" cr
+10 see-chain bind fast-puzzle-board board-piece! . ." < should be true!" cr
+16 see-chain bind fast-puzzle-board board-piece! . ." < should be true!" cr
+see-chain bind fast-puzzle-board output-board
+
+cr
+0 10 chain-ref-array bind chain-ref chain? . ." < should be false!" cr
+10 16 chain-ref-array bind chain-ref chain? . ." < should be true!" cr
+0 16 chain-ref-array bind chain-ref chain? . ." < should be false!" cr
