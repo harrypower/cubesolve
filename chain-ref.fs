@@ -18,29 +18,48 @@ piece-array class
 \  inst-value value-name
   inst-value chain-array  \ mdca containing double-linked-list objects per array cell
 
+  m: ( uref-test uref chain-ref -- nflag ) \ for a uref piece find if uref-test piece can chain on either end
+  \ nflag returns true if uref-test can chain with uref piece and false if uref-test piece can not chain with uref
+  \ note there are 17 X 2 voxel locations to test for a piece to be considered a chain piece.  This method test them all and returns true at first chain find!
+  \ The false will be returned if uref-test has no end piece in one of these 17 X 2 voxel locations.
+  ;m method chain?
+
+  m: ( uref chain-ref -- ) \ populate the reference chain list for uref piece only in chain-array mdca
+  \ note this needs to be done for each reference piece in this piece-array
+    drop 
+  ;m method generate-chain
+
   m: ( nquantity chain-ref -- ) \ used to restore serialized instance values
   ;m method ser-chain-inst-values!
 
   m: ( nquantity chain-ref -- ) \ used to restore serialized double-linked-list
   ;m method ser-chain-dll!
-
   public
   m: ( upieces chain-ref -- ) \ constructor
     this [parent] construct
     this [current] quantity@ 1 multi-cell-array heap-new [to-inst] chain-array
     this [current] quantity@ 0 ?do
       double-linked-list heap-new i chain-array [bind] multi-cell-array cell-array!
+      i this [current] generate-chain
     loop
   ;m overrides construct
 
   m: ( chain-ref -- ) \ destructor
-    this [parent] destruct
     this [current] quantity@ 0 ?do
       i chain-array [bind] multi-cell-array cell-array@ dup [bind] double-linked-list destruct free throw
     loop
     chain-array [bind] multi-cell-array destruct
     chain-array free throw
+    this [parent] destruct
   ;m overrides destruct
+
+  m: ( uref chain-ref -- unext-chain nflag ) \ retrieve next chain reference for given uref piece
+  \ unext-chain is a piece that can chain to uref piece
+  \ nflag is true when the list of possible chains for uref is at the end and will reset for next retriveal to be at beginning of list
+  ;m method next-chain@
+
+  m: ( uref chain-ref -- uchain-quantity ) \ return chain quantity for given uref piece
+  ;m method chain-quantity@
 
   m: ( chain-ref -- nstrings ) \ return nstrings that contain data to serialize this object
     this [parent] serialize-data@
