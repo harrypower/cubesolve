@@ -23,7 +23,7 @@ piece-array class
     { tx ty tz rx ry rz }
     \ x in range and y in range and z in range then true
     tx rx 1 + <= tx rx 1 - >= and
-    ty ry 1 + <= tx ry 1 - >= and
+    ty ry 1 + <= ty ry 1 - >= and
     tz rz 1 + <= tz rz 1 - >= and
     and and
   ;m method (do-chain?)
@@ -42,19 +42,27 @@ piece-array class
       \ test voxel 0 to voxel 0
       0 uref-test this [current] upiece@ [bind] piece get-voxel
       0 uref this [current] upiece@ [bind] piece get-voxel
+      \ .s ." 0 to 0 input" cr
       this [current] (do-chain?)
+      \ ." 0 to 0 output" cr
       \ test voxel 0 to voxel end
       0 uref-test this [current] upiece@ [bind] piece get-voxel
       uref-end uref this [current] upiece@ [bind] piece get-voxel
+      \ .s ." 0 to end input" cr
       this [current] (do-chain?)
+      \ ." 0 to end output" cr
       \ test voxel end to voxel 0
       test-end uref-test this [current] upiece@ [bind] piece get-voxel
       0 uref this [current] upiece@ [bind] piece get-voxel
+      \ .s ." end to 0 input" cr
       this [current] (do-chain?)
+      \ ." end to 0 output" cr
       \ test voxel end to voxel end
       test-end uref-test this [current] upiece@ [bind] piece get-voxel
       uref-end uref this [current] upiece@ [bind] piece get-voxel
+      \ .s ." end to end input" cr
       this [current] (do-chain?)
+      \ ." end to end output" cr
       or or or
     then
   ;m method chain?
@@ -141,9 +149,13 @@ chain-ref-array fast-puzzle-board heap-new constant see-chain
 0 see-chain bind fast-puzzle-board board-piece! . ." < should be true!" cr
 10 see-chain bind fast-puzzle-board board-piece! . ." < should be true!" cr
 16 see-chain bind fast-puzzle-board board-piece! . ." < should be true!" cr
+26 see-chain bind fast-puzzle-board board-piece! . ." < should be true!" cr
 see-chain bind fast-puzzle-board output-board
 
 cr
 0 10 chain-ref-array bind chain-ref chain? . ." < should be false!" cr
 10 16 chain-ref-array bind chain-ref chain? . ." < should be true!" cr
 0 16 chain-ref-array bind chain-ref chain? . ." < should be false!" cr
+0 26 chain-ref-array bind chain-ref chain? . ." < should be true!" cr
+10 26 chain-ref-array bind chain-ref chain? . ." < should be true!" cr
+16 26 chain-ref-array bind chain-ref chain? . ." < should be false!" cr 
