@@ -106,7 +106,7 @@ piece-array class
   \ unext-chain is a piece that can chain to uref piece
   \ nflag is true when the list of possible chains for uref is at the end and will reset for next retriveal to be at beginning of list
     chain-array [bind] multi-cell-array cell-array@ dup [bind] double-linked-list ll-cell@
-    swap dup [bind] double-linked-list ll> if [bind] double-linked-list ll-set-start true else drop then
+    swap dup [bind] double-linked-list ll> if [bind] double-linked-list ll-set-start true else drop false then
   ;m method next-chain@
 
   m: ( uref chain-ref -- uchain-quantity ) \ return chain quantity for given uref piece
@@ -116,11 +116,10 @@ piece-array class
   m: ( chain-ref -- nstrings ) \ return nstrings that contain data to serialize this object
     this [parent] serialize-data@ \ do the parent serializing stuff
     drop \ droped returned save$ as not done yet!
-    ['] ser-chain-data! this [current] do-save-name ." saved ser-chain-data" cr
-    this [current] quantity@ dup this [current] do-save-nnumber ." saved quanity" cr
+    ['] ser-chain-data! this [current] do-save-name
+    this [current] quantity@ dup this [current] do-save-nnumber
     0 ?do
       i chain-array [bind] multi-cell-array cell-array@ [bind] double-linked-list ll-set-start  \ start at begining
-      ." started for " i . cr 
       i this [current] chain-quantity@ dup this [current] do-save-nnumber
       0 ?do
         i this [current] next-chain@ drop this [current] do-save-nnumber
@@ -176,10 +175,15 @@ cr
 
 list-chains
 
+0 chain-ref-array bind chain-ref next-chain@ . . cr
+0 chain-ref-array bind chain-ref next-chain@ . . cr
+0 chain-ref-array bind chain-ref next-chain@ . . cr
+
+
 strings heap-new constant temp$s
 chain-ref-array bind chain-ref serialize-data@
-\ temp$s bind strings copy$s
+temp$s bind strings copy$s
 \ chain-ref-array bind chain-ref destruct
-\ temp$s chain-ref-array bind chain-ref serialize-data!
+temp$s chain-ref-array bind chain-ref serialize-data!
 
 \ list-chains
