@@ -14,8 +14,8 @@ require ./fast-puzzle-board.fs
 defer -chain-ref
 piece-array class
   destruction implementation
-\  protected
-  public
+  protected
+\  public
   inst-value chain-array  \ mdca containing double-linked-list objects per array cell
 
   m: ( tx ty tz rx ry rz chain-ref -- nflag ) \ find if test voxels are in chain places compaired to reference voxels
@@ -42,35 +42,34 @@ piece-array class
       \ test voxel 0 to voxel 0
       0 uref-test this [current] upiece@ [bind] piece get-voxel
       0 uref this [current] upiece@ [bind] piece get-voxel
-      \ .s ." 0 to 0 input" cr
       this [current] (do-chain?)
-      \ ." 0 to 0 output" cr
       \ test voxel 0 to voxel end
       0 uref-test this [current] upiece@ [bind] piece get-voxel
       uref-end uref this [current] upiece@ [bind] piece get-voxel
-      \ .s ." 0 to end input" cr
       this [current] (do-chain?)
-      \ ." 0 to end output" cr
       \ test voxel end to voxel 0
       test-end uref-test this [current] upiece@ [bind] piece get-voxel
       0 uref this [current] upiece@ [bind] piece get-voxel
-      \ .s ." end to 0 input" cr
       this [current] (do-chain?)
-      \ ." end to 0 output" cr
       \ test voxel end to voxel end
       test-end uref-test this [current] upiece@ [bind] piece get-voxel
       uref-end uref this [current] upiece@ [bind] piece get-voxel
-      \ .s ." end to end input" cr
       this [current] (do-chain?)
-      \ ." end to end output" cr
       or or or
     then
   ;m method chain?
 
   m: ( uref chain-ref -- ) \ populate the reference chain list for uref piece only in chain-array mdca
   \ note this needs to be done for each reference piece in this piece-array
-    drop
+    { uref }
+    this [current] quantity@ 0 ?do
+      i uref this [current] chain? if
+        \ store chain
+        i uref chain-array [bind] multi-cell-array cell-array@ [bind] double-linked-list ll-cell!
+      then
+    loop
   ;m method generate-chain
+
 
   m: ( nquantity chain-ref -- ) \ used to restore serialized instance values
   ;m method ser-chain-inst-values!
@@ -99,9 +98,12 @@ piece-array class
   m: ( uref chain-ref -- unext-chain nflag ) \ retrieve next chain reference for given uref piece
   \ unext-chain is a piece that can chain to uref piece
   \ nflag is true when the list of possible chains for uref is at the end and will reset for next retriveal to be at beginning of list
+    chain-array [bind] multi-cell-array cell-array@ dup [bind] double-linked-list ll-cell@
+    swap dup [bind] double-linked-list ll> if [bind] double-linked-list ll-set-start true else drop then
   ;m method next-chain@
 
   m: ( uref chain-ref -- uchain-quantity ) \ return chain quantity for given uref piece
+    chain-array [bind] multi-cell-array cell-array@ [bind] double-linked-list ll-size@
   ;m method chain-quantity@
 
   m: ( chain-ref -- nstrings ) \ return nstrings that contain data to serialize this object
@@ -153,9 +155,18 @@ chain-ref-array fast-puzzle-board heap-new constant see-chain
 see-chain bind fast-puzzle-board output-board
 
 cr
-0 10 chain-ref-array bind chain-ref chain? . ." < should be false!" cr
-10 16 chain-ref-array bind chain-ref chain? . ." < should be true!" cr
-0 16 chain-ref-array bind chain-ref chain? . ." < should be false!" cr
-0 26 chain-ref-array bind chain-ref chain? . ." < should be true!" cr
-10 26 chain-ref-array bind chain-ref chain? . ." < should be true!" cr
-16 26 chain-ref-array bind chain-ref chain? . ." < should be false!" cr 
+\ 0 10 chain-ref-array bind chain-ref chain? . ." < should be false!" cr
+\ 10 16 chain-ref-array bind chain-ref chain? . ." < should be true!" cr
+\ 0 16 chain-ref-array bind chain-ref chain? . ." < should be false!" cr
+\ 0 26 chain-ref-array bind chain-ref chain? . ." < should be true!" cr
+\ 10 26 chain-ref-array bind chain-ref chain? . ." < should be true!" cr
+\ 16 26 chain-ref-array bind chain-ref chain? . ." < should be false!" cr
+
+: list-chains
+  chain-ref-array [bind] chain-ref quantity@ 0 ?do
+    i . ." # > "
+    i chain-ref-array [bind] chain-ref chain-quantity@ . cr
+  loop
+;
+
+list-chains
