@@ -70,12 +70,19 @@ piece-array class
     loop
   ;m method generate-chain
 
-
-  m: ( nquantity chain-ref -- ) \ used to restore serialized instance values
-  ;m method ser-chain-inst-values!
-
-  m: ( nquantity chain-ref -- ) \ used to restore serialized double-linked-list
-  ;m method ser-chain-dll!
+  m: ( nquantity chain-ref -- ) \ used to restore serialized data mainly chain-array multi-cell-array stuff
+    dup 1 multi-cell-array heap-new [to-inst] chain-array
+    0 ?do
+      this [current] do-retrieve-dnumber
+      true <> if 2drop i . ." < failed at this reference#" cr true abort" dnumber for next reference index size not understood!" then
+      double-linked-list heap-new i chain-array [bind] multi-cell-array cell-array!
+      d>s 0 ?do
+        this [current] do-retrieve-dnumber
+        true <> if 2drop j . ." < failed at this reference# ... "  i . ." < failed at this data#" cr true abort" dnumber as chain data not understood!" then
+        d>s j chain-array [bind] multi-cell-array cell-array@ [bind] double-linked-list ll-cell!
+      loop
+    loop
+  ;m method ser-chain-data!
   public
   m: ( upieces chain-ref -- ) \ constructor
     this [parent] construct
@@ -107,27 +114,25 @@ piece-array class
   ;m method chain-quantity@
 
   m: ( chain-ref -- nstrings ) \ return nstrings that contain data to serialize this object
-    this [parent] serialize-data@
-\ these commented out lines are examples of serializing instance values and a double-linked-list object
-\    ['] ser-chain-inst-values! this do-save-name
-\    1 this do-save-nnumber  \ there is 1 inst-var saved here to serialize and retrieve later
-\    ['] value-name this do-save-inst-value
-
-\    ['] ser-chain-dll! this do-save-name
-\    dll-value [bind] double-linked-list ll-size@ dup this do-save-nnumber
-\    dll-value [bind] double-linked-list ll-set-start
-\    0 ?do
-\      dll-value [bind] double-linked-list ll-cell@ this do-save-nnumber
-\    loop
-    save$
+    this [parent] serialize-data@ \ do the parent serializing stuff
+    drop \ droped returned save$ as not done yet!
+    ['] ser-chain-data! this [current] do-save-name ." saved ser-chain-data" cr
+    this [current] quantity@ dup this [current] do-save-nnumber ." saved quanity" cr
+    0 ?do
+      i chain-array [bind] multi-cell-array cell-array@ [bind] double-linked-list ll-set-start  \ start at begining
+      ." started for " i . cr 
+      i this [current] chain-quantity@ dup this [current] do-save-nnumber
+      0 ?do
+        i this [current] next-chain@ drop this [current] do-save-nnumber
+      loop
+    loop
+    save$ \ now done so return string
   ;m overrides serialize-data@
 
   m: ( nstrings chain-ref -- ) \ nstrings contains serialized data to restore this object
-    \ this [current] destruct
-    \ this [parent] construct
+    this [current] destruct
     this [parent] serialize-data!
-    \ this [current] do-retrieve-data true = if d>s rot rot -chain-ref rot rot this [current] $->method else 2drop 2drop true abort" chain-ref inst-value data incorrect!" then
-    \ this [current] do-retrieve-data true = if d>s rot rot -chain-ref rot rot this [current] $->method else 2drop 2drop true abort" chain-ref double-linked-list data incorrect!" then
+    this [current] do-retrieve-data true = if d>s rot rot -chain-ref rot rot this [current] $->method else 2drop 2drop true abort" chain-array multi-cell-array data incorrect!" then
   ;m overrides serialize-data!
 
 end-class chain-ref
@@ -170,3 +175,11 @@ cr
 ;
 
 list-chains
+
+strings heap-new constant temp$s
+chain-ref-array bind chain-ref serialize-data@
+\ temp$s bind strings copy$s
+\ chain-ref-array bind chain-ref destruct
+\ temp$s chain-ref-array bind chain-ref serialize-data!
+
+\ list-chains

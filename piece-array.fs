@@ -121,7 +121,7 @@ save-instance-data class
     save$
   ;m overrides serialize-data@
   m: ( nstrings piece-array -- ) \ to restore previously saved data
-    this destruct
+    this [current] destruct
     this [parent] construct
     strings heap-new [to-inst] temp$
     piece heap-new [to-inst] temp-piece
