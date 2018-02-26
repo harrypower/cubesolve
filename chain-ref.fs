@@ -99,6 +99,7 @@ piece-array class
     loop
     chain-array [bind] multi-cell-array destruct
     chain-array free throw
+    0 [to-inst] chain-array
     this [parent] destruct
   ;m overrides destruct
 
@@ -129,7 +130,11 @@ piece-array class
   ;m overrides serialize-data@
 
   m: ( nstrings chain-ref -- ) \ nstrings contains serialized data to restore this object
-    this [current] destruct
+    this [current] quantity@ 0 ?do
+      i chain-array [bind] multi-cell-array cell-array@ dup [bind] double-linked-list destruct free throw
+    loop
+    chain-array [bind] multi-cell-array destruct
+    chain-array free throw
     this [parent] serialize-data!
     this [current] do-retrieve-data true = if d>s rot rot -chain-ref rot rot this [current] $->method else 2drop 2drop true abort" chain-array multi-cell-array data incorrect!" then
   ;m overrides serialize-data!
@@ -149,7 +154,6 @@ ref-piece-list chain-ref heap-new constant chain-ref-array    \ this object take
 
 chain-ref-array bind chain-ref quantity@ . ." < should be 480" cr
 
-\ chain-ref-array bind chain-ref destruct
 chain-ref-array fast-puzzle-board heap-new constant see-chain
 
 0 see-chain bind fast-puzzle-board board-piece! . ." < should be true!" cr
@@ -183,7 +187,8 @@ list-chains
 strings heap-new constant temp$s
 chain-ref-array bind chain-ref serialize-data@
 temp$s bind strings copy$s
-\ chain-ref-array bind chain-ref destruct
 temp$s chain-ref-array bind chain-ref serialize-data!
 
-\ list-chains
+list-chains
+
+chain-ref-array bind chain-ref destruct
