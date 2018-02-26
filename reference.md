@@ -134,18 +134,53 @@
       - constructor
       - uref-piece-array is a piece array that contains all the pieces as a reference
       - note newpuzzle.def contains the dimensions of the board used here in three constants
-  * `destruct`
-  * `max-board-index@`
-  * `output-board`
-  * `board-pieces@`
-  * `max-board-pieces@`
-  * `board-dims@`
-  * `board-piece?`
-  * `board-piece!`
-  * `nboard-piece@`
-  * `remove-last-piece`
-  * `clear-board`
-  * `serialize-data@`
-  * `serialize-data!`
+  * `destruct`          _( fast-puzzle-board -- )_
+      - destructor
+      - release all memory allocated
+  * `max-board-index@`  _( fast-puzzle-board -- uindex )_
+      - return the max board index address or simply the total voxel count x*y*z
+  * `output-board`      _( fast-puzzle-board -- )_
+      - terminal display
+  * `board-pieces@`     _( fast-puzzle-board -- uquantity )_
+    - return current board piece quantity
+  * `max-board-pieces@` _( fast-puzzle-board -- uquantity )_
+    - return quantity of pieces to solve this board puzzle
+  * `board-dims@`       _( fast-puzzle-board -- ux uy uz )_
+    - return the board dimensions
+  * `board-piece?`      _( uref-piece fast-puzzle-board -- nflag )_
+    - test if uref-piece can be placed in current board
+    - nflag is true if uref-piece can be placed on the current board
+    - nflag is false if uref-piece can not be placed on current board
+  * `board-piece!`      _( uref-piece fast-puzzle-board -- nflag )_
+    - test if uref-piece can be placed in current board
+    - nflag is true if uref-piece can be placed on the current board
+    - nflag is false if uref-piece can not be placed on current board
+  * `nboard-piece@`     _( uindex fast-puzzle-board -- uref-piece )_
+    - get uref-piece from board piece list at uindex location
+  * `remove-last-piece` _( uref-piece fast-puzzle-board -- )_
+    - remove last piece put on this board
+  * `clear-board`       _( fast-puzzle-board -- )_
+    - empty board of its pieces but keep the internal references to pieces so construct does not need to be used
+  * `serialize-data@`   _( fast-puzzle-board -- nstrings )_
+    - return nstrings that contain data to serialize this object
+  * `serialize-data!`   _( nstrings fast-puzzle-board -- )_
+    - nstrings contains serialized data to restore this object
   * `print`            _( fast-puzzle-board -- )_
-      - print stuff for testing
+    - print stuff for testing
+
+* ### chain-ref
+  chain-ref.fs
+  * `construct`       _( upieces chain-ref -- )_
+    - constructor
+  * `destruct`        _( chain-ref -- )_
+    - destructor
+  * `next-chain@`     _( uref chain-ref -- unext-chain nflag )_
+    - retrieve next chain reference for given uref piece
+    - unext-chain is a piece that can chain to uref piece
+    - nflag is true when the list of possible chains for uref is at the end and will reset for next retrieval to be at beginning of list
+  * `chain-quantity@` _( uref chain-ref -- uchain-quantity )_
+    - return chain quantity for given uref piece
+  * `serialize-data@` _( chain-ref -- nstrings )_
+    - return nstrings that contain data to serialize this object
+  * `serialize-data!` _( nstrings chain-ref -- )_
+    - nstrings contains serialized data to restore this object
