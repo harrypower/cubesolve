@@ -18,8 +18,7 @@
 ### New idea to incorporate to this project
 * in the past version i concentrated on making reference list and using that fast list to brute force solution by filling the board holes.  My new idea is to use this reference list and add other lists to allow a piece chain type solution.
 * this piece chain idea is that each piece from the reference list has two ends.  The ends of each piece has a place where another piece can be adjacent to the reference piece and if i chain together one at a time a piece then after 24 successful piece chains plus the first piece the puzzle is solved.   
-* I can do this for example by starting with a center piece for solution then place a new chain piece on each end of the center piece and then place another piece on the ends of these new pieces and so on until a solution is found.  This would mean that the center piece plus 12 pieces on each side would be the solution!
-* Another way is to simply start with a piece and then chain to the next piece and keep chaining pieces until i find all 25 pieces!
+* The method is simply start with a piece and then chain to the next piece and keep chaining pieces until i find all 25 pieces!
 * The chain pieces list does not need to identify which end it chains to!
-* so I would need to make a list of each reference piece and its end chain pieces that are allowed with it.  I think the fast-puzzle-board object could be used to make this list quickly.  Then from there it is a matter of brute force going through the list of chain pieces.
+* so I would need to make a list of each reference piece and its end chain pieces that are allowed with it.  I think the piece-array object could be used to make this list quickly.  Then from there it is a matter of brute force going through the list of chain pieces.
 * my thinking here is this method reduces the combinations of testing done for the brute force solution because i am focusing on complete pieces rather then filling the board holes.  Rather i would be placing a piece at a time and each piece placed reduces the next ones to test for significantly!
