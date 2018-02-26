@@ -15,7 +15,6 @@ defer -chain-ref
 piece-array class
   destruction implementation
   protected
-\  public
   inst-value chain-array  \ mdca containing double-linked-list objects per array cell
 
   m: ( tx ty tz rx ry rz chain-ref -- nflag ) \ find if test voxels are in chain places compaired to reference voxels
