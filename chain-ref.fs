@@ -142,7 +142,7 @@ end-class chain-ref
 ' chain-ref is -chain-ref
 
 \ ********************************************************************************************************************************
-\ \\\
+\\\
 require ./newpuzzle.def \ this is the definition of the puzzle to be solved
 
 require ./allpieces.fs
