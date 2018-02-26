@@ -142,7 +142,7 @@ end-class chain-ref
 ' chain-ref is -chain-ref
 
 \ ********************************************************************************************************************************
-\\\
+\ \\\
 require ./newpuzzle.def \ this is the definition of the puzzle to be solved
 
 require ./allpieces.fs
@@ -151,6 +151,7 @@ require ./allpieces.fs
 constant ref-piece-list                                       \ this is the reference list of piece`s created above
 ref-piece-list chain-ref heap-new constant chain-ref-array    \ this object takes reference list from above and makes chain ref array of that data
 
+cr
 chain-ref-array bind chain-ref quantity@ . ." < should be 480" cr
 
 chain-ref-array fast-puzzle-board heap-new constant see-chain
@@ -183,11 +184,26 @@ list-chains
 0 chain-ref-array bind chain-ref next-chain@ . . cr
 
 
-strings heap-new constant temp$s
-chain-ref-array bind chain-ref serialize-data@
-temp$s bind strings copy$s
-temp$s chain-ref-array bind chain-ref serialize-data!
+\ strings heap-new constant temp$s
+\ chain-ref-array bind chain-ref serialize-data@
+\ temp$s bind strings copy$s
+\ temp$s chain-ref-array bind chain-ref serialize-data!
 
-list-chains
+\ list-chains
 
-chain-ref-array bind chain-ref destruct
+see-chain bind fast-puzzle-board clear-board
+
+: testchain
+  20 0 ?do
+    1 chain-ref-array [bind] chain-ref next-chain@ drop
+    see-chain [bind] fast-puzzle-board board-piece! drop
+    1 see-chain [bind] fast-puzzle-board board-piece! drop
+    see-chain [bind] fast-puzzle-board output-board
+    begin key? until key drop
+    see-chain [bind] fast-puzzle-board clear-board
+  loop
+;
+testchain
+\ see-chain bind fast-puzzle-board output-board
+
+\ chain-ref-array bind chain-ref destruct
