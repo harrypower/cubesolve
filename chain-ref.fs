@@ -72,8 +72,10 @@ piece-array class
   m: ( nquantity chain-ref -- ) \ used to restore serialized data mainly chain-array multi-cell-array stuff
     dup 1 multi-cell-array heap-new [to-inst] chain-array
     0 ?do
-      this [current] do-retrieve-dnumber
+      this [current] do-retrieve-data
+      \ this [current] do-retrieve-dnumber
       true <> if 2drop i . ." < failed at this reference#" cr true abort" dnumber for next reference index size not understood!" then
+      2swap s" next chain" compare 0 <> if 2drop i . ." < failed at this reference#" cr true abort" next chain string missing" then
       double-linked-list heap-new i chain-array [bind] multi-cell-array cell-array!
       d>s 0 ?do
         this [current] do-retrieve-dnumber
@@ -120,9 +122,10 @@ piece-array class
     this [current] quantity@ dup this [current] do-save-nnumber
     0 ?do
       i chain-array [bind] multi-cell-array cell-array@ [bind] double-linked-list ll-set-start  \ start at begining
+      s" next chain" save$ [bind] strings !$x
       i this [current] chain-quantity@ dup this [current] do-save-nnumber
       0 ?do
-        i this [current] next-chain@ drop this [current] do-save-nnumber
+        j this [current] next-chain@ drop this [current] do-save-nnumber
       loop
     loop
     save$ \ now done so return string
@@ -142,7 +145,7 @@ end-class chain-ref
 ' chain-ref is -chain-ref
 
 \ ********************************************************************************************************************************
-\ \\\
+\\\
 require ./newpuzzle.def \ this is the definition of the puzzle to be solved
 
 require ./allpieces.fs
@@ -184,10 +187,14 @@ list-chains
 0 chain-ref-array bind chain-ref next-chain@ . . cr
 
 
-\ strings heap-new constant temp$s
-\ chain-ref-array bind chain-ref serialize-data@
-\ temp$s bind strings copy$s
-\ temp$s chain-ref-array bind chain-ref serialize-data!
+strings heap-new constant temp$s
+chain-ref-array bind chain-ref serialize-data@
+temp$s bind strings copy$s
+temp$s chain-ref-array bind chain-ref serialize-data!
+
+0 chain-ref-array bind chain-ref next-chain@ . . cr
+0 chain-ref-array bind chain-ref next-chain@ . . cr
+0 chain-ref-array bind chain-ref next-chain@ . . cr
 
 \ list-chains
 
