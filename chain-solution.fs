@@ -47,16 +47,16 @@ chain-ref-array fast-puzzle-board heap-new constant the-board \ the main board o
           uref do-chain-solution
         else \ at end of a chain
           \ this might be the incorrect thing to do as it will cause do-chain-solution to return false and that causes start-chain-solution to loop
-          \ but the end of the chain may not be the chain that is the first piece place..!!! 
+          \ but the end of the chain may not be the chain that is the first piece place..!!!
           false
         then
     else \ solution found
       true
     then
   else \ piece not placed on board
-    chain-end? false = if
+    chain-end? false = if \ in middle of chain
       uref do-chain-solution
-    else
+    else \ at end of chain ... need to back up 
       \ solved?
       the-board [bind] fast-puzzle-board board-pieces@ 1 -
       the-board [bind] fast-puzzle-board nboard-piece@
