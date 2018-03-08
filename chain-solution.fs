@@ -27,62 +27,54 @@ chain-ref-array fast-puzzle-board heap-new constant the-board \ the main board o
   the-board [bind] fast-puzzle-board max-board-pieces@
   the-board [bind] fast-puzzle-board board-pieces@ = ;
 
-: do-chain-solution ( uref -- nflag ) \ uref is the chain array index to work on for solution ... return nflag true if solution is found false is uref did not solve it
-  recursive
-  \ 0 35 at-xy ." start " .s \ key-test-wait drop
-  false { uref chain-end? }
-  uref chain-ref-array [bind] chain-ref next-chain@ to chain-end? to uref
-  \ if true then this is the last chain for uref
-  \ if false then there are more chains for uref
-  uref the-board [bind] fast-puzzle-board board-piece!
+: next-chain-piece! ( -- nchain-end? nboard-placed? ) \ get next chain for last piece and place on board
+  \ nboard-placed? is true when chain for last piece was placed on board successfully
+  \ nboard-placed? is false when chain for last piece was not placed on board successfully
+  \ nchain-end? is true when chain list for last board piece is at end
+  \ nchain-end? is false when chain list for last board piece is not at end
+  \ note this will always work provided there is at least one piece on the board
+  the-board [bind] fast-puzzle-board board-pieces@ 1 - \ get last piece index
+  the-board [bind] fast-puzzle-board nboard-piece@ \ get last piece
+  chain-ref-array [bind] chain-ref next-chain@ swap \ get next chain for last piece
+  the-board [bind] fast-puzzle-board board-piece! \ put next piece on board
   \ if true the chain for uref was placed on the board
   \ if false the chain for uref was not placed on the board
-  the-board [bind] fast-puzzle-board output-board cr
+  the-board [bind] fast-puzzle-board output-board
   30 0 at-xy the-board [bind] fast-puzzle-board board-pieces@ . ." < current pieces!  "
-  0 36 at-xy chain-end? . ." < chain-end?  " 20 36 at-xy  uref . ." < uref  "
-  0 37 at-xy ." placed on board? > " .s  key-test-wait drop
-  true = if  \ piece placed on board
-    solved? false = if \ no solution yet
-      chain-end? false = if \ in the middle of a chain
-          uref do-chain-solution
-        else \ at end of a chain
-          the-board [bind] fast-puzzle-board board-pieces@ 1 = \ if at first piece
-          0 the-board [bind] fast-puzzle-board nboard-piece@
-          chain-ref-array [bind] chain-ref quantity@ = and if \ and that first piece is the last chain to test
-            false \ no solution found after all starting pieces used.
-          \ chain is reset already since it is at the end but no reason to do anything else since we are not at the end of pieces to test
-          \ else \ continue because there is more yet!
-          \  the-board [bind] fast-puzzle-board board-pieces@ 1 -
-          \  the-board [bind] fast-puzzle-board nboard-piece@
-          \  the-board [bind] fast-puzzle-board remove-last-piece
-          \  do-chain-solution
-          then
-        then
-    else \ solution found now
-      true
-    then
-  else \ piece not placed on board
-    chain-end? false = if \ in middle of chain
-      uref do-chain-solution
-    else \ at end of chain ... need to back up
-      the-board [bind] fast-puzzle-board board-pieces@ 1 = \ if at first piece
-      0 the-board [bind] fast-puzzle-board nboard-piece@
-      chain-ref-array [bind] chain-ref quantity@ = and if \ and that first piece is the last chain to test
-        false \ no solution found after all starting pieces used.
-      else \ continue because there is more yet!
-        the-board [bind] fast-puzzle-board board-pieces@ 1 -
-        the-board [bind] fast-puzzle-board nboard-piece@
-        the-board [bind] fast-puzzle-board remove-last-piece
-        do-chain-solution
-      then
-    then
-  then
-  0 39 at-xy ." about to return to start > " .s  key-test-wait drop
+  0 37 at-xy ."                                              "
+  0 37 at-xy .s  key-test-wait drop
 ;
 
-: start-chain-solution ( -- nflag ) \ start the chain solving and return true when solution is in the-board or false when failed
-  the-board [bind] fast-puzzle-board clear-board  \ start with clean board
-  0 the-board [bind] fast-puzzle-board board-piece! drop \ first piece on board should always work
-  0 do-chain-solution \ now for the rest of the pieces
-  0 40 at-xy ." after do-chain-solution with stack > " .s
-;
+: do-solution ( -- )
+  0 0 { nchain-end? nboard-placed? }
+  begin
+    \ next chain for last piece placed
+    \ put next chain piece on board
+    next-chain-piece! to nboard-placed? to nchain-end?
+    \ piece placed
+      \ solved? exit
+      \ if not solved continue
+    \ piece not placed
+      \ remove last piece from board
+      \ if board is empty after this last piece removal exit
+      \ if board is not empty continue
+    nboard-placed?
+    if
+      solved? \ if true else false then
+    else
+      nchain-end? if
+        the-board [bind] fast-puzzle-board remove-last-piece
+        the-board [bind] fast-puzzle-board board-pieces@ 1 = if true else false then
+      else
+        false
+      then
+    then
+  until ;
+
+: start-main-chain ( -- nflag ) \ loops through all first pieces and trys to solve puzzle from there
+  \ this will only do solution for the first piece ... i will change code later to add all the pieces once i get it all working
+    the-board [bind] fast-puzzle-board clear-board
+    0 the-board [bind] fast-puzzle-board board-piece! \ first piece on board always works
+    do-solution
+    solved?
+  ;
