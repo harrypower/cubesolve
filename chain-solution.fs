@@ -29,7 +29,7 @@ chain-ref-array fast-puzzle-board heap-new constant the-board \ the main board o
 
 : do-chain-solution ( uref -- nflag ) \ uref is the chain array index to work on for solution ... return nflag true if solution is found false is uref did not solve it
   recursive
-  0 35 at-xy ." start " .s key-test-wait drop
+  \ 0 35 at-xy ." start " .s \ key-test-wait drop
   false { uref chain-end? }
   uref chain-ref-array [bind] chain-ref next-chain@ to chain-end? to uref
   \ if true then this is the last chain for uref
@@ -50,11 +50,12 @@ chain-ref-array fast-puzzle-board heap-new constant the-board \ the main board o
           0 the-board [bind] fast-puzzle-board nboard-piece@
           chain-ref-array [bind] chain-ref quantity@ = and if \ and that first piece is the last chain to test
             false \ no solution found after all starting pieces used.
-          else \ continue because there is more yet!
-            the-board [bind] fast-puzzle-board board-pieces@ 1 -
-            the-board [bind] fast-puzzle-board nboard-piece@
-            the-board [bind] fast-puzzle-board remove-last-piece
-            do-chain-solution
+          \ chain is reset already since it is at the end but no reason to do anything else since we are not at the end of pieces to test
+          \ else \ continue because there is more yet!
+          \  the-board [bind] fast-puzzle-board board-pieces@ 1 -
+          \  the-board [bind] fast-puzzle-board nboard-piece@
+          \  the-board [bind] fast-puzzle-board remove-last-piece
+          \  do-chain-solution
           then
         then
     else \ solution found now
