@@ -65,7 +65,16 @@ chain-ref-array fast-puzzle-board heap-new constant the-board \ the main board o
       \ if board is not empty continue
     nboard-placed?
     if
-      solved? \ if true else false then
+      solved?
+      if
+        true
+      else
+        \ here i need to reset the chain list for this piece just placed to start at its begging
+        the-board [bind] fast-puzzle-board board-pieces@ 1 - \ get last piece index
+        the-board [bind] fast-puzzle-board nboard-piece@ \ get last piece
+        chain-ref-array [bind] chain-ref nchain-reset \ reset the chain list for the last piece 
+        false
+      then
     else
       nchain-end? if
         the-board [bind] fast-puzzle-board remove-last-piece
@@ -82,5 +91,5 @@ chain-ref-array fast-puzzle-board heap-new constant the-board \ the main board o
     0 the-board [bind] fast-puzzle-board board-piece! drop \ first piece on board always works
     do-solution
     solved?
-    \ should reset the chain link list for next piece if not solved yet to ensure the start of the list 
+    \ should reset the chain link list for next piece if not solved yet to ensure the start of the list
   ;

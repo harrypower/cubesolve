@@ -104,6 +104,10 @@ piece-array class
     this [parent] destruct
   ;m overrides destruct
 
+  m: ( uref chain-ref -- ) \ reset chain list  for given uref
+    chain-array [bind] multi-cell-array cell-array@ [bind] double-linked-list ll-set-start
+  ;m method nchain-reset
+
   m: ( uref chain-ref -- unext-chain nflag ) \ retrieve next chain reference for given uref piece
   \ unext-chain is a piece that can chain to uref piece
   \ nflag is true when the list of possible chains for uref is at the end and will reset for next retriveal to be at beginning of list
