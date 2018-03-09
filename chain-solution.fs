@@ -41,8 +41,13 @@ chain-ref-array fast-puzzle-board heap-new constant the-board \ the main board o
   \ if false the chain for uref was not placed on the board
   the-board [bind] fast-puzzle-board output-board
   30 0 at-xy the-board [bind] fast-puzzle-board board-pieces@ . ." < current pieces!  "
+  the-board [bind] fast-puzzle-board board-pieces@ 1 - \ get last piece index
+  dup the-board [bind] fast-puzzle-board nboard-piece@ \ get last piece
+  swap 1 - the-board [bind] fast-puzzle-board nboard-piece@ swap
+  0 38 at-xy . ." < last piece placed !"
+  0 39 at-xy . ." < second last piece placed!"
   0 37 at-xy ."                                              "
-  0 37 at-xy .s  key-test-wait drop
+  0 37 at-xy .s  pause-for-key drop \ key-test-wait drop
 ;
 
 : do-solution ( -- )
@@ -74,7 +79,8 @@ chain-ref-array fast-puzzle-board heap-new constant the-board \ the main board o
 : start-main-chain ( -- nflag ) \ loops through all first pieces and trys to solve puzzle from there
   \ this will only do solution for the first piece ... i will change code later to add all the pieces once i get it all working
     the-board [bind] fast-puzzle-board clear-board
-    0 the-board [bind] fast-puzzle-board board-piece! \ first piece on board always works
+    0 the-board [bind] fast-puzzle-board board-piece! drop \ first piece on board always works
     do-solution
     solved?
+    \ should reset the chain link list for next piece if not solved yet to ensure the start of the list 
   ;
