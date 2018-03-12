@@ -27,6 +27,8 @@ chain-ref-array fast-puzzle-board heap-new constant the-board \ the main board o
   the-board [bind] fast-puzzle-board max-board-pieces@
   the-board [bind] fast-puzzle-board board-pieces@ = ;
 
+defer next-chain'
+defer remove-two?'
 : see-data ( -- ) \ to see the puzzle and testing
   the-board [bind] fast-puzzle-board output-board
   the-board [bind] fast-puzzle-board board-pieces@ 0 ?do
@@ -38,10 +40,14 @@ chain-ref-array fast-puzzle-board heap-new constant the-board \ the main board o
   \ swap 1 - the-board [bind] fast-puzzle-board nboard-piece@ swap
   \ 0 38 at-xy . ." < last piece placed !"
   \ 0 39 at-xy . ." < second last piece placed!"
-  \ 0 37 at-xy ."                                              "
+  \ 0 37 at-xy ."
+  0 35 at-xy remove-two?' . ." < remove-two? "
+  0 36 at-xy next-chain' . ." < next chain "
   0 37 at-xy .s  ." < stack" pause-for-key drop \ key-test-wait drop
 ;
 
+0 value next-chain
+' next-chain is next-chain'
 : next-chain-piece! ( -- nchain-end? nboard-placed? ) \ get next chain for last piece and place on board
   \ nboard-placed? is true when chain for last piece was placed on board successfully
   \ nboard-placed? is false when chain for last piece was not placed on board successfully
@@ -51,12 +57,14 @@ chain-ref-array fast-puzzle-board heap-new constant the-board \ the main board o
   the-board [bind] fast-puzzle-board board-pieces@ 1 - \ get last piece index
   the-board [bind] fast-puzzle-board nboard-piece@ \ get last piece
   chain-ref-array [bind] chain-ref next-chain@ swap \ get next chain for last piece
+  dup to next-chain
   the-board [bind] fast-puzzle-board board-piece! \ put next piece on board
   \ if true the chain for uref was placed on the board
   \ if false the chain for uref was not placed on the board
   see-data ;
 
 false value remove-two?
+' remove-two? is remove-two?' 
 : do-solution ( -- )
   0 0 { nchain-end? nboard-placed? }
   begin
@@ -86,7 +94,7 @@ false value remove-two?
     else
       nchain-end? if
         the-board [bind] fast-puzzle-board remove-last-piece
-        remove-two? if the-board [bind] fast-puzzle-board remove-last-piece false to remove-two? then 
+        remove-two? if the-board [bind] fast-puzzle-board remove-last-piece false to remove-two? then
         the-board [bind] fast-puzzle-board board-pieces@ 1 = if true else false then
       else
         false
