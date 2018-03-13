@@ -28,7 +28,8 @@ chain-ref-array fast-puzzle-board heap-new constant the-board \ the main board o
   the-board [bind] fast-puzzle-board board-pieces@ = ;
 
 defer next-chain'
-defer remove-two?'
+defer remove-too?'
+defer remove-marker'
 : see-data ( -- ) \ to see the puzzle and testing
   the-board [bind] fast-puzzle-board output-board
   the-board [bind] fast-puzzle-board board-pieces@ 0 ?do
@@ -41,7 +42,9 @@ defer remove-two?'
   \ 0 38 at-xy . ." < last piece placed !"
   \ 0 39 at-xy . ." < second last piece placed!"
   \ 0 37 at-xy ."
-  0 35 at-xy remove-two?' . ." < remove-two? "
+
+  0 34 at-xy remove-too?' . ." < remove-too? "
+  0 35 at-xy remove-marker' . ." < remove-marker"
   0 36 at-xy next-chain' . ." < next chain "
   0 37 at-xy .s  ." < stack" pause-for-key drop \ key-test-wait drop
 ;
@@ -63,8 +66,10 @@ defer remove-two?'
   \ if false the chain for uref was not placed on the board
   see-data ;
 
-false value remove-two?
-' remove-two? is remove-two?' 
+false value remove-too?
+' remove-too? is remove-too?'
+0 value remove-marker
+' remove-marker is remove-marker'
 : do-solution ( -- )
   0 0 { nchain-end? nboard-placed? }
   begin
@@ -84,7 +89,14 @@ false value remove-two?
       if
         true
       else
-        nchain-end? if true to remove-two? then
+        remove-too? true = if
+          \ not needed maybe ... because i am going to a marked spot not a counter value
+        else
+          nchain-end? if
+            true to remove-too?
+            the-board [bind] fast-puzzle-board board-pieces@ 1 - to remove-marker
+          then
+        then
         \ here i need to reset the chain list for this piece just placed to start at its begging
         the-board [bind] fast-puzzle-board board-pieces@ 1 - \ get last piece index
         the-board [bind] fast-puzzle-board nboard-piece@ \ get last piece
@@ -94,7 +106,13 @@ false value remove-two?
     else
       nchain-end? if
         the-board [bind] fast-puzzle-board remove-last-piece
-        remove-two? if the-board [bind] fast-puzzle-board remove-last-piece false to remove-two? then
+        remove-too? if
+            false to remove-too?
+            begin
+              the-board [bind] fast-puzzle-board remove-last-piece
+              the-board [bind] fast-puzzle-board board-pieces@ remove-marker <
+            until
+          then
         the-board [bind] fast-puzzle-board board-pieces@ 1 = if true else false then
       else
         false
