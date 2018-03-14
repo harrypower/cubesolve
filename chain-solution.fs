@@ -30,24 +30,29 @@ chain-ref-array fast-puzzle-board heap-new constant the-board \ the main board o
 defer next-chain'
 defer remove-too?'
 defer remove-marker'
-: see-data ( -- ) \ to see the puzzle and testing
-  the-board [bind] fast-puzzle-board output-board
-  the-board [bind] fast-puzzle-board board-pieces@ 0 ?do
-    30 i at-xy i the-board [bind] fast-puzzle-board nboard-piece@ . ."  < " i .
-  loop
-  30 26 at-xy the-board [bind] fast-puzzle-board board-pieces@ . ." < current total pieces!  "
-  \ the-board [bind] fast-puzzle-board board-pieces@ 1 - \ get last piece index
-  \ dup the-board [bind] fast-puzzle-board nboard-piece@ \ get last piece
-  \ swap 1 - the-board [bind] fast-puzzle-board nboard-piece@ swap
-  \ 0 38 at-xy . ." < last piece placed !"
-  \ 0 39 at-xy . ." < second last piece placed!"
-  \ 0 37 at-xy ."
+0 value display-loop
+10000 value max-display-loop
+0 value max-solution
 
-  0 34 at-xy remove-too?' . ." < remove-too? "
-  0 35 at-xy remove-marker' . ." < remove-marker"
-  0 36 at-xy next-chain' . ." < next chain "
-  0 37 at-xy .s  ." < stack" pause-for-key drop \ key-test-wait drop
-;
+: see-data ( -- ) \ to see the puzzle and testing
+  display-loop max-display-loop >= if
+    the-board [bind] fast-puzzle-board output-board
+    the-board [bind] fast-puzzle-board board-pieces@ 0 ?do
+      30 i at-xy i the-board [bind] fast-puzzle-board nboard-piece@ . ."  < " i .
+    loop
+    30 26 at-xy the-board [bind] fast-puzzle-board board-pieces@ . ." < current total pieces!  "
+    30 27 at-xy max-solution . ." < max-solution at this moment"
+    0 34 at-xy remove-too?' . ." < remove-too? "
+    0 35 at-xy remove-marker' . ." < remove-marker"
+    0 36 at-xy next-chain' . ." < next chain "
+    0 37 at-xy .s  ." < stack" ( pause-for-key ) key-test-wait drop
+    0 to display-loop
+  else
+    display-loop 1 + to display-loop
+  then ;
+
+: update-max ( ncurrentsize -- ) \ update max-solution to show the farthest it has gotten
+  max-solution max to max-solution ;
 
 0 value next-chain
 ' next-chain is next-chain'
@@ -94,11 +99,11 @@ false value remove-too?
         else
           nchain-end? if
             true to remove-too?
-            the-board [bind] fast-puzzle-board board-pieces@ 1 - to remove-marker
+            the-board [bind] fast-puzzle-board board-pieces@ dup update-max 1 - to remove-marker
           then
         then
         \ here i need to reset the chain list for this piece just placed to start at its begging
-        the-board [bind] fast-puzzle-board board-pieces@ 1 - \ get last piece index
+        the-board [bind] fast-puzzle-board board-pieces@ dup update-max 1 - \ get last piece index
         the-board [bind] fast-puzzle-board nboard-piece@ \ get last piece
         chain-ref-array [bind] chain-ref nchain-reset \ reset the chain list for the last piece
         false
@@ -125,6 +130,7 @@ false value remove-too?
     the-board [bind] fast-puzzle-board clear-board
     0 the-board [bind] fast-puzzle-board board-piece! drop \ first piece on board always works
     do-solution
+    max-display-loop to display-loop see-data
     solved?
     \ should reset the chain link list for next piece if not solved yet to ensure the start of the list
   ;
