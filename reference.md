@@ -184,3 +184,32 @@
     - return nstrings that contain data to serialize this object
   * `serialize-data!` _( nstrings chain-ref -- )_
     - nstrings contains serialized data to restore this object
+
+* ### hole-array-piece-list
+  voxel-ref-list.fs
+  * `construct`         _( upiece-array hole-array-piece-list -- )_
+      - takes upiece-array that should contain the reference pieces and organizes them for hole indexing or voxel indexing
+      - newpuzzle.def contains the size of the current puzzle being solved for as three constants and are used here to get that size 
+  * `destruct`          _( hole-array-piece-list -- )_
+  * `next-ref-piece-in-hole@` _( uholex uholey uholez hole-array-piece-list -- uref-piece nflag )_
+      - uholex uholey uholez is the hole address identified from puzzle-board
+      - uref-piece is the next reference piece in the list that fits in that hole address
+      - nflag is false normaly after upiece retrieval
+      - nflag is true when for given hole address the piece list is at the end
+      - note when nflag is true the piece list at that hole address will reset to begining of list
+  * `hole-list-quantity@`     _( uholex uholey uholez hole-array-piece-list -- uhole-list-quantity )_
+      - returns the quantity of pieces in a given hole
+  * `hole-max-address@`       _( hole-array-piece-list -- uholex uholey uholez )_
+      - returns the total hole addresses for this reference puzzle passed to construct
+  * `index>xyz`               _( uindex hole-array-piece-list -- uholex uholey uholez )_
+      - return the xyz hole address for the given uindex value
+  * `hole-max-index@`         _( hole-array-piece-list -- uindex )_
+      - return the max index size of the holes in this object
+  * `xyz>index`               _( uholex uholey uholez hole-array-piece-list -- uindex )_
+      - return the uindex for the given xyz hole address
+  * `index-next-ref-piece@`   _( uindex hole-array-piece-list -- uref-piece nflag )_
+      - uindex is the hole index that will return the next uref-piece.  Like *next-ref-piece-in-hole@* above but uses uindex!
+  * `serialize-data@`         _( hole-array-piece-list -- nstrings )_
+      - return nstrings that contain data to serialize this object
+  * `serialize-data!`         _( nstrings hole-array-piece-list -- )_
+      - nstrings contains serialized data to restore this object
