@@ -27,11 +27,17 @@ chain-ref-array fast-puzzle-board heap-new constant the-board \ the main board o
   the-board [bind] fast-puzzle-board max-board-pieces@
   the-board [bind] fast-puzzle-board board-pieces@ = ;
 
+: blocked-board? ( -- nflag ) \ look at current board and see if there is any blocked parts that will not allow a piece
+\ nflag is true if there is a block on the current board
+\ nflag is false if no block found
+;
+
+
 defer next-chain'
 defer remove-too?'
 defer remove-marker'
 0 value display-loop
-10000 value max-display-loop
+30000 value max-display-loop
 0 value max-solution
 
 : see-data ( -- ) \ to see the puzzle and testing
