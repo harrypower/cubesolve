@@ -126,6 +126,11 @@ save-instance-data class
   m: ( fast-puzzle-board -- uindex ) \ return the max board index address
     max-board-array-index ;m method max-board-index@
 
+  m: ( uvoxelindex fast-puzzle-board -- uref-piece ) \ given uvoxelindex return the uref-piece that is located on this board
+    \ note uref-piece could return as true indicating that there is no ref-piece on the board at uvoxelindex
+    \ uref-piece returned is true or a uref-piece value from 0 to max reference pieces
+    board-array [bind] multi-cell-array cell-array@ ;m method nvoxel@
+
   m: ( fast-puzzle-board -- ) \ terminal display
     page
     z-max 0 ?do

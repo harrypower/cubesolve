@@ -139,6 +139,10 @@
       - release all memory allocated
   * `max-board-index@`  _( fast-puzzle-board -- uindex )_
       - return the max board index address or simply the total voxel count x*y*z
+  * `nvoxel@`           _( uvoxelindex fast-puzzle-board -- uref-piece )_
+      - given uvoxelindex return the uref-piece that is located on this board
+      - note uref-piece could return as true indicating that there is no ref-piece on the board at uvoxelindex
+      - uref-piece returned is true or a uref-piece value from 0 to max reference pieces
   * `output-board`      _( fast-puzzle-board -- )_
       - terminal display
   * `board-pieces@`     _( fast-puzzle-board -- uquantity )_
@@ -189,7 +193,7 @@
   voxel-ref-list.fs
   * `construct`         _( upiece-array hole-array-piece-list -- )_
       - takes upiece-array that should contain the reference pieces and organizes them for hole indexing or voxel indexing
-      - newpuzzle.def contains the size of the current puzzle being solved for as three constants and are used here to get that size 
+      - newpuzzle.def contains the size of the current puzzle being solved for as three constants and are used here to get that size
   * `destruct`          _( hole-array-piece-list -- )_
   * `next-ref-piece-in-hole@` _( uholex uholey uholez hole-array-piece-list -- uref-piece nflag )_
       - uholex uholey uholez is the hole address identified from puzzle-board
