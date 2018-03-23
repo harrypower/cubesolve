@@ -1,12 +1,15 @@
 require ./chain-ref.fs
 require ./newpuzzle.def \ definition of the puzzle to be solved
 require ./allpieces.fs  \ to make all the pieces
+require ./voxel-ref-list.fs
 
+." First setup all the puzzle basic data!" cr
 0 puzzle-pieces make-all-pieces heap-new constant map         \ this object is used to make reference lists from start pieces it is not used directly but produces ref.
 constant ref-piece-list                                       \ this is the reference list of piece`s created above
 ref-piece-list chain-ref heap-new constant chain-ref-array    \ this object takes reference list from above and makes chain ref array of that data
 chain-ref-array fast-puzzle-board heap-new constant the-board \ the main board object for viewing the puzzle ... note it needs the reference created above
-\ the-board and chain-ref-array now have all the tools to work on solving the puzzle
+chain-ref-array hole-array-piece-list heap-new constant voxel-ref-list
+\ the-board and chain-ref-array and voxel-ref-list now have all the tools to work on solving the puzzle
 
 : pause-for-key ( -- nkey ) \ halt until a key is pressed then continue nkey is the key pressed when this word returns
   begin key? until
@@ -27,10 +30,30 @@ chain-ref-array fast-puzzle-board heap-new constant the-board \ the main board o
   the-board [bind] fast-puzzle-board max-board-pieces@
   the-board [bind] fast-puzzle-board board-pieces@ = ;
 
+: voxel-blocked? ( nvoxelindex -- nflag ) \ test nvoxelindex for a blocked path
+\ nflag is true if nvoxelindex does have a blockage
+\ nflag is false if no blockage was found
+  dup voxel-ref-list [bind] hole-array-piece-list reset-A-piece-list
+  voxel-ref-list [bind] hole-array-piece-list index>xyz
+  voxel-ref-list [bind] hole-array-piece-list next-ref-piece-in-hole@
+  true = if
+    the-board [bind] fast-puzzle-board board-piece? invert
+  else
+    drop false
+  then ;
+
 : blocked-board? ( -- nflag ) \ look at current board and see if there is any blocked parts that will not allow a piece
 \ nflag is true if there is a block on the current board
 \ nflag is false if no block found
-;
+  try
+    the-board [bind] fast-puzzle-board max-board-index@ 0 ?do
+      i the-board [bind] fast-puzzle-board nvoxel@ true = if \ only test if the board has a hole at the voxel location not if there is a piece there currently
+        i voxel-blocked? throw  \ if this board voxel is blocked it will throw with a true else it will do nothing
+      then
+    loop
+    false
+  restore
+  endtry ;
 
 
 defer next-chain'
@@ -73,6 +96,16 @@ defer remove-marker'
   chain-ref-array [bind] chain-ref next-chain@ swap \ get next chain for last piece
   dup to next-chain
   the-board [bind] fast-puzzle-board board-piece! \ put next piece on board
+  true = if
+    blocked-board? true = if \ if blocked then remove this last piece
+      the-board [bind] fast-puzzle-board remove-last-piece
+      false 
+    else
+      true
+    then
+  else
+    false
+  then
   \ if true the chain for uref was placed on the board
   \ if false the chain for uref was not placed on the board
   see-data ;

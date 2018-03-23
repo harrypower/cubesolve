@@ -125,6 +125,11 @@ save-instance-data class
     dup true = if uobject [bind] double-linked-list ll-set-start then ( nref nflag )
   ;m method next-ref-piece-in-hole@
 
+  m: ( uindex hole-array-piece-list -- ) \ reset the piece list at uindex
+    this index>xyz hole-array @ [bind] multi-cell-array cell-array@
+    [bind] double-linked-list ll-set-start
+  ;m method reset-A-piece-list
+
   m: ( uholex uholey uholez hole-array-piece-list -- uhole-list-quantity ) \ returns the quantity of pieces in a given hole
     hole-array @ [bind] multi-cell-array cell-array@
     [bind] double-linked-list ll-size@
@@ -195,7 +200,7 @@ end-class hole-array-piece-list
 ' hole-array-piece-list is -hole-array-piece-list
 
 \ ***************************************************************************************************************************************
-\ \\\
+\\\
 require ./newpuzzle.def
 require ./allpieces.fs
 require ./fast-puzzle-board.fs
