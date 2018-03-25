@@ -33,14 +33,18 @@ chain-ref-array hole-array-piece-list heap-new constant voxel-ref-list
 : voxel-blocked? ( nvoxelindex -- nflag ) \ test nvoxelindex for a blocked path
 \ nflag is true if nvoxelindex does have a blockage
 \ nflag is false if no blockage was found
-  dup voxel-ref-list [bind] hole-array-piece-list reset-A-piece-list
-  voxel-ref-list [bind] hole-array-piece-list index>xyz
-  voxel-ref-list [bind] hole-array-piece-list next-ref-piece-in-hole@
-  true = if
-    the-board [bind] fast-puzzle-board board-piece? invert
-  else
-    drop false
-  then ;
+  false { nvoxelindex nflag }
+  nvoxelindex voxel-ref-list [bind] hole-array-piece-list reset-A-piece-list
+  begin
+    nvoxelindex voxel-ref-list [bind] hole-array-piece-list index>xyz  ( 0 30 at-xy ) .s ."  < the xyz location of nvoxelindex" cr
+    voxel-ref-list [bind] hole-array-piece-list next-ref-piece-in-hole@   ( 0 31 at-xy ) .s ."  < the reference and flag for the xyz location " cr
+    false = if \ false not at end
+      the-board [bind] fast-puzzle-board board-piece? true = if false to nflag true else false then
+    else \ at end
+      the-board [bind] fast-puzzle-board board-piece? true = if false to nflag true else true to nflag true then
+    then
+  until
+  nflag ;
 
 : blocked-board? ( -- nflag ) \ look at current board and see if there is any blocked parts that will not allow a piece
 \ nflag is true if there is a block on the current board
@@ -60,7 +64,7 @@ defer next-chain'
 defer remove-too?'
 defer remove-marker'
 0 value display-loop
-30000 value max-display-loop
+0 value max-display-loop
 0 value max-solution
 
 : see-data ( -- ) \ to see the puzzle and testing
@@ -74,7 +78,7 @@ defer remove-marker'
     0 34 at-xy remove-too?' . ." < remove-too? "
     0 35 at-xy remove-marker' . ." < remove-marker"
     0 36 at-xy next-chain' . ." < next chain "
-    0 37 at-xy .s  ." < stack" ( pause-for-key ) key-test-wait drop
+    0 37 at-xy .s  ." < stack"  pause-for-key  ( key-test-wait ) drop
     0 to display-loop
   else
     display-loop 1 + to display-loop
@@ -99,7 +103,7 @@ defer remove-marker'
   true = if
     blocked-board? true = if \ if blocked then remove this last piece
       the-board [bind] fast-puzzle-board remove-last-piece
-      false 
+      false
     else
       true
     then
@@ -173,3 +177,20 @@ false value remove-too?
     solved?
     \ should reset the chain link list for next piece if not solved yet to ensure the start of the list
   ;
+
+: test-block ( -- )
+  the-board [bind] fast-puzzle-board clear-board
+  0 the-board [bind] fast-puzzle-board board-piece! drop
+  1 the-board [bind] fast-puzzle-board board-piece! drop
+  2 the-board [bind] fast-puzzle-board board-piece! drop
+  3 the-board [bind] fast-puzzle-board board-piece! drop
+  4 the-board [bind] fast-puzzle-board board-piece! drop
+  73 the-board [bind] fast-puzzle-board board-piece! drop
+  12 the-board [bind] fast-puzzle-board board-piece! drop
+  11 the-board [bind] fast-puzzle-board board-piece! drop
+  10 the-board [bind] fast-puzzle-board board-piece! drop
+  325 the-board [bind] fast-puzzle-board board-piece! drop
+  19 the-board [bind] fast-puzzle-board board-piece! drop
+  34 the-board [bind] fast-puzzle-board board-piece! drop
+  38 the-board [bind] fast-puzzle-board board-piece! drop
+  see-data ;
