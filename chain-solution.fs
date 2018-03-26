@@ -36,12 +36,14 @@ chain-ref-array hole-array-piece-list heap-new constant voxel-ref-list
   false { nvoxelindex nflag }
   nvoxelindex voxel-ref-list [bind] hole-array-piece-list reset-A-piece-list
   begin
-    nvoxelindex voxel-ref-list [bind] hole-array-piece-list index>xyz  ( 0 30 at-xy ) .s ."  < the xyz location of nvoxelindex" cr
-    voxel-ref-list [bind] hole-array-piece-list next-ref-piece-in-hole@   ( 0 31 at-xy ) .s ."  < the reference and flag for the xyz location " cr
+    nvoxelindex voxel-ref-list [bind] hole-array-piece-list index>xyz  \ ( 0 30 at-xy ) .s ."  < the xyz location of nvoxelindex" cr
+    voxel-ref-list [bind] hole-array-piece-list next-ref-piece-in-hole@  \ ( 0 31 at-xy ) .s ."  < the reference and flag for the xyz location " cr
     false = if \ false not at end
-      the-board [bind] fast-puzzle-board board-piece? true = if false to nflag true else false then
+      the-board [bind] fast-puzzle-board board-piece? ( dup ) true = if false to nflag true else false then
+      \ swap . ."  < true is no blockage bail and false is blockage try again .. at middle" cr
     else \ at end
-      the-board [bind] fast-puzzle-board board-piece? true = if false to nflag true else true to nflag true then
+      the-board [bind] fast-puzzle-board board-piece? ( dup ) true = if false to nflag true else true to nflag true then
+      \ swap . ."  < true is no blockage bail and false is blockage try again .. at end " cr
     then
   until
   nflag ;
@@ -64,7 +66,7 @@ defer next-chain'
 defer remove-too?'
 defer remove-marker'
 0 value display-loop
-0 value max-display-loop
+20000 value max-display-loop
 0 value max-solution
 
 : see-data ( -- ) \ to see the puzzle and testing
@@ -78,7 +80,7 @@ defer remove-marker'
     0 34 at-xy remove-too?' . ." < remove-too? "
     0 35 at-xy remove-marker' . ." < remove-marker"
     0 36 at-xy next-chain' . ." < next chain "
-    0 37 at-xy .s  ." < stack"  pause-for-key  ( key-test-wait ) drop
+    0 37 at-xy .s  ." < stack"  ( pause-for-key ) key-test-wait drop
     0 to display-loop
   else
     display-loop 1 + to display-loop
@@ -178,6 +180,8 @@ false value remove-too?
     \ should reset the chain link list for next piece if not solved yet to ensure the start of the list
   ;
 
+\ ***********************************************************************************************************************************************************
+\ \\\
 : test-block ( -- )
   the-board [bind] fast-puzzle-board clear-board
   0 the-board [bind] fast-puzzle-board board-piece! drop
@@ -194,3 +198,5 @@ false value remove-too?
   34 the-board [bind] fast-puzzle-board board-piece! drop
   38 the-board [bind] fast-puzzle-board board-piece! drop
   see-data ;
+
+\ make test word that places a piece on board one at a time at each voxel location using voxel-ref-list to confirm voxel addressing of voxel-ref-list verses fast-puzzle-board voxel addressing

@@ -123,7 +123,7 @@ save-instance-data class
     serialize-temp-string$ free throw
   ;m overrides destruct
 
-  m: ( fast-puzzle-board -- uindex ) \ return the max board index address
+  m: ( fast-puzzle-board -- uindex ) \ return the max board index address or max voxel count
     max-board-array-index ;m method max-board-index@
 
   m: ( uvoxelindex fast-puzzle-board -- uref-piece ) \ given uvoxelindex return the uref-piece that is located on this board

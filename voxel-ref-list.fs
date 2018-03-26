@@ -20,7 +20,7 @@ save-instance-data class
   inst-value umax-x
   inst-value umax-y
   inst-value umax-z
-  inst-value x-mult
+  inst-value z-mult
   inst-value y-mult
 
   m: ( hole-array-piece-list -- uholex uholey uholez ) \ return hole address max values
@@ -90,8 +90,8 @@ save-instance-data class
     \ upiece-array object is not stored here or modified just data taken from!
     this [parent] construct
     z-puzzle-board [to-inst] umax-z y-puzzle-board [to-inst] umax-y x-puzzle-board [to-inst] umax-x
-    umax-z umax-y * [to-inst] x-mult
-    umax-z [to-inst] y-mult
+    umax-x umax-y * [to-inst] z-mult
+    umax-x [to-inst] y-mult
     this create-hole-array
     this populate-holes
  ;m overrides construct
@@ -139,16 +139,17 @@ save-instance-data class
     this hole-address@ ;m method hole-max-address@
 
   m: ( uindex hole-array-piece-list -- uholex uholey uholez ) \ return the xyz hole address for the given uindex value
-    dup x-mult / dup x-mult * rot swap -
+    dup z-mult / dup z-mult * rot swap -
     dup y-mult / dup y-mult * rot swap -
+    swap rot
   ;m overrides index>xyz
 
   m: ( hole-array-piece-list -- uindex ) \ return the max index size of the holes in this object
-    umax-x 1 - x-mult * umax-y 1 - y-mult * + umax-z  +
+    umax-z 1 - z-mult * umax-y 1 - y-mult * + umax-x  +
   ;m method hole-max-index@
 
   m: ( uholex uholey uholez hole-array-piece-list -- uindex ) \ return the uindex for the given xyz hole address
-    rot x-mult * rot y-mult * + +
+    z-mult * swap y-mult * + +
   ;m method xyz>index
 
   m: ( uindex hole-array-piece-list -- uref-piece nflag )
@@ -167,7 +168,7 @@ save-instance-data class
     ['] umax-x this do-save-inst-value
     ['] umax-y this do-save-inst-value
     ['] umax-z this do-save-inst-value
-    ['] x-mult this do-save-inst-value
+    ['] z-mult this do-save-inst-value
     ['] y-mult this do-save-inst-value
     ['] serialize-hole-index-data! this do-save-name
     this hole-max-index@ this do-save-nnumber
@@ -219,8 +220,14 @@ testapl hole-max-address@ . . . ." < should be 5 5 5 " cr
 testapl hole-max-index@ . ." < should be 125" cr
 124 testapl index>xyz .s ." < should be 4 4 4" cr
 testapl xyz>index . ." < should be 124" cr
-47 testapl index>xyz . . . ." < should be 2 4 1" cr
-23 testapl index>xyz . . . ." < should be 3 4 0" cr
+47 testapl index>xyz . . . ." < should be 1 4 2" cr
+23 testapl index>xyz . . . ." < should be 0 4 3" cr
+5  testapl index>xyz . . . ." < should be 0 1 0" cr
+4 testapl index>xyz . . . ." < should be 0 0 4" cr
+123 testapl index>xyz . . . ." < should be 4 4 3" cr
+4 0 0 testapl xyz>index . ." < should be 4" cr
+2 4 1 testapl xyz>index . ." < should be 47" cr
+3 4 0 testapl xyz>index . ." < should be 23" cr cr
 
 strings heap-new constant atemp$
 testapl bind hole-array-piece-list serialize-data@
@@ -279,5 +286,6 @@ ref-piece-array fast-puzzle-board heap-new constant testboard
 
 seeallholes
 
+\\\
 testapl bind hole-array-piece-list destruct
 testboard bind fast-puzzle-board destruct
