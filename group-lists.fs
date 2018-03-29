@@ -22,15 +22,26 @@ save-instance-data class
   ;m method serial-group-inst-var!
 
   m: ( nquantity group-lists -- ) \ used by serialize only to restore list data
+    0 ?do
+      group-size @ 0 ?do
+        this [current] do-retrieve-dnumber true <> abort" group data bad!"
+        d>s \ list-storage @ [bind] double-linked-list ll-cell!
+      loop \ data now on stack
+      group-size @ 0 ?do \ store data in the correct order
+        list-storage @ [bind] double-linked-list ll-cell!
+      loop
+    loop
   ;m method serial-group-list!
   public
   m: ( ugroup-size group-lists -- ) \ constructor
   \ ugroup-size defines the dimention of the group per record and is fixed for the life of this object
+    this [parent] construct
     group-size !
     double-linked-list heap-new list-storage !
   ;m overrides construct
 
   m: ( group-lists -- ) \ destruct
+    this [parent] destruct
     list-storage @ [bind] double-linked-list destruct
     list-storage @ free throw
     0 group-size !
@@ -89,21 +100,23 @@ save-instance-data class
     ['] group-size this do-save-inst-var
 
     ['] serial-group-list! this do-save-name
-\    board-array [bind] multi-cell-array cell-array-dimensions@ drop dup this do-save-nnumber
-\    0 ?do
-\      i board-array [bind] multi-cell-array cell-array@ this do-save-nnumber
-\    loop
+    list-storage @ [bind] double-linked-list ll-set-start
+    this [current] group-dims@
+    drop dup this [current] do-save-nnumber
+    0 ?do
+      this [current] group@> drop 0 ?do this [current] do-save-nnumber loop
+    loop
 
-    s" End of ref-piece-array data!" save$ [bind] strings !$x
+    s" End of group data!" save$ [bind] strings !$x
     save$
   ;m overrides serialize-data@
 
   m: ( nstrings group-lists -- ) \ nstrings contains serialized data to restore this object
     this [current] destruct
     this [parent] construct
+    double-linked-list heap-new list-storage !
     save$ [bind] strings copy$s \ copies the strings object data to be used for retrieval
     this [current] do-retrieve-data true = if d>s rot rot -group-lists rot rot this [current] $->method else 2drop 2drop true abort" group list inst-var data incorrect!" then
-    group-size @ this [current] construct
     this [current] do-retrieve-data true = if d>s rot rot -group-lists rot rot this [current] $->method else 2drop 2drop true abort" group list data incorrect!" then
   ;m overrides serialize-data!
 
@@ -112,7 +125,7 @@ end-class group-lists
 
 \ *************************************************************************************************************************************
 
-\ \\\
+\\\
 
 2 group-lists heap-new constant testgroup
 
@@ -123,10 +136,13 @@ cr
 testgroup group@> . . . . ." should be true 2 33 99!" cr
 testgroup group@> . . . . ." should be false 2 7 9!" cr
 testgroup group-dims@ . . ." should be 2 2!" cr
-testgroup destruct
+strings heap-new constant first$s
+testgroup bind group-lists serialize-data@
+first$s bind strings copy$s
+testgroup bind group-lists destruct
 
 .s ." stack " cr
-3 testgroup construct
+3 testgroup bind group-lists construct
 2 4 8 testgroup group!
 100 200 300 testgroup group!
 500 499 498 testgroup group!
@@ -135,6 +151,18 @@ testgroup destruct
 testgroup group@> . . . . . ." should be true 3 500 499 498!" cr
 testgroup group@> . . . . . ." should be false 3 2 4 8!" cr
 testgroup group@> . . . . . ." should be false 3 100 200 300!" cr
-testgroup destruct
+testgroup group-dims@ . . ." should be 3 3!" cr
+." serialize test! " cr
+strings heap-new constant temp$s
+testgroup bind group-lists serialize-data@ temp$s bind strings copy$s
+temp$s testgroup bind group-lists serialize-data!
+testgroup group@> . . . . . ." should be false 3 2 4 8!" cr
+testgroup group@> . . . . . ." should be false 3 100 200 300!" cr
+testgroup group-dims@ . . ." should be 3 3!" cr
 
+first$s testgroup bind group-lists serialize-data!
+testgroup group@> . . . . ." should be false 2 7 9!" cr
+testgroup group-dims@ . . ." should be 2 2!" cr
+
+testgroup bind group-lists destruct
 .s ." stack" cr
