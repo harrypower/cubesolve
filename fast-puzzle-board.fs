@@ -57,7 +57,7 @@ save-instance-data class
     loop
   ;m method empty-board
 
-  m: ( ntotal-inst-vars fast-puzzle-board -- ) \ used only by serialize-data! to restore the data for this object
+  m: ( ntotal-inst-values fast-puzzle-board -- ) \ used only by serialize-data! to restore the data for this object
     0 ?do
       -fast-puzzle-board this do-retrieve-inst-value
     loop
