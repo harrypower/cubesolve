@@ -62,27 +62,114 @@ chain-ref-array hole-array-piece-list heap-new constant voxel-ref-list
   restore
   endtry ;
 
+8 group-lists heap-new constant 8-assembly
+
+: pop-8assembly
+  chain-ref-array [bind] chain-ref quantity@ 0 0 0 0 0 { qnt one two three four five }
+  qnt 0 ?do \ one
+    i to one
+    qnt 0 ?do \ two
+      i to two
+      one two chain-ref-array [bind] chain-ref fast-intersect? false = if
+        qnt 0 ?do \ three
+          i to three
+          one three chain-ref-array [bind] chain-ref fast-intersect?
+          two three chain-ref-array [bind] chain-ref fast-intersect? or false = if
+            qnt 0 ?do \ four
+              i to four
+              one four chain-ref-array [bind] chain-ref fast-intersect?
+              two four chain-ref-array [bind] chain-ref fast-intersect?
+              three four chain-ref-array [bind] chain-ref fast-intersect? or or false = if
+                qnt 0 ?do \ five
+                  i to five
+                  one five chain-ref-array [bind] chain-ref fast-intersect?
+                  two five chain-ref-array [bind] chain-ref fast-intersect?
+                  three five chain-ref-array [bind] chain-ref fast-intersect?
+                  four five chain-ref-array [bind] chain-ref fast-intersect? or or or false = if
+                    qnt 0 ?do \ six
+                      one i chain-ref-array [bind] chain-ref fast-intersect?
+                      two i chain-ref-array [bind] chain-ref fast-intersect?
+                      three i chain-ref-array [bind] chain-ref fast-intersect?
+                      four i chain-ref-array [bind] chain-ref fast-intersect?
+                      five i chain-ref-array [bind] chain-ref fast-intersect? or or or or false = if
+                        qnt 0 ?do \ seven
+                          one i chain-ref-array [bind] chain-ref fast-intersect?
+                          two i chain-ref-array [bind] chain-ref fast-intersect?
+                          three i chain-ref-array [bind] chain-ref fast-intersect?
+                          four i chain-ref-array [bind] chain-ref fast-intersect?
+                          five i chain-ref-array [bind] chain-ref fast-intersect?
+                          j i chain-ref-array [bind] chain-ref fast-intersect? or or or or or false = if
+                            qnt 0 ?do \ eight
+                              one i chain-ref-array [bind] chain-ref fast-intersect?
+                              two i chain-ref-array [bind] chain-ref fast-intersect?
+                              three i chain-ref-array [bind] chain-ref fast-intersect?
+                              four i chain-ref-array [bind] chain-ref fast-intersect?
+                              five i chain-ref-array [bind] chain-ref fast-intersect?
+                              j i chain-ref-array [bind] chain-ref fast-intersect?
+                              k i chain-ref-array [bind] chain-ref fast-intersect? or or or or or or false = if
+                                one two three four five k j i 8-assembly [bind] group-lists group!
+                                8-assembly [bind] group-lists group-dims@ drop 0 10 at-xy . one . two . ." < current size and indexs"
+                              then
+                            loop
+                          then
+                        loop
+                      then
+                    loop
+                  then
+                loop
+              then
+            loop
+          then
+        loop
+      then
+    loop
+  loop ;
+
+\\\
 2 group-lists heap-new constant p-assembly
 
-: pop-ppassembly ( -- ) \ populate the piece pair assembly
+: make-ppassembly ( -- ) \ populate p-assembly with pairs of reference pieces from chain-ref-array
   chain-ref-array [bind] chain-ref quantity@ 0 ?do
     i chain-ref-array [bind] chain-ref chain-quantity@ 0 ?do
       j j chain-ref-array [bind] chain-ref next-chain@ drop
       p-assembly [bind] group-lists group!
     loop
   loop ;
-pop-ppassembly
+make-ppassembly
 
 0 value p-assy-array
-
 : make-pparray ( -- )
-  p-assembly [bind] group-lists group-dims@ 2dup  2
+  p-assembly [bind] group-lists group-dims@ swap 2
   multi-cell-array heap-new to p-assy-array
-  drop 0 ?do
+  p-assembly [bind] group-lists group-dims@ drop 0 ?do
     p-assembly [bind] group-lists group@> 2drop
-    i 0 .s ." before storage" cr p-assy-array [bind] multi-cell-array cell-array!
-    i 1 .s ." before storage" cr p-assy-array [bind] multi-cell-array cell-array!
+    0 i p-assy-array [bind] multi-cell-array cell-array!
+    1 i p-assy-array [bind] multi-cell-array cell-array!
+  loop ;
+make-pparray
+\ p-assembly bind group-lists group-dims@ .s
+p-assembly bind group-lists destruct
+2 p-assembly bind group-lists construct
+
+\ p-assy-array bind multi-cell-array cell-array-dimensions@ .s
+: make-2assembly ( -- ) \ populate p-assembly with pairs of the first order assembly from p-assy-array
+  p-assy-array [bind] multi-cell-array cell-array-dimensions@ 2drop 200 / 0 ?do
+    the-board [bind] fast-puzzle-board clear-board
+    0 i p-assy-array [bind] multi-cell-array cell-array@
+    the-board [bind] fast-puzzle-board board-piece! drop
+    1 i p-assy-array [bind] multi-cell-array cell-array@
+    the-board [bind] fast-puzzle-board board-piece! drop \ test pair now on board
+    p-assembly [bind] group-lists group-dims@ 0 10 at-xy . . i .
+    p-assy-array [bind] multi-cell-array cell-array-dimensions@ 2drop 0 ?do
+      0 i p-assy-array [bind] multi-cell-array cell-array@
+      the-board [bind] fast-puzzle-board board-piece? invert
+      1 i p-assy-array [bind] multi-cell-array cell-array@
+      the-board [bind] fast-puzzle-board board-piece? invert
+      or false = if \ if false then next pair index can be added to the group
+        j i p-assembly [bind] group-lists group!
+      then
+    loop
   loop ;
 
-\ make-pparray
-\ p-assy-array bind multi-cell-array cell-array-dimensions@ .s
+make-2assembly
+p-assembly bind group-lists group-dims@ .s

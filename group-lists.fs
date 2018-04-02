@@ -47,8 +47,8 @@ save-instance-data class
     0 group-size !
   ;m overrides destruct
 
-  m: ( upieceindex0 ... upieceindexx group-lists -- ) \ takes the upieceindex data and stores it in the group list
-  \ note the upieceindex0 ... upieceindexx data can vary in cell sizes but is fixed at construct time and will always consume same stack cell quantitys
+  m: ( upieceitem0 ... upieceitemx group-lists -- ) \ takes the upieceitem data and stores it in the group list
+  \ note the upieceitem0 ... upieceitemx data can vary in cell sizes but is fixed at construct time and will always consume same stack cell quantitys
     group-size @ 0 ?do
       list-storage @ [bind] double-linked-list ll-cell!
     loop
