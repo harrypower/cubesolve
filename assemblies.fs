@@ -125,7 +125,7 @@ chain-ref-array hole-array-piece-list heap-new constant voxel-ref-list
     loop
   loop ;
 
-\\\
+\ \\\
 2 group-lists heap-new constant p-assembly
 
 : make-ppassembly ( -- ) \ populate p-assembly with pairs of reference pieces from chain-ref-array
@@ -171,5 +171,130 @@ p-assembly bind group-lists destruct
     loop
   loop ;
 
-make-2assembly
-p-assembly bind group-lists group-dims@ .s
+\ make-2assembly
+\ p-assembly bind group-lists group-dims@ .s
+
+p-assembly bind group-lists destruct
+6 p-assembly bind group-lists construct
+
+: test4 { ua ub uc ud -- nflag }
+  \ nflag is false when no intersections are found true when an intersection is found between any piece
+  ua uc chain-ref-array [bind] chain-ref fast-intersect?
+  ua ud chain-ref-array [bind] chain-ref fast-intersect?
+  ub uc chain-ref-array [bind] chain-ref fast-intersect?
+  ub ud chain-ref-array [bind] chain-ref fast-intersect?
+  or or or ;
+
+page
+
+: make-6assembly ( -- ) \ populate p-assembly with 6 pairs for a total of 12 pieces
+  p-assy-array [bind] multi-cell-array cell-array-dimensions@ 2drop 0 0 0 0 0 0 { qnt one two three four five six }
+  qnt 0 ?do
+    i to one
+    p-assembly [bind] group-lists group-dims@ 0 10 at-xy . .  i .
+    qnt 0 ?do
+      i to two
+      0 one p-assy-array [bind] multi-cell-array cell-array@
+      1 one p-assy-array [bind] multi-cell-array cell-array@
+      0 two p-assy-array [bind] multi-cell-array cell-array@
+      1 two p-assy-array [bind] multi-cell-array cell-array@
+      test4 false = if \ if false then next pair index can be tested
+        qnt 0 ?do
+          p-assembly [bind] group-lists group-dims@ 0 11 at-xy . .  i .
+          i to three
+          0 one p-assy-array [bind] multi-cell-array cell-array@
+          1 one p-assy-array [bind] multi-cell-array cell-array@
+          0 three p-assy-array [bind] multi-cell-array cell-array@
+          1 three p-assy-array [bind] multi-cell-array cell-array@
+          test4
+          0 two p-assy-array [bind] multi-cell-array cell-array@
+          1 two p-assy-array [bind] multi-cell-array cell-array@
+          0 three p-assy-array [bind] multi-cell-array cell-array@
+          1 three p-assy-array [bind] multi-cell-array cell-array@
+          test4 or false = if \ if false then next pair index can be tested
+            qnt 0 ?do
+            p-assembly [bind] group-lists group-dims@ 0 12 at-xy . .  i .
+              i to four
+              0 one p-assy-array [bind] multi-cell-array cell-array@
+              1 one p-assy-array [bind] multi-cell-array cell-array@
+              0 four p-assy-array [bind] multi-cell-array cell-array@
+              1 four p-assy-array [bind] multi-cell-array cell-array@
+              test4
+              0 two p-assy-array [bind] multi-cell-array cell-array@
+              1 two p-assy-array [bind] multi-cell-array cell-array@
+              0 four p-assy-array [bind] multi-cell-array cell-array@
+              1 four p-assy-array [bind] multi-cell-array cell-array@
+              test4
+              0 three p-assy-array [bind] multi-cell-array cell-array@
+              1 three p-assy-array [bind] multi-cell-array cell-array@
+              0 four p-assy-array [bind] multi-cell-array cell-array@
+              1 four p-assy-array [bind] multi-cell-array cell-array@
+              test4
+              or or false = if \ if false then next pair index can be tested
+                qnt 0 ?do
+                  p-assembly [bind] group-lists group-dims@ 0 13 at-xy . .  i .
+                  i to five
+                  0 one p-assy-array [bind] multi-cell-array cell-array@
+                  1 one p-assy-array [bind] multi-cell-array cell-array@
+                  0 five p-assy-array [bind] multi-cell-array cell-array@
+                  1 five p-assy-array [bind] multi-cell-array cell-array@
+                  test4
+                  0 two p-assy-array [bind] multi-cell-array cell-array@
+                  1 two p-assy-array [bind] multi-cell-array cell-array@
+                  0 five p-assy-array [bind] multi-cell-array cell-array@
+                  1 five p-assy-array [bind] multi-cell-array cell-array@
+                  test4
+                  0 three p-assy-array [bind] multi-cell-array cell-array@
+                  1 three p-assy-array [bind] multi-cell-array cell-array@
+                  0 five p-assy-array [bind] multi-cell-array cell-array@
+                  1 five p-assy-array [bind] multi-cell-array cell-array@
+                  test4
+                  0 four p-assy-array [bind] multi-cell-array cell-array@
+                  1 four p-assy-array [bind] multi-cell-array cell-array@
+                  0 five p-assy-array [bind] multi-cell-array cell-array@
+                  1 five p-assy-array [bind] multi-cell-array cell-array@
+                  test4
+                  or or or false = if \ if false then next pair index can be tested
+                    qnt 0 ?do
+                      \ p-assembly [bind] group-lists group-dims@ 0 14 at-xy . .  i .
+                      i to six
+                      0 one p-assy-array [bind] multi-cell-array cell-array@
+                      1 one p-assy-array [bind] multi-cell-array cell-array@
+                      0 six  p-assy-array [bind] multi-cell-array cell-array@
+                      1 six  p-assy-array [bind] multi-cell-array cell-array@
+                      test4
+                      0 two p-assy-array [bind] multi-cell-array cell-array@
+                      1 two p-assy-array [bind] multi-cell-array cell-array@
+                      0 six  p-assy-array [bind] multi-cell-array cell-array@
+                      1 six  p-assy-array [bind] multi-cell-array cell-array@
+                      test4
+                      0 three p-assy-array [bind] multi-cell-array cell-array@
+                      1 three p-assy-array [bind] multi-cell-array cell-array@
+                      0 six  p-assy-array [bind] multi-cell-array cell-array@
+                      1 six  p-assy-array [bind] multi-cell-array cell-array@
+                      test4
+                      0 four p-assy-array [bind] multi-cell-array cell-array@
+                      1 four p-assy-array [bind] multi-cell-array cell-array@
+                      0 six  p-assy-array [bind] multi-cell-array cell-array@
+                      1 six  p-assy-array [bind] multi-cell-array cell-array@
+                      test4
+                      0 five p-assy-array [bind] multi-cell-array cell-array@
+                      1 five p-assy-array [bind] multi-cell-array cell-array@
+                      0 six  p-assy-array [bind] multi-cell-array cell-array@
+                      1 six  p-assy-array [bind] multi-cell-array cell-array@
+                      test4
+                      or or or or false = if \ if false then add all the pairs to the list
+                        one two three four five six p-assembly [bind] group-lists group!
+                      then
+                    loop
+                  then
+                loop
+              then
+            loop
+          then
+        loop
+      then
+    loop
+  loop ;
+
+make-6assembly
